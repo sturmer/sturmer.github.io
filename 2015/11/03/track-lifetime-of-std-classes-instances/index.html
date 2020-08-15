@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-45596498-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+  <title>Track the lifetime of std classes&#39; instances | Gianluca Ciccarelli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="I remembered a simple trick I used to know, but that could not remember on the spot, to solve a problem in understanding the exact lifetime of C++ objects.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Track the lifetime of std classes&#39; instances">
+<meta property="og:url" content="https://www.gergel.im/2015/11/03/track-lifetime-of-std-classes-instances/index.html">
+<meta property="og:site_name" content="Gianluca Ciccarelli">
+<meta property="og:description" content="I remembered a simple trick I used to know, but that could not remember on the spot, to solve a problem in understanding the exact lifetime of C++ objects.">
+<meta property="og:locale">
+<meta property="article:published_time" content="2015-11-02T22:00:00.000Z">
+<meta property="article:modified_time" content="2020-08-15T09:14:02.642Z">
+<meta property="article:author" content="Gianluca Ciccarelli">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="unique_ptr">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@increatore">
+  
+    <link rel="alternate" href="/atom.xml" title="Gianluca Ciccarelli" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.0.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Gianluca Ciccarelli</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/index.html">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/now.html">Now</a>
+        
+          <a class="main-nav-link" href="/blog">Blog</a>
+        
+          <a class="main-nav-link" href="/fiction.html">Fiction</a>
+        
+          <a class="main-nav-link" href="/reads.html">Reads</a>
+        
+          <a class="main-nav-link" href="/software.html">Software</a>
+        
+          <a class="main-nav-link" href="/about-site.html">Website</a>
+        
+          <a class="main-nav-link" target="_blank" rel="noopener" href="//github.com/sturmer">GitHub</a>
+        
+          <a class="main-nav-link" href="/about-me.html">Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://www.gergel.im"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-track-lifetime-of-std-classes-instances" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/11/03/track-lifetime-of-std-classes-instances/" class="article-date">
+  <!-- Use `hideDate: true` in a .md file to hide the date -->
+  
+  <time datetime="2015-11-02T22:00:00.000Z" itemprop="datePublished">2015-11-03</time>
+  
+</a>
+
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Track the lifetime of std classes&#39; instances
+    </h1>
+  
+
+        
+          [346 words]
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>I remembered a simple trick I used to know, but that could not remember on the spot, to solve a problem in understanding the exact lifetime of C++ objects.</p>
+<a id="more"></a>
+
+<h2 id="Problem-statement"><a href="#Problem-statement" class="headerlink" title="Problem statement"></a>Problem statement</h2><p>Reading about <code>unique_ptr</code>‘s, I have found some issue trying to understand the exact lifetime of objects of such types. When is the ownership of a <code>unique_ptr</code> exactly yielded? What happens when the first one passes its ownership?</p>
+<h2 id="A-bad-idea"><a href="#A-bad-idea" class="headerlink" title="A bad idea"></a>A bad idea</h2><p>I have gone through a silly phase where I have thought that I could log messages at crucial moments of the objects’ lifetime by just writing to standard output in constructors, destructors, copy/move constructors, and copy/move assignment operators. The first idea is to wrap such functions in the object being passed as argument to the <code>unique_ptr</code>:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">S</span> &#123;</span></span><br><span class="line">    S() &#123; <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;S()\n&quot;</span>; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * These will never be called, since what we are</span></span><br><span class="line"><span class="comment">     * copying/moving is the unique_ptr. How do we</span></span><br><span class="line"><span class="comment">     * extend a unique_ptr to print its</span></span><br><span class="line"><span class="comment">     * creation/destruction times?</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    S(<span class="keyword">const</span> S&amp; s) &#123;</span><br><span class="line">      <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;S(const S&amp; s)&quot;</span> &lt;&lt; hex &lt;&lt; &amp;s &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    S(S&amp;&amp; s) &#123;</span><br><span class="line">      <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;S(S&amp;&amp; s)&quot;</span> &lt;&lt; hex &lt;&lt; &amp;s &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ~S() &#123; <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;~S()\n&quot;</span>; &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>I even have the naive question expressed in a comment. Of course this wouldn’t work. While this approach <em>does</em> work when you want to follow the structure <code>S</code>‘s lifetime, it certainly doesn’t when you want to follow the lifetime of the wrapping smart pointer.</p>
+<p>I banged my head against Google and ran into some unrelated threads on StackOverflow. No one ever had this problem before? There must be something terribly wrong with what I am looking for…</p>
+<h2 id="How-can-we-do-better"><a href="#How-can-we-do-better" class="headerlink" title="How can we do better?"></a>How can we do better?</h2><p>At the end of my study session, I thought about the obvious:</p>
+<blockquote>
+<p>Just wrap the <code>unique_ptr</code> in a structure, and print a message in this structure’s ctors, dtors, and copy/move ctors and assignment operators</p>
+</blockquote>
+<p>So I separated my code out into a header, and used it instead:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iomanip&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Instrument a unique_ptr with some logging, to follow its</span></span><br><span class="line"><span class="comment">// lifetime.</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">unique</span> &#123;</span></span><br><span class="line">    unique() : _p(<span class="literal">nullptr</span>) &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;unique() &quot;</span> &lt;&lt; <span class="built_in">std</span>::hex &lt;&lt; &amp;_p &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    unique(T* p) : _p(p) &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;unique(T* p) &quot;</span> &lt;&lt; <span class="built_in">std</span>::hex &lt;&lt;</span><br><span class="line">          &amp;_p &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    unique(<span class="keyword">const</span> unique&lt;T&gt;&amp; p) : _p(p._p) &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;unique(const unique&amp; u) &quot;</span> &lt;&lt;</span><br><span class="line">          <span class="built_in">std</span>::hex &lt;&lt; &amp;_p &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    unique(unique&lt;T&gt;&amp;&amp; u) : _p(<span class="built_in">move</span>(u._p)) &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;unique(unique&lt;T&gt;&amp;&amp; u) &quot;</span> &lt;&lt;</span><br><span class="line">          <span class="built_in">std</span>::hex &lt;&lt; &amp;_p &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Can&#x27;t declare this, as unique_ptr&#x27;s operator= with</span></span><br><span class="line">    <span class="comment">// copy semantics has been explicitly deleted!</span></span><br><span class="line">    unique&lt;T&gt;&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> unique&lt;T&gt;&amp; p) = <span class="keyword">delete</span>;</span><br><span class="line"></span><br><span class="line">    unique&lt;T&gt;&amp; <span class="keyword">operator</span>=(unique&lt;T&gt;&amp;&amp; p) &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;operator=(unique&lt;T&gt;&amp;&amp; p) &quot;</span> &lt;&lt;</span><br><span class="line">          <span class="built_in">std</span>::hex &lt;&lt; &amp;_p &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">        _p = <span class="built_in">move</span>(p._p);</span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ~unique() &#123;</span><br><span class="line">      <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;~unique() &quot;</span> &lt;&lt; <span class="built_in">std</span>::hex &lt;&lt; &amp;_p &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;T&gt; _p;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>The basic structure of all of these functions is the following:</p>
+<ol>
+<li>Tell me your name</li>
+<li>Tell me the address of the <code>unique_ptr</code></li>
+</ol>
+<p>They really don’t do much, but they are terribly useful when things get complicated. Which, given the language, is quite often.</p>
+<h3 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h3><p>A very simple one:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;memory&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;../util/instr_ptr.hpp&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function">unique&lt;<span class="keyword">int</span>&gt; <span class="title">returnPtr</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> unique&lt;<span class="keyword">int</span>&gt;(<span class="keyword">new</span> <span class="keyword">int</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  unique&lt;<span class="keyword">int</span>&gt; u = returnPtr();</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; hex &lt;&lt; &amp;u &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The output would be something as simple as:</p>
+<pre>
+  unique(T* p) 0x7fff71382e78
+  0x7fff71382e78
+  ~unique() 0x7fff71382e78
+</pre>
+
+<p>As I said, nothing complicated, but it helps.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://www.gergel.im/2015/11/03/track-lifetime-of-std-classes-instances/" data-id="ckdvgdcxs00392ofo7y4678wh" class="article-share-link">Share</a>
+      
+        <a href="https://www.gergel.im/2015/11/03/track-lifetime-of-std-classes-instances/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/unique-ptr/" rel="tag">unique_ptr</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/11/17/12-weeks-racket-csapp/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Twelve weeks of Racket and CS:APP
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/10/25/kicking-the-tires/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Kicking the tires</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Gianluca Ciccarelli<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/index.html" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/now.html" class="mobile-nav-link">Now</a>
+  
+    <a href="/blog" class="mobile-nav-link">Blog</a>
+  
+    <a href="/fiction.html" class="mobile-nav-link">Fiction</a>
+  
+    <a href="/reads.html" class="mobile-nav-link">Reads</a>
+  
+    <a href="/software.html" class="mobile-nav-link">Software</a>
+  
+    <a href="/about-site.html" class="mobile-nav-link">Website</a>
+  
+    <a target="_blank" rel="noopener" href="//github.com/sturmer" class="mobile-nav-link">GitHub</a>
+  
+    <a href="/about-me.html" class="mobile-nav-link">Me</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'www-gergel-im-blog';
+  
+  var disqus_url = 'https://www.gergel.im/2015/11/03/track-lifetime-of-std-classes-instances/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

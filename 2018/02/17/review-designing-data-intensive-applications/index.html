@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-45596498-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+  <title>Designing Data-Intensive Applications, by Martin Kleppmann (5/10) | Gianluca Ciccarelli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="This book is a survey of the staggering amount of pieces of technology that can be used to build data-intensive applications, defined (in my rough interpretation) as user-facing systems that treat sig">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Designing Data-Intensive Applications, by Martin Kleppmann (5&#x2F;10)">
+<meta property="og:url" content="https://www.gergel.im/2018/02/17/review-designing-data-intensive-applications/index.html">
+<meta property="og:site_name" content="Gianluca Ciccarelli">
+<meta property="og:description" content="This book is a survey of the staggering amount of pieces of technology that can be used to build data-intensive applications, defined (in my rough interpretation) as user-facing systems that treat sig">
+<meta property="og:locale">
+<meta property="article:published_time" content="2018-02-17T07:53:00.000Z">
+<meta property="article:modified_time" content="2020-08-15T09:14:02.625Z">
+<meta property="article:author" content="Gianluca Ciccarelli">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@increatore">
+  
+    <link rel="alternate" href="/atom.xml" title="Gianluca Ciccarelli" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.0.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Gianluca Ciccarelli</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/index.html">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/now.html">Now</a>
+        
+          <a class="main-nav-link" href="/blog">Blog</a>
+        
+          <a class="main-nav-link" href="/fiction.html">Fiction</a>
+        
+          <a class="main-nav-link" href="/reads.html">Reads</a>
+        
+          <a class="main-nav-link" href="/software.html">Software</a>
+        
+          <a class="main-nav-link" href="/about-site.html">Website</a>
+        
+          <a class="main-nav-link" target="_blank" rel="noopener" href="//github.com/sturmer">GitHub</a>
+        
+          <a class="main-nav-link" href="/about-me.html">Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://www.gergel.im"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-review-designing-data-intensive-applications" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/02/17/review-designing-data-intensive-applications/" class="article-date">
+  <!-- Use `hideDate: true` in a .md file to hide the date -->
+  
+  <time datetime="2018-02-17T07:53:00.000Z" itemprop="datePublished">2018-02-17</time>
+  
+</a>
+
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Designing Data-Intensive Applications, by Martin Kleppmann (5/10)
+    </h1>
+  
+
+        
+          [507 words]
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>This book is a survey of the staggering amount of pieces of technology that can be used to build data-intensive applications, defined (in my rough interpretation) as user-facing systems that treat significant amounts of data and are expected to do it quickly. Contains reflections on trade-offs to take into account when choosing one solution over the other.</p>
+<a id="more"></a>
+
+<h2 id="Recommended-to…"><a href="#Recommended-to…" class="headerlink" title="Recommended to…"></a>Recommended to…</h2><p>Read this if you work with distributed systems and want a fairly exhaustive overview of what’s going on in your codebase. If you know your (Apache) Kafka and your Hadoop and your ZooKeeper, you might as well spend your time in better reads.</p>
+<h2 id="A-somehow-longer-version"><a href="#A-somehow-longer-version" class="headerlink" title="A somehow longer version"></a>A somehow longer version</h2><p>The undeniable merit of this book is to bring together in a reasonable space a wealth of research on distributed systems. Allow me a hazardous analogy. Reading about NP-hard problems makes you aware that there’s a class of problems that you can’t solve efficiently, unless you come up with an improvement on the state of the art; reading this book helps you get acquainted (I won’t say familiar) with situations in which a problem is hard and/or has been solved using a given class of technology.</p>
+<p>In general, I don’t like surveys. They’re sometimes very useful though.</p>
+<p>I don’t like them because the bad ones tend to fall into what could be called the <em>shopping list trap</em>: just keep listing names to show that you’ve done your research. “Problem X is hard. Product 1 solves it by using methodology M, but gives up on this functionality; product 2 offers it but lacks this other feature. My dear friend at company C integrates 1 and 2 and offers this, but then your circumstances might not require the expense.” Sounds familiar?</p>
+<p>But surveys are sometimes very useful, because you get exposed to lots of ideas, and hopefully you’ll be able to recognize a problem when you see it and know how to look for a piece of software that solves it (a shopping list might be useful in that case), or you know that you need to write one.</p>
+<p>I consider this book a rather good survey. I’ve read my fair share about problems in distributed systems before, but I was lacking the bird’s eye view that is very important, and that you acquire only after much experience. I don’t really believe in condensing experience, but this book is a good attempt at that. You still need to sweat blood on real systems in order to appreciate the beasts you’re dealing with.</p>
+<p>The last chapter was horribly hard to read. The idea of giving a personal interpretation of trends is commendable, but in this case, the execution just felt unnecessarily heavy. Then, an unexpected and appreciated reflection on the surveillance state in the very last section of the book, which is an eye-opener. If it wasn’t for that, you could skip that chapter. (Well you still can, and only read that section.)</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://www.gergel.im/2018/02/17/review-designing-data-intensive-applications/" data-id="ckdvgdcxh002d2ofo7p9ph93i" class="article-share-link">Share</a>
+      
+        <a href="https://www.gergel.im/2018/02/17/review-designing-data-intensive-applications/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/06/13/start-ts-project-on-node/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Start a TypeScript project on Node.js
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/01/30/amazon-ecs-notes/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Notes on Amazon ECS</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Gianluca Ciccarelli<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/index.html" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/now.html" class="mobile-nav-link">Now</a>
+  
+    <a href="/blog" class="mobile-nav-link">Blog</a>
+  
+    <a href="/fiction.html" class="mobile-nav-link">Fiction</a>
+  
+    <a href="/reads.html" class="mobile-nav-link">Reads</a>
+  
+    <a href="/software.html" class="mobile-nav-link">Software</a>
+  
+    <a href="/about-site.html" class="mobile-nav-link">Website</a>
+  
+    <a target="_blank" rel="noopener" href="//github.com/sturmer" class="mobile-nav-link">GitHub</a>
+  
+    <a href="/about-me.html" class="mobile-nav-link">Me</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'www-gergel-im-blog';
+  
+  var disqus_url = 'https://www.gergel.im/2018/02/17/review-designing-data-intensive-applications/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-45596498-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+  <title>Hash tables | Gianluca Ciccarelli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Before C++11, hash tables could be used in C++ only with some tricks. The only associative container available in the STL used to be the std::map (along with its sibling, the multimap). This class, ho">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hash tables">
+<meta property="og:url" content="https://www.gergel.im/2014/03/03/hash-tables/index.html">
+<meta property="og:site_name" content="Gianluca Ciccarelli">
+<meta property="og:description" content="Before C++11, hash tables could be used in C++ only with some tricks. The only associative container available in the STL used to be the std::map (along with its sibling, the multimap). This class, ho">
+<meta property="og:locale">
+<meta property="article:published_time" content="2014-03-02T22:00:00.000Z">
+<meta property="article:modified_time" content="2020-08-15T09:14:02.633Z">
+<meta property="article:author" content="Gianluca Ciccarelli">
+<meta property="article:tag" content="STL">
+<meta property="article:tag" content="hashtable">
+<meta property="article:tag" content="unordered_map">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@increatore">
+  
+    <link rel="alternate" href="/atom.xml" title="Gianluca Ciccarelli" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.0.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Gianluca Ciccarelli</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/index.html">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/now.html">Now</a>
+        
+          <a class="main-nav-link" href="/blog">Blog</a>
+        
+          <a class="main-nav-link" href="/fiction.html">Fiction</a>
+        
+          <a class="main-nav-link" href="/reads.html">Reads</a>
+        
+          <a class="main-nav-link" href="/software.html">Software</a>
+        
+          <a class="main-nav-link" href="/about-site.html">Website</a>
+        
+          <a class="main-nav-link" target="_blank" rel="noopener" href="//github.com/sturmer">GitHub</a>
+        
+          <a class="main-nav-link" href="/about-me.html">Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://www.gergel.im"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-hash-tables" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/03/03/hash-tables/" class="article-date">
+  <!-- Use `hideDate: true` in a .md file to hide the date -->
+  
+  <time datetime="2014-03-02T22:00:00.000Z" itemprop="datePublished">2014-03-03</time>
+  
+</a>
+
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Hash tables
+    </h1>
+  
+
+        
+          [1305 words]
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Before C++11, hash tables could be used in C++ only with some tricks. The only associative container available in the STL used to be the <code>std::map</code> (along with its sibling, the <code>multimap</code>). This class, however, is implemented as a binary search tree, and does not provide a way to customize a hash function. What hurt me most was that you didn’t have the great performances offered by a true hash map: almost constant time insert, delete, and search (depending on how good is the hash function). You insert in O(log N) time. You find in O(log N) time. Too bad.</p>
+<a id="more"></a>
+
+<p>Truth is, hash tables were available through some <code>tr1</code> extension, which I have not had the chance to use ever in my short career. It is thus with exultance that I saluted the introduction of hash tables with the more recent standard.</p>
+<p>In this post, I want to group the common usage of this data structure, and in the process I want to keep in one place the list of operations I use the most.</p>
+<h2 id="unordered-map"><a href="#unordered-map" class="headerlink" title="unordered_map?!"></a><code>unordered_map</code>?!</h2><p>I understand historical reasons (sometimes), but can you find a less appropriate name for a hash table? Since C++11, the engineer uses a hash table by including a header called <code>unordered_map</code>, because the hash table’s name in C++ is <code>unordered_map</code>. (There are other containers based on hash functions, but they follow a similar logic.)</p>
+<p>An <code>unordered_map</code> is declared as follows ([unord.map.syn]):</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Key</span>,</span></span><br><span class="line"><span class="class">          <span class="title">class</span> <span class="title">T</span>,</span></span><br><span class="line"><span class="class">          <span class="title">class</span> <span class="title">Hash</span> = <span class="title">hash</span>&lt;Key&gt;,</span></span><br><span class="line"><span class="class">          <span class="title">class</span> <span class="title">Pred</span> = <span class="title">std</span>:</span>:equal_to&lt;Key&gt;,</span><br><span class="line">          <span class="class"><span class="keyword">class</span> <span class="title">Allocator</span> = <span class="title">std</span>:</span>:allocator&lt;<span class="built_in">std</span>::<span class="built_in">pair</span>&lt;<span class="keyword">const</span> Key, T&gt;&gt;&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">unordered_map</span>;</span></span><br></pre></td></tr></table></figure>
+
+<p>What you always need to declare is the first two types, namely, the type of the key (the unique identifier you use to access the hashed data), and the type of the data; the other template types are optional, and usually I go with the default, unless I need some particular behavior. For example, <code>hash</code> is a standard function available in <code>&lt;functional&gt;</code>, already implemented for all the integral types and for some special types (<a target="_blank" rel="noopener" href="http://www.cppstdlib.com/">Josuttis</a>), and it is designed so as to satisfy the requirements described in the standard ([unord.hash]).</p>
+<p>A practical usage in a declaration would be something like:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">unordered_map</span>&lt;<span class="built_in">string</span>, <span class="keyword">int</span>&gt; ages;</span><br></pre></td></tr></table></figure>
+
+<p>This object would be used to map strings to <code>int</code> values, for instance in an association Name-Age. The representation of this container is a collection of <code>std::pair</code> objects, accessible in O(1) time by applying the hash function to the <code>Key</code>. Pairs corresponding to the same hash value, though rare, are grouped in linked lists.</p>
+<p>This map has the usual caveat as the <code>std::map</code>, that is, accessing an<br>element with <code>operator[]</code> would create the entry if it did not exist already, using the default type constructor of the type <code>T</code> if nothing else is provided — in this case, the int would simply be initialized with 0. The snippet:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">unordered_map</span>&lt;<span class="built_in">string</span>, <span class="keyword">int</span>&gt; ages;</span><br><span class="line"><span class="keyword">if</span> (ages[<span class="string">&quot;Clint&quot;</span>] == <span class="number">41</span>)</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Clint has 41 years\n&quot;</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span> a : ages)</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; a.first &lt;&lt; <span class="string">&quot;: &quot;</span> &lt;&lt; a.second &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>would inadvertently produce the output</p>
+<pre>
+Clint: 0
+</pre>
+
+<p>because the test would create a pair Clint, 0; then would fail because 0 is not 41, and finally it would candidly produce the unexpected result shown. When I need to access an element, I use the <code>find</code> method to check if it is there already, and then do the work:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (ages.<span class="built_in">find</span>(<span class="string">&quot;Clint&quot;</span>) != ages.<span class="built_in">end</span>() &amp;&amp; ages[<span class="string">&quot;Clint&quot;</span>] == <span class="number">41</span>)</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<h2 id="The-interface"><a href="#The-interface" class="headerlink" title="The interface"></a>The interface</h2><p>The most common operations I perform on a has table are insertion and retrieval; less often, I remove elements.</p>
+<h3 id="Insert"><a href="#Insert" class="headerlink" title="Insert"></a>Insert</h3><p>There are more ways to insert elements; what I find the cleanest is:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ages.insert(&#123;<span class="string">&quot;Clint&quot;</span>, <span class="number">83</span>&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>This uses the uniform initialization syntax and the fact that an element of the map is actually a <code>std::pair</code>. As seen before, we could use the <code>operator[]</code> to perform the same operation:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ages[<span class="string">&quot;Clint&quot;</span>] = <span class="number">83</span>;</span><br></pre></td></tr></table></figure>
+
+<p>This is actually closer to what happens in other languages, like JavaScript.</p>
+<h3 id="Access"><a href="#Access" class="headerlink" title="Access"></a>Access</h3><p>To actually look for an element, you can use the <code>find()</code> method, as shown above, which returns an iterator. An alternative would be to use the method <code>at()</code>. The problem with the latter is that it throws an exception when the element is not in the map. Since, as a rule in my life, I do not use exceptions if not for exceptional situations, I prefer to use this only if I actually <em>expect</em> the element to be there, and to be then surprised by its absence; which I would not, because I’d surround the statement containing the access by <code>at()</code> with a try-catch block. The exception thrown is the <code>out_of_range</code>.</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    age = ages.at(<span class="string">&quot;Clint&quot;</span>);</span><br><span class="line">&#125; <span class="keyword">catch</span> (<span class="built_in">std</span>::out_of_range&amp; ex) &#123;</span><br><span class="line">    <span class="built_in">cerr</span> &lt;&lt; <span class="string">&quot;No such element: Clint\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Remove"><a href="#Remove" class="headerlink" title="Remove"></a>Remove</h3><p>Removing elements from a hash table can be done with the <code>erase()</code> and the <code>clear()</code> methods. The first is supposed to remove the elements by value, by position, or by range. The first snippet removes the element whose <code>Key</code> is <em>Terence</em>:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">unordered_map</span>&lt;<span class="built_in">string</span>, <span class="keyword">int</span>&gt; ages;</span><br><span class="line">ages.insert(&#123;<span class="string">&quot;Clint&quot;</span>, <span class="number">83</span>&#125;);</span><br><span class="line">ages.insert(&#123;<span class="string">&quot;Terence&quot;</span>, <span class="number">74</span>&#125;);</span><br><span class="line">ages.insert(&#123;<span class="string">&quot;Kevin&quot;</span>, <span class="number">59</span>&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Remove by value</span></span><br><span class="line">ages.erase(<span class="string">&quot;Terence&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>Using the position would require us to provide an iterator. This is something I rarely do, unless after a <code>find()</code>:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> it = ages.<span class="built_in">find</span>(<span class="string">&quot;Kevin&quot;</span>);</span><br><span class="line">ages.erase(it);</span><br></pre></td></tr></table></figure>
+
+<p>Finally, providing a range is something I have not done yet; it makes more sense if you are using an <code>unordered_multimap</code>, because in that case you can have more values corresponding to the same key, and the <code>find()</code> actually returns a pair of iterators defining a range.</p>
+<p>One nice thing about <code>erase()</code> is that it is required never to invalidate iterators in the container.</p>
+<h2 id="The-fine-details"><a href="#The-fine-details" class="headerlink" title="The fine details"></a>The fine details</h2><p>The implementation of the STL hash table involves some design decisions. Some of them are mandated by the standard; others are delegated to the library implementers.</p>
+<p>An implementation stores the <em>(key, element)</em> pairs in so-called <em>buckets</em>. The destination bucket is determined by the hashed value of the key. So if we have 10 buckets, and hash(“Clint”) is 7, then the pair (“Clint”, 83) goes in the seventh bucket (or the eight, if you start counting from 0). The number of buckets in the table has a direct influence on the probability of hash collisions, that occur when two keys hash to the same position. The <em>load factor</em> is the ratio between number of elements and number of buckets. Higher load factors imply higher probabilities of having collisions: it would be like having a house with a parking lot for 2 cars and throwing parties with tens of invitees.</p>
+<p>The programmer can control part of the behavior of the hash table. We can set the max load factor, which is the number of elements that the container tolerates without triggering an automatic rehash; and we can manually rehash the table.</p>
+<p><em>Rehashing</em> means <em>changing the number of buckets</em> in the has table. It is controllable through the methods <code>rehash()</code>, which takes the desired minimum size of each bucket; and by the method <code>reserve()</code>, which is more intuitive because you feed it the number of buckets directly. You have no control, however, on how many buckets are added or removed when rehashing (the <em>growth factor</em>).</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ages.reserve(<span class="number">10</span>);</span><br></pre></td></tr></table></figure>
+
+<p><em>Automatic rehashing</em> is performed by the container when the load factor exceeds a set value. You can’t control how few elements have to be in the container to trigger an automatic rehash (that can be imagined as the <em>minimum load factor</em>).</p>
+<h3 id="Caveat-on-Key-and-T"><a href="#Caveat-on-Key-and-T" class="headerlink" title="Caveat on Key and T"></a>Caveat on <code>Key</code> and <code>T</code></h3><p>There are some restrictions of which we must be aware when we complicate things and use <code>Key</code> and/or <code>T</code> types which are not primitive or provided by libraries.</p>
+<ol>
+<li><code>Key</code> must be a moveable and copyable type; it also has to be <code>const</code>, because it is used to access the position of the element.</li>
+<li><code>T</code> must be comparable with equal</li>
+</ol>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>At Yahoo!, someone (I honestly can’t remember who, but I’ve read this in one of Gayle Laakmann McDowell’s books) once said: the three most used data structures in our code are, in order, hash tables, hash tables, and hash tables. They have numerous applications, and using them effectively (well, using them at all) can make the difference between a good solution and a bad idea.</p>
+<p>In this post, I have described a somehow distilled workflow to use this powerful data structure with the <code>unordered_map</code> provided by the STL.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://www.gergel.im/2014/03/03/hash-tables/" data-id="ckdvgdcwz000z2ofoge3850hd" class="article-share-link">Share</a>
+      
+        <a href="https://www.gergel.im/2014/03/03/hash-tables/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STL/" rel="tag">STL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hashtable/" rel="tag">hashtable</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/unordered-map/" rel="tag">unordered_map</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2014/03/10/the-sqlite-cpp-api/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          The SQLite3 C++ API
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2014/02/24/stl-algorithms-part-5/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">STL Algorithms, part 5</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Gianluca Ciccarelli<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/index.html" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/now.html" class="mobile-nav-link">Now</a>
+  
+    <a href="/blog" class="mobile-nav-link">Blog</a>
+  
+    <a href="/fiction.html" class="mobile-nav-link">Fiction</a>
+  
+    <a href="/reads.html" class="mobile-nav-link">Reads</a>
+  
+    <a href="/software.html" class="mobile-nav-link">Software</a>
+  
+    <a href="/about-site.html" class="mobile-nav-link">Website</a>
+  
+    <a target="_blank" rel="noopener" href="//github.com/sturmer" class="mobile-nav-link">GitHub</a>
+  
+    <a href="/about-me.html" class="mobile-nav-link">Me</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'www-gergel-im-blog';
+  
+  var disqus_url = 'https://www.gergel.im/2014/03/03/hash-tables/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

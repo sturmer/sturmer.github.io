@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-45596498-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+  <title>Exploring the Boost Graph Library, part 2 | Gianluca Ciccarelli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="This is the second episode of my series on the Boost Graph Library. You might want to read part 1 before going on. As before, our primary source is the Quick Tutorial that you can find on the BGL web">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Exploring the Boost Graph Library, part 2">
+<meta property="og:url" content="https://www.gergel.im/2013/11/25/exploring-the-boost-graph-library-part-2/index.html">
+<meta property="og:site_name" content="Gianluca Ciccarelli">
+<meta property="og:description" content="This is the second episode of my series on the Boost Graph Library. You might want to read part 1 before going on. As before, our primary source is the Quick Tutorial that you can find on the BGL web">
+<meta property="og:locale">
+<meta property="og:image" content="https://www.gergel.im/images/clrs-22.4.png">
+<meta property="og:image" content="https://www.gergel.im/images/clrs-22.4-weighted1.png">
+<meta property="article:published_time" content="2013-11-24T22:00:00.000Z">
+<meta property="article:modified_time" content="2020-08-15T09:14:02.641Z">
+<meta property="article:author" content="Gianluca Ciccarelli">
+<meta property="article:tag" content="Boost">
+<meta property="article:tag" content="BGL">
+<meta property="article:tag" content="graphs">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="Dijkstra">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.gergel.im/images/clrs-22.4.png">
+<meta name="twitter:creator" content="@increatore">
+  
+    <link rel="alternate" href="/atom.xml" title="Gianluca Ciccarelli" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.0.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Gianluca Ciccarelli</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/index.html">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/now.html">Now</a>
+        
+          <a class="main-nav-link" href="/blog">Blog</a>
+        
+          <a class="main-nav-link" href="/fiction.html">Fiction</a>
+        
+          <a class="main-nav-link" href="/reads.html">Reads</a>
+        
+          <a class="main-nav-link" href="/software.html">Software</a>
+        
+          <a class="main-nav-link" href="/about-site.html">Website</a>
+        
+          <a class="main-nav-link" target="_blank" rel="noopener" href="//github.com/sturmer">GitHub</a>
+        
+          <a class="main-nav-link" href="/about-me.html">Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://www.gergel.im"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-exploring-the-boost-graph-library-part-2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2013/11/25/exploring-the-boost-graph-library-part-2/" class="article-date">
+  <!-- Use `hideDate: true` in a .md file to hide the date -->
+  
+  <time datetime="2013-11-24T22:00:00.000Z" itemprop="datePublished">2013-11-25</time>
+  
+</a>
+
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Exploring the Boost Graph Library, part 2
+    </h1>
+  
+
+        
+          [781 words]
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>This is the second episode of my series on the Boost Graph Library. You might want to read <a href="/blog/2013/11/18/exploring-the-boost-graph-library">part 1</a> before going on. As before, our primary source is the <a target="_blank" rel="noopener" href="http://www.boost.org/doc/libs/1_55_0/libs/graph/doc/quick_tour.html">Quick Tutorial</a> that you can find on the BGL web page.</p>
+<a id="more"></a>
+
+<h3 id="Today’s-goal"><a href="#Today’s-goal" class="headerlink" title="Today’s goal"></a>Today’s goal</h3><p>At the end of this post, you will be able to apply one of the existing graph algorithms implemented in the BGL. We will also cover the notion of <em>vertex descriptor</em> along the way.</p>
+<h2 id="We-were-saying"><a href="#We-were-saying" class="headerlink" title="We were saying"></a>We were saying</h2><p>We are analyzing a graph G of 6 vertices:</p>
+<p><img src="/images/clrs-22.4.png" alt="Graph six nodes"></p>
+<p>In the previous installment, we had created the graph and simply printed the indices of the vertices. Now, we are going to see how to apply Dijkstra’s algorithm to our graph.</p>
+<p>In order to apply the algorithm, we slightly modify our graph so as to contain one more edge, and assign weights to the edges, obtaining the following result (the new edge is dashed):</p>
+<p><img src="/images/clrs-22.4-weighted1.png" alt="dijkstra graph"></p>
+<h3 id="Internal-properties-of-a-graph"><a href="#Internal-properties-of-a-graph" class="headerlink" title="Internal properties of a graph"></a>Internal properties of a graph</h3><p>First, let’s modify our graph to add an Edge property. We have said that properties can be attached to a BGL graph; there are, however, two types of properties. <em>Internal properties</em> are intrinsically related to the graph itself: for example, the weight of an edge. There are other properties, called <em>external properties</em>, which are only attached to the components of the graph by an algorithm, like the color of a vertex.</p>
+<p>The Graph constructor provides slots that can be filled with properties.</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">OutEdgeListS</span> = <span class="title">vecS</span>,</span></span><br><span class="line"><span class="class">          <span class="title">class</span> <span class="title">VertexListS</span> = <span class="title">vecS</span>,</span></span><br><span class="line"><span class="class">          <span class="title">class</span> <span class="title">DirectedS</span> = <span class="title">directedS</span>,</span></span><br><span class="line"><span class="class">          <span class="title">class</span> <span class="title">VertexProperty</span> = <span class="title">no_property</span>,</span></span><br><span class="line"><span class="class">          <span class="title">class</span> <span class="title">EdgeProperty</span> = <span class="title">no_property</span>,</span></span><br><span class="line"><span class="class">          <span class="title">class</span> <span class="title">GraphProperty</span> = <span class="title">no_property</span>,</span></span><br><span class="line"><span class="class">          <span class="title">class</span> <span class="title">EdgeListS</span> = <span class="title">listS</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">class</span> <span class="title">adjacency_list</span></span></span><br></pre></td></tr></table></figure>
+
+<p>As you can see, the slot reserved to the EdgeProperty is the fifth. To fill all the slots before that, which we do not really care of presently, we can use the convenient structure <code>no_property</code>, not surprisingly defined as:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">no_property</span> &#123;</span>&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>So the only modification we want to apply to the graph defined in the previous post is:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> adjacency_list&lt;vecS, vecS, directedS,</span><br><span class="line">        no_property, property&lt;<span class="keyword">edge_weight_t</span>, <span class="keyword">int</span>&gt;&gt; Graph;</span><br></pre></td></tr></table></figure>
+
+<p>This way, we are stating that the edges of our graph have a property, the weight, whose type is an <code>int</code>. The property is attached to the Graph and can be used by the relevant algorithms.</p>
+<h2 id="Apply-the-algorithm"><a href="#Apply-the-algorithm" class="headerlink" title="Apply the algorithm"></a>Apply the algorithm</h2><p>To understand what we need to feed to Dijkstra’s algorithm in the BGL, let’s have a look at the prototype that we are going to use:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">VertexListGraph</span>, <span class="title">class</span> <span class="title">Param</span>, <span class="title">class</span> <span class="title">Tag</span>, <span class="title">class</span> <span class="title">Rest</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">inline</span> <span class="title">void</span></span></span><br><span class="line"><span class="class"><span class="title">dijkstra_shortest_paths</span></span></span><br><span class="line"><span class="class">  (<span class="title">const</span> <span class="title">VertexListGraph</span>&amp; <span class="title">g</span>,</span></span><br><span class="line"><span class="class">   <span class="title">typename</span> <span class="title">graph_traits</span>&lt;VertexListGraph&gt;:</span>:vertex_descriptor s,</span><br><span class="line">   <span class="keyword">const</span> bgl_named_params&lt;Param,Tag,Rest&gt;&amp; params)</span><br></pre></td></tr></table></figure>
+
+<p>This is the simplest form of the algorithm, and it does a lot of work for you. To call it, we only need the graph, the descriptor of the vertex that must represent the source from which the distances are to be computed (more on descriptors in a bit), and finally a reference to a some structure containing the parameters. Now this last bit is actually our algorithm return type, and we just pass a <code>RandomAccessIterator</code> on some container holding the weights of the edges, in the order we have used when describing them.</p>
+<h4 id="Intermezzo-Did-you-say-vertex-descriptor"><a href="#Intermezzo-Did-you-say-vertex-descriptor" class="headerlink" title="Intermezzo: Did you say vertex descriptor?"></a>Intermezzo: Did you say vertex descriptor?</h4><p>Graph representations are not all created equal, of course. To refer to a vertex, or to an edge, some representations store pointers to vertex objects, other store vertex objects themselves. Using the BGL, we do not want to care: we refer to an opaque data structure known as _vertex_descriptor_, listed among the <code>graph_traits</code> of a <code>Graph</code> object. Functions, like <code>edges()</code> or <code>adjacent_vertices()</code>, and functions on <code>property_maps</code>, all rely on the Graph describing the way it wants to store the vertices (and the edges).</p>
+<p>This said, let’s get back to work.</p>
+<h3 id="Apply-the-algorithm-continuing"><a href="#Apply-the-algorithm-continuing" class="headerlink" title="Apply the algorithm (continuing)"></a>Apply the algorithm (continuing)</h3><p>To apply Dijkstra’s algorithm, we need a start vertex and a list that can hold enough elements for receiving the distances from the start vertex. We do this by defining:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">distances</span><span class="params">(num_vertices(g))</span></span>;</span><br><span class="line">V start = *(vertices(g).first);</span><br></pre></td></tr></table></figure>
+
+<p>The final touch is a breeze:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dijkstra_shortest_paths(g, start, distance_map(&amp;distances[<span class="number">0</span>]));</span><br></pre></td></tr></table></figure>
+
+<p>You can have a look at the complete example in this <a target="_blank" rel="noopener" href="https://gist.github.com/sturmer/7614390#file-apply_dijkstra-cpp">gist</a>.</p>
+<p>Printing the results show the following:</p>
+<pre><code>distances from start vertex:
+distance(0) = 0
+distance(1) = 6
+distance(2) = 1
+distance(3) = 4
+distance(4) = 5</code></pre>
+<h3 id="Let’s-break-it"><a href="#Let’s-break-it" class="headerlink" title="Let’s break it"></a>Let’s break it</h3><p>We know from graph theory that Dijkstra does not work well if a weight is negative (it is related to the fact that passing through the negative-weighted edge keeps on decreasing the cost of the path, so it might generate infinite loops). In case by accident we put in a negative weight, the library is so kind as to remind us of our mistake:</p>
+<pre><code>what():  The graph may not contain an edge with negative weight.</code></pre>
+<h3 id="What’s-next"><a href="#What’s-next" class="headerlink" title="What’s next"></a>What’s next</h3><p>In the next installment, we are going to show what a visitor is in this context, and how we can use it.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://www.gergel.im/2013/11/25/exploring-the-boost-graph-library-part-2/" data-id="ckdvgdcwt000k2ofohyy92lex" class="article-share-link">Share</a>
+      
+        <a href="https://www.gergel.im/2013/11/25/exploring-the-boost-graph-library-part-2/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BGL/" rel="tag">BGL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Boost/" rel="tag">Boost</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Dijkstra/" rel="tag">Dijkstra</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/graphs/" rel="tag">graphs</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2013/12/02/interface-program-shared-object/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Write an Interface between your Program and a Shared Object
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2013/11/18/exploring-the-boost-graph-library/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Exploring the Boost Graph Library</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Gianluca Ciccarelli<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/index.html" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/now.html" class="mobile-nav-link">Now</a>
+  
+    <a href="/blog" class="mobile-nav-link">Blog</a>
+  
+    <a href="/fiction.html" class="mobile-nav-link">Fiction</a>
+  
+    <a href="/reads.html" class="mobile-nav-link">Reads</a>
+  
+    <a href="/software.html" class="mobile-nav-link">Software</a>
+  
+    <a href="/about-site.html" class="mobile-nav-link">Website</a>
+  
+    <a target="_blank" rel="noopener" href="//github.com/sturmer" class="mobile-nav-link">GitHub</a>
+  
+    <a href="/about-me.html" class="mobile-nav-link">Me</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'www-gergel-im-blog';
+  
+  var disqus_url = 'https://www.gergel.im/2013/11/25/exploring-the-boost-graph-library-part-2/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

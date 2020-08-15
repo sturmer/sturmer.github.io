@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-45596498-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+  <title>Asynchronous loop breaking | Gianluca Ciccarelli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Suppose you want to iterate over an array. On each element, you want to call a function that takes some callback, and if the callback executes some test successfully, then don’t execute the remaining">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Asynchronous loop breaking">
+<meta property="og:url" content="https://www.gergel.im/2019/03/08/loop-until-lock-acquired/index.html">
+<meta property="og:site_name" content="Gianluca Ciccarelli">
+<meta property="og:description" content="Suppose you want to iterate over an array. On each element, you want to call a function that takes some callback, and if the callback executes some test successfully, then don’t execute the remaining">
+<meta property="og:locale">
+<meta property="article:published_time" content="2019-03-08T18:26:00.000Z">
+<meta property="article:modified_time" content="2020-08-15T09:14:02.646Z">
+<meta property="article:author" content="Gianluca Ciccarelli">
+<meta property="article:tag" content="javascript">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@increatore">
+  
+    <link rel="alternate" href="/atom.xml" title="Gianluca Ciccarelli" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.0.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Gianluca Ciccarelli</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/index.html">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/now.html">Now</a>
+        
+          <a class="main-nav-link" href="/blog">Blog</a>
+        
+          <a class="main-nav-link" href="/fiction.html">Fiction</a>
+        
+          <a class="main-nav-link" href="/reads.html">Reads</a>
+        
+          <a class="main-nav-link" href="/software.html">Software</a>
+        
+          <a class="main-nav-link" href="/about-site.html">Website</a>
+        
+          <a class="main-nav-link" target="_blank" rel="noopener" href="//github.com/sturmer">GitHub</a>
+        
+          <a class="main-nav-link" href="/about-me.html">Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://www.gergel.im"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-loop-until-lock-acquired" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/03/08/loop-until-lock-acquired/" class="article-date">
+  <!-- Use `hideDate: true` in a .md file to hide the date -->
+  
+  <time datetime="2019-03-08T18:26:00.000Z" itemprop="datePublished">2019-03-08</time>
+  
+</a>
+
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Asynchronous loop breaking
+    </h1>
+  
+
+        
+          [278 words]
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Suppose you want to iterate over an array. On each element, you want to call a function that takes some callback, and if the callback executes some test successfully, then don’t execute the remaining iterations.</p>
+<a id="more"></a>
+
+<p>I needed to examine the elements of an array and try to acquire a lock on the first of them not locked yet. It started as something like this:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">myFunction</span>(<span class="params">myArray, callback</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> el <span class="keyword">of</span> myArray) &#123;</span><br><span class="line">        acquireResource(<span class="function">(<span class="params">err, resource</span>) =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (err) &#123;</span><br><span class="line">                <span class="comment">// Do next iteration.</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Resource acquired! Get out of this loop now!</span></span><br><span class="line">            <span class="keyword">return</span> callback();</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>For the sake of simplicity, we can imagine the <code>acquireResource</code> function to be pretty silly and just always be successful:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">acquireResource</span>(<span class="params">callback</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> callback(<span class="literal">null</span>, &#123;<span class="attr">a</span>: <span class="number">1</span>&#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Would you be surprised if I told you that this loop runs <code>myArray.length</code> times, regardless of us calling the callback sooner or later? Well, I was (apologies). The problem is that the callback is called when the function <code>acquireResource</code> ends, which in Node happens at the end of the for loop when the callbacks are called.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt; myFunction([<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>], <span class="function">() =&gt;</span> &#123;</span><br><span class="line">...     console.log(<span class="string">&#x27;called&#x27;</span>);</span><br><span class="line">... &#125;);</span><br><span class="line">called</span><br><span class="line">called</span><br><span class="line">called</span><br></pre></td></tr></table></figure>
+
+<p>The solution that I’ve found is based on recursion. It looks like this:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">recur</span>(<span class="params">anArray, index, callback</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (index &gt;= anArray.length) &#123;</span><br><span class="line">        <span class="keyword">return</span> callback();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    acquireResource(<span class="function">(<span class="params">err, resource</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (err) &#123;</span><br><span class="line">            <span class="comment">// Repeat for the next element!</span></span><br><span class="line">            recur(anArray, index + <span class="number">1</span>, callback);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> callback();</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">myFunction</span>(<span class="params">myArray, callback</span>) </span>&#123;</span><br><span class="line">    recur(myArray, <span class="number">0</span>, callback);    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>myFunction</code> calls <code>recur</code> with the array and an initial index 0, passing the callback. If the function is called too many times, it means we’re used up the array, so we don’t need to do anything (the initial check in the <code>recur</code> function). Otherwise, we call recur with the next index. When we’re done, we just call the callback, and never go over the other elements in the array. Cool, uh?</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; recur([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], <span class="number">0</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">...     console.log(<span class="string">&#x27;I am called&#x27;</span>);</span><br><span class="line">... &#125;);</span><br><span class="line">I am called</span><br></pre></td></tr></table></figure>
+
+<p>(Things would probably have been simpler if I were allowed to use async/await, but the function <code>acquireResource</code> was callback-based and so there wasn’t much I could do about it.)</p>
+<p>Have I missed an obvious error? Do you know a better solution? Leave a comment!</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://www.gergel.im/2019/03/08/loop-until-lock-acquired/" data-id="ckdvgdcx9001p2ofo88uth1hr" class="article-share-link">Share</a>
+      
+        <a href="https://www.gergel.im/2019/03/08/loop-until-lock-acquired/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/javascript/" rel="tag">javascript</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/04/06/review-peopleware/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Peopleware: Productive Projects and Teams, by Tom DeMarco and Timothy Lister (4/10)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/01/05/define-sagemaker/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Briefly, what&#39;s SageMaker?</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Gianluca Ciccarelli<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/index.html" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/now.html" class="mobile-nav-link">Now</a>
+  
+    <a href="/blog" class="mobile-nav-link">Blog</a>
+  
+    <a href="/fiction.html" class="mobile-nav-link">Fiction</a>
+  
+    <a href="/reads.html" class="mobile-nav-link">Reads</a>
+  
+    <a href="/software.html" class="mobile-nav-link">Software</a>
+  
+    <a href="/about-site.html" class="mobile-nav-link">Website</a>
+  
+    <a target="_blank" rel="noopener" href="//github.com/sturmer" class="mobile-nav-link">GitHub</a>
+  
+    <a href="/about-me.html" class="mobile-nav-link">Me</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'www-gergel-im-blog';
+  
+  var disqus_url = 'https://www.gergel.im/2019/03/08/loop-until-lock-acquired/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

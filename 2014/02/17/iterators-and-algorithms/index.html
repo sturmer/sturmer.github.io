@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-45596498-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+  <title>Iterators and Algorithms: Insert Iterator Adapters | Gianluca Ciccarelli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="This week I have had a look at two nice types of iterators: the move iterators and the insert iterators. Their main use seems to be related to STL algorithms.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Iterators and Algorithms: Insert Iterator Adapters">
+<meta property="og:url" content="https://www.gergel.im/2014/02/17/iterators-and-algorithms/index.html">
+<meta property="og:site_name" content="Gianluca Ciccarelli">
+<meta property="og:description" content="This week I have had a look at two nice types of iterators: the move iterators and the insert iterators. Their main use seems to be related to STL algorithms.">
+<meta property="og:locale">
+<meta property="article:published_time" content="2014-02-16T22:00:00.000Z">
+<meta property="article:modified_time" content="2020-08-15T09:14:02.645Z">
+<meta property="article:author" content="Gianluca Ciccarelli">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="STL">
+<meta property="article:tag" content="make_move_iterator">
+<meta property="article:tag" content="back_inserter">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@increatore">
+  
+    <link rel="alternate" href="/atom.xml" title="Gianluca Ciccarelli" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.0.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Gianluca Ciccarelli</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/index.html">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/now.html">Now</a>
+        
+          <a class="main-nav-link" href="/blog">Blog</a>
+        
+          <a class="main-nav-link" href="/fiction.html">Fiction</a>
+        
+          <a class="main-nav-link" href="/reads.html">Reads</a>
+        
+          <a class="main-nav-link" href="/software.html">Software</a>
+        
+          <a class="main-nav-link" href="/about-site.html">Website</a>
+        
+          <a class="main-nav-link" target="_blank" rel="noopener" href="//github.com/sturmer">GitHub</a>
+        
+          <a class="main-nav-link" href="/about-me.html">Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://www.gergel.im"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-iterators-and-algorithms" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/02/17/iterators-and-algorithms/" class="article-date">
+  <!-- Use `hideDate: true` in a .md file to hide the date -->
+  
+  <time datetime="2014-02-16T22:00:00.000Z" itemprop="datePublished">2014-02-17</time>
+  
+</a>
+
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Iterators and Algorithms: Insert Iterator Adapters
+    </h1>
+  
+
+        
+          [509 words]
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>This week I have had a look at two nice types of iterators: the <em>move iterators</em> and the <em>insert iterators</em>. Their main use seems to be related to STL algorithms.</p>
+<a id="more"></a>
+
+<h2 id="Problem-Copy-a-std-vector-into-another"><a href="#Problem-Copy-a-std-vector-into-another" class="headerlink" title="Problem: Copy a std::vector into another"></a>Problem: Copy a <code>std::vector</code> into another</h2><p>Let’s suppose that we have a vector of the usual <code>int</code> type, that we fill diligently with an initializer list. After a few lines of code, we want to copy its elements into another vector. Our vanilla try will be:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">v1</span><span class="params">(&#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">10</span>&#125;)</span></span>;</span><br><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">v2</span><span class="params">(v1)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>This is OK, because the constructor of <code>v2</code> is invoked in order to copy every element of v1. Let’s complicate matters, and say we only want the odd elements of <code>v1</code> to be used to initialize <code>v2</code>. We have a look at our reference card for STL algorithms (when will I prepare one?), and notice the presence of the <code>copy_if</code> algorithm, which works like this (extracted from my GNU standard library headers):</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> _InputIterator, <span class="keyword">typename</span> _OutputIterator,</span><br><span class="line">   <span class="keyword">typename</span> _Predicate&gt;</span><br><span class="line">_OutputIterator</span><br><span class="line">copy_if(_InputIterator __first, _InputIterator __last,</span><br><span class="line">    _OutputIterator __result, _Predicate __pred)</span><br></pre></td></tr></table></figure>
+
+<p>It takes an input range (<code>__first</code>, <code>__last</code>), and an iterator to the beginning of the result container, plus a predicate to select the elements. One innocent way of using it would be:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">v1</span><span class="params">(&#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">10</span>&#125;)</span></span>;</span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v2;</span><br><span class="line">copy_if(v1.<span class="built_in">begin</span>(), v1.<span class="built_in">end</span>(), v1.<span class="built_in">begin</span>(),</span><br><span class="line">        [](<span class="keyword">int</span> n) &#123; <span class="keyword">return</span> n%<span class="number">2</span> != <span class="number">0</span>; &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>Which is cute, actually. Only problem is, that if now you try to run your program, it will segfault without a blink. And why is that? Simply because the iterator returned by <code>v2.begin()</code> behaves like a null pointer:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p v2</span><br><span class="line"><span class="variable">$2</span> = &#123;&lt;std::_Vector_base&lt;int, std::allocator&lt;int&gt; &gt;&gt; = &#123;</span><br><span class="line">    _M_impl = &#123;&lt;std::allocator&lt;int&gt;&gt; = &#123;&lt;__gnu_cxx::new_allocator&lt;int&gt;&gt; = &#123;&lt;No data fields&gt;&#125;, &lt;No data fields&gt;&#125;, _M_start = 0x0, _M_finish = 0x0,</span><br><span class="line">      _M_end_of_storage = 0x0&#125;&#125;, &lt;No data fields&gt;&#125;</span><br><span class="line">(gdb) p v2.begin()</span><br><span class="line"><span class="variable">$3</span> = &#123;_M_current = 0x0&#125;</span><br></pre></td></tr></table></figure>
+
+<p>This you can check by running a test like</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (v2.<span class="built_in">begin</span>() == v2.<span class="built_in">end</span>()) &#123;</span><br><span class="line">    <span class="comment">// Problem: v2 is empty</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>or equivalently, checking for <code>v2</code>‘s <code>size()</code>.</p>
+<h2 id="Insert-iterator-adapters"><a href="#Insert-iterator-adapters" class="headerlink" title="Insert iterator adapters"></a>Insert iterator adapters</h2><p>This is where the insert iterator comes in handy. The problem is that the <code>copy_if</code> algorithm is not supposed to insert new elements in an empty container. What we need is an <em>insert iterator adapter</em>. They come in three flavors:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> _Container&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">insert_iterator</span></span></span><br><span class="line"><span class="class">:</span> <span class="keyword">public</span> iterator&lt;output_iterator_tag, <span class="keyword">void</span>, <span class="keyword">void</span>, <span class="keyword">void</span>, <span class="keyword">void</span>&gt;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> _Container&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">back_insert_iterator</span></span></span><br><span class="line"><span class="class">:</span> <span class="keyword">public</span> iterator&lt;output_iterator_tag, <span class="keyword">void</span>, <span class="keyword">void</span>, <span class="keyword">void</span>, <span class="keyword">void</span>&gt;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> _Container&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">front_insert_iterator</span></span></span><br><span class="line"><span class="class">:</span> <span class="keyword">public</span> iterator&lt;output_iterator_tag, <span class="keyword">void</span>, <span class="keyword">void</span>, <span class="keyword">void</span>, <span class="keyword">void</span>&gt;</span><br></pre></td></tr></table></figure>
+
+<p>As you see, all of them are derived from the standard iterator with traits of an <code>output_iterator_tag</code>. I find it useful to show the hierarchy of iterators, described also in Stroustrup:</p>
+<blockquote>
+<p>Input/Output &lt;- Forward &lt;- Bidirectional &lt;- Random access</p>
+</blockquote>
+<p>This means that the adapters provide the basic operator features, dereference with assignment (<code>*p=</code>) and increment by one (<code>++p</code>).</p>
+<p>Their use can be summarized as follows:</p>
+<blockquote>
+<p>An insert iterator adapter, defined on a container, calls the<br>appropriate insertion method on the container when it is assigned.</p>
+</blockquote>
+<h3 id="The-back-insert-iterator"><a href="#The-back-insert-iterator" class="headerlink" title="The back_insert_iterator"></a>The <code>back_insert_iterator</code></h3><p>Look at the definition of the <code>back_insert_iterator</code>‘s <code>operator=()</code> in my system’s STL implementation:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">back_insert_iterator&amp;</span><br><span class="line"><span class="keyword">operator</span>=(<span class="keyword">const</span> <span class="keyword">typename</span> _Container::value_type&amp; __value) &#123;</span><br><span class="line">    container-&gt;push_back(__value);</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">back_insert_iterator&amp;</span><br><span class="line"><span class="keyword">operator</span>=(<span class="keyword">typename</span> _Container::value_type&amp;&amp; __value) &#123;</span><br><span class="line">    container-&gt;push_back(<span class="built_in">std</span>::<span class="built_in">move</span>(__value));</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>This means that we can have code that does the following:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">v1</span><span class="params">(&#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">10</span>&#125;)</span></span>;</span><br><span class="line"><span class="function">back_insert_iterator&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; <span class="title">b</span><span class="params">(v1)</span></span>;</span><br><span class="line">b = <span class="number">11</span>;</span><br></pre></td></tr></table></figure>
+
+<p>We have just added an element to <code>v1</code>. Now let’s get back at our original example:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">v1</span><span class="params">(&#123;<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span>,<span class="number">10</span>&#125;)</span></span>;</span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v2;</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * The right way.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function">back_insert_iterator&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; <span class="title">inserter</span><span class="params">(v2)</span></span>;</span><br><span class="line">copy_if(v1.<span class="built_in">begin</span>(), v1.<span class="built_in">end</span>(), inserter, [](<span class="keyword">int</span> n)&#123;<span class="keyword">return</span> n%<span class="number">2</span> != <span class="number">0</span>; &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Variation. Use a back_inserter.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">copy_if(v1.<span class="built_in">begin</span>(), v1.<span class="built_in">end</span>(), back_inserter(v2), [](<span class="keyword">int</span> n)&#123;<span class="keyword">return</span> n%<span class="number">2</span> != <span class="number">0</span>; &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>As you can see on line 12 of the snippet above, we can also use an function called <code>back_inserter</code>, which returns a <code>back_insert_iterator</code> defined on the type of the argument passed.</p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>In this post, I have written about my experiments with insert iterator adapters, which are useful classes offered by the STL that can be used to provide an insertion interface for STL containers. I have started with the problem of using STL algorithms with containers, and shown how to solve it using these standard C++ classes.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://www.gergel.im/2014/02/17/iterators-and-algorithms/" data-id="ckdvgdcx4001c2ofo6dzdf74r" class="article-share-link">Share</a>
+      
+        <a href="https://www.gergel.im/2014/02/17/iterators-and-algorithms/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STL/" rel="tag">STL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/back-inserter/" rel="tag">back_inserter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/make-move-iterator/" rel="tag">make_move_iterator</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2014/02/24/stl-algorithms-part-5/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          STL Algorithms, part 5
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2014/02/03/accessing-apis/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Accessing APIs</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Gianluca Ciccarelli<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/index.html" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/now.html" class="mobile-nav-link">Now</a>
+  
+    <a href="/blog" class="mobile-nav-link">Blog</a>
+  
+    <a href="/fiction.html" class="mobile-nav-link">Fiction</a>
+  
+    <a href="/reads.html" class="mobile-nav-link">Reads</a>
+  
+    <a href="/software.html" class="mobile-nav-link">Software</a>
+  
+    <a href="/about-site.html" class="mobile-nav-link">Website</a>
+  
+    <a target="_blank" rel="noopener" href="//github.com/sturmer" class="mobile-nav-link">GitHub</a>
+  
+    <a href="/about-me.html" class="mobile-nav-link">Me</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'www-gergel-im-blog';
+  
+  var disqus_url = 'https://www.gergel.im/2014/02/17/iterators-and-algorithms/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

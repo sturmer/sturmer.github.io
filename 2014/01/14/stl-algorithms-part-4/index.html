@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-45596498-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+  <title>STL Algorithms, part 4 | Gianluca Ciccarelli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Part 1 Part 2 Part 3 Part 4 Part 5  We have seen some examples of usage of the find algorithm, with its variants find_if and  find_if_not. In this installment, we are going to see other variants of f">
+<meta property="og:type" content="article">
+<meta property="og:title" content="STL Algorithms, part 4">
+<meta property="og:url" content="https://www.gergel.im/2014/01/14/stl-algorithms-part-4/index.html">
+<meta property="og:site_name" content="Gianluca Ciccarelli">
+<meta property="og:description" content="Part 1 Part 2 Part 3 Part 4 Part 5  We have seen some examples of usage of the find algorithm, with its variants find_if and  find_if_not. In this installment, we are going to see other variants of f">
+<meta property="og:locale">
+<meta property="article:published_time" content="2014-01-13T22:00:00.000Z">
+<meta property="article:modified_time" content="2020-08-15T09:14:02.636Z">
+<meta property="article:author" content="Gianluca Ciccarelli">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="STL">
+<meta property="article:tag" content="algorithms">
+<meta property="article:tag" content="adjacent_find">
+<meta property="article:tag" content="count">
+<meta property="article:tag" content="count_if">
+<meta property="article:tag" content="find">
+<meta property="article:tag" content="find_end">
+<meta property="article:tag" content="find_first">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@increatore">
+  
+    <link rel="alternate" href="/atom.xml" title="Gianluca Ciccarelli" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.0.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Gianluca Ciccarelli</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/index.html">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/now.html">Now</a>
+        
+          <a class="main-nav-link" href="/blog">Blog</a>
+        
+          <a class="main-nav-link" href="/fiction.html">Fiction</a>
+        
+          <a class="main-nav-link" href="/reads.html">Reads</a>
+        
+          <a class="main-nav-link" href="/software.html">Software</a>
+        
+          <a class="main-nav-link" href="/about-site.html">Website</a>
+        
+          <a class="main-nav-link" target="_blank" rel="noopener" href="//github.com/sturmer">GitHub</a>
+        
+          <a class="main-nav-link" href="/about-me.html">Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://www.gergel.im"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-stl-algorithms-part-4" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/01/14/stl-algorithms-part-4/" class="article-date">
+  <!-- Use `hideDate: true` in a .md file to hide the date -->
+  
+  <time datetime="2014-01-13T22:00:00.000Z" itemprop="datePublished">2014-01-14</time>
+  
+</a>
+
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      STL Algorithms, part 4
+    </h1>
+  
+
+        
+          [513 words]
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li><a href="/2013/12/23/stl-algorithms-part-1">Part 1</a></li>
+<li><a href="/2013/12/30/stl-algorithms-part-2">Part 2</a></li>
+<li><a href="/2014/01/06/stl-algorithms-part-3">Part 3</a></li>
+<li><a href="/2014/01/14/stl-algorithms-part-4">Part 4</a></li>
+<li><a href="/2014/02/24/stl-algorithms-part-5">Part 5</a></li>
+</ul>
+<p>We have seen some examples of usage of the <code>find</code> algorithm, with its variants <code>find_if</code> and  <code>find_if_not</code>. In this installment, we are going to see other variants of finding algorithms, plus another algorithm useful when counting items in a sequence, <code>count</code>. Remember that we are still in the realm of non-modifying sequence algorithms (but see the discussion about <code>for_each</code> <a href="/blog/2013/12/30/stl-algorithms-part-2/" title="STL Algorithms, part 2">here</a>).</p>
+<a id="more"></a>
+
+<h3 id="find-first-Find-first-occurrence-of-any-element-taken-from-a-set"><a href="#find-first-Find-first-occurrence-of-any-element-taken-from-a-set" class="headerlink" title="find_first: Find first occurrence of any element taken from a set"></a><code>find_first</code>: Find first occurrence of any element taken from a set</h3><p>This algorithm is useful when we are looking for one element of a set. Consider a <code>std::string</code>, which is also a container, and the problem of finding any vowel in such a string. We could go like the following:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="built_in">set</span>&lt;<span class="keyword">char</span>&gt; vowels&#123;<span class="string">&#x27;a&#x27;</span>, <span class="string">&#x27;e&#x27;</span>, <span class="string">&#x27;i&#x27;</span>, <span class="string">&#x27;o&#x27;</span>, <span class="string">&#x27;u&#x27;</span>, <span class="string">&#x27;y&#x27;</span>&#125;;   <span class="comment">// is y a vowel?</span></span><br><span class="line">    <span class="built_in">string</span> haystack&#123;<span class="string">&quot;haystack&quot;</span>&#125;;</span><br><span class="line">    <span class="keyword">auto</span> it = find_first_of(haystack.<span class="built_in">begin</span>(), haystack.<span class="built_in">end</span>(),</span><br><span class="line">            vowels.<span class="built_in">begin</span>(), vowels.<span class="built_in">end</span>());</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (it != haystack.<span class="built_in">end</span>()) &#123;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; *it &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">        it = find_first_of(it + <span class="number">1</span>, haystack.<span class="built_in">end</span>(),</span><br><span class="line">            vowels.<span class="built_in">begin</span>(), vowels.<span class="built_in">end</span>());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>This small program will print the sequence of vowels in the word <em>haystack</em>. I am not sure that <em>y</em> is a vowel (actually I doubt), but I can invoke the exemplification&#39;s excuse. The output is:</p>
+<pre>
+    a
+    y
+    a
+</pre>
+
+<p>This algorithm can have a significant overhead because it has quadratic complexity (its execution time grows as the multiplication of the length of the two sequences). It prototype is:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">InputIterator</span>, <span class="title">class</span> <span class="title">ForwardIterator</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">InputIterator</span></span></span><br><span class="line"><span class="class"><span class="title">find_first_of</span>(<span class="title">InputIterator</span> <span class="title">first1</span>, <span class="title">InputIterator</span> <span class="title">last1</span>,</span></span><br><span class="line"><span class="class">  <span class="title">ForwardIterator</span> <span class="title">first2</span>, <span class="title">ForwardIterator</span> <span class="title">last2</span>);</span></span><br></pre></td></tr></table></figure>
+
+<p>There is also a similar version where we can add a predicate, this way stating that we are looking for any of the elements in the second sequence for which the predicate is satisfied.</p>
+<h3 id="find-end-Find-subsequences"><a href="#find-end-Find-subsequences" class="headerlink" title="find_end: Find subsequences"></a><code>find_end</code>: Find subsequences</h3><p>This algorithm has a deceptive name. It finds the subsequence in a sequence, returning the iterator to the first character of such sequence, or returning the last element of the first sequence if no such subsequence is found. The name comes from the fact that such subsequence is the rightmost, in case it occurred more than once. Consider the following example:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> subseq&#123;<span class="string">&quot;lazy&quot;</span>&#125;;</span><br><span class="line"><span class="built_in">string</span> seq&#123;<span class="string">&quot;the quick brown fox jumped over the lazy dog, &quot;</span></span><br><span class="line">    <span class="string">&quot;but the lazy dog woke up&quot;</span>&#125;;</span><br><span class="line"><span class="keyword">auto</span> it = find_end(seq.<span class="built_in">begin</span>(), seq.<span class="built_in">end</span>(),</span><br><span class="line">        subseq.<span class="built_in">begin</span>(), subseq.<span class="built_in">end</span>());</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">res</span><span class="params">(it, seq.<span class="built_in">end</span>())</span></span>;</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Result: &quot;</span> &lt;&lt; res &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>Its output is simply:</p>
+<pre>
+Result: lazy dog woke up
+</pre>
+
+
+<p>Also this algorithm has a variant where we can specify a predicate to be satisfied for each element matched.</p>
+<h3 id="adjacent-find-Find-consecutive-elements"><a href="#adjacent-find-Find-consecutive-elements" class="headerlink" title="adjacent_find: Find consecutive elements"></a><code>adjacent_find</code>: Find consecutive elements</h3><p>Suppose now that you want to find whether there are repeated elements in a string. The <code>adjacent_find</code> algorithm does just that, returning an iterator to the first element that is followed by itself at least once. Also this algorithms comes with a variation allowing to specify a predicate:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> seq&#123;<span class="string">&quot;arbababbbbbbbbbccc&quot;</span>&#125;;</span><br><span class="line"><span class="keyword">auto</span> it = adjacent_find(seq.<span class="built_in">begin</span>(), seq.<span class="built_in">end</span>(), [](<span class="keyword">char</span> c1, <span class="keyword">char</span> c2)</span><br><span class="line">        &#123; <span class="keyword">return</span> c1 != <span class="string">&#x27;r&#x27;</span> &amp;&amp; c2 == <span class="string">&#x27;b&#x27;</span>; &#125;);</span><br><span class="line"><span class="function"><span class="built_in">std</span>::<span class="built_in">string</span> <span class="title">res</span><span class="params">(it, seq.<span class="built_in">end</span>())</span></span>;</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Sequence: &quot;</span> &lt;&lt; seq &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Result:      &quot;</span> &lt;&lt; res &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>The outcome of this algorithm is the following: for each letter and its immediate successor, the predicate should be satisfied. This holds true for the first time when we arrive at the fourth letter, so the outcome is:</p>
+<pre>
+  Sequence: arbababbbbbbbbbccc
+  Result:      ababbbbbbbbbccc
+</pre>
+
+<h3 id="count-and-count-if-Count-elements"><a href="#count-and-count-if-Count-elements" class="headerlink" title="count and count_if: Count elements"></a><code>count</code> and <code>count_if</code>: Count elements</h3><p>The last algorithm considered in this post is <code>count</code>, with its variation <code>count_if</code>. As expected, it counts the number of elements (possibly, matching a predicate):</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> seq&#123;<span class="string">&quot;arbababbbbbbbbbccc&quot;</span>&#125;;</span><br><span class="line"><span class="keyword">auto</span> it = count_if(seq.<span class="built_in">begin</span>(), seq.<span class="built_in">end</span>(), [](<span class="keyword">char</span> c)</span><br><span class="line">        &#123; <span class="keyword">return</span> c == <span class="string">&#x27;b&#x27;</span>; &#125;);</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Result:  &quot;</span> &lt;&lt; it &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>and it counts 11 occurrences.</p>
+<h3 id="Conclusions"><a href="#Conclusions" class="headerlink" title="Conclusions"></a>Conclusions</h3><p>In this installment, we have seen examples of some variations of <code>find</code>, plus a way to count occurrences of an element in a sequence. At this point, the algorithms in the <em>non-modifying sequence operations</em> category are mostly over; in the next episode, we are going to wrap them up.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://www.gergel.im/2014/01/14/stl-algorithms-part-4/" data-id="ckdvgdcxo002v2ofogyfda5cl" class="article-share-link">Share</a>
+      
+        <a href="https://www.gergel.im/2014/01/14/stl-algorithms-part-4/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STL/" rel="tag">STL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/adjacent-find/" rel="tag">adjacent_find</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/algorithms/" rel="tag">algorithms</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/count/" rel="tag">count</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/count-if/" rel="tag">count_if</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/find/" rel="tag">find</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/find-end/" rel="tag">find_end</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/find-first/" rel="tag">find_first</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2014/01/20/time-in-cpp/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Time in C++
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2014/01/06/stl-algorithms-part-3/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">STL Algorithms, part 3</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Gianluca Ciccarelli<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/index.html" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/now.html" class="mobile-nav-link">Now</a>
+  
+    <a href="/blog" class="mobile-nav-link">Blog</a>
+  
+    <a href="/fiction.html" class="mobile-nav-link">Fiction</a>
+  
+    <a href="/reads.html" class="mobile-nav-link">Reads</a>
+  
+    <a href="/software.html" class="mobile-nav-link">Software</a>
+  
+    <a href="/about-site.html" class="mobile-nav-link">Website</a>
+  
+    <a target="_blank" rel="noopener" href="//github.com/sturmer" class="mobile-nav-link">GitHub</a>
+  
+    <a href="/about-me.html" class="mobile-nav-link">Me</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'www-gergel-im-blog';
+  
+  var disqus_url = 'https://www.gergel.im/2014/01/14/stl-algorithms-part-4/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

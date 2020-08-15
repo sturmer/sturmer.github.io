@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-45596498-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+  <title>STL Algorithms, part 1 | Gianluca Ciccarelli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Part 1 Part 2 Part 3 Part 4 Part 5  Why algorithmsStandard algorithms have a prominent value in the C++ standard template library (STL). They present the great advantage of expressing an operation ap">
+<meta property="og:type" content="article">
+<meta property="og:title" content="STL Algorithms, part 1">
+<meta property="og:url" content="https://www.gergel.im/2013/12/23/stl-algorithms-part-1/index.html">
+<meta property="og:site_name" content="Gianluca Ciccarelli">
+<meta property="og:description" content="Part 1 Part 2 Part 3 Part 4 Part 5  Why algorithmsStandard algorithms have a prominent value in the C++ standard template library (STL). They present the great advantage of expressing an operation ap">
+<meta property="og:locale">
+<meta property="article:published_time" content="2013-12-22T22:00:00.000Z">
+<meta property="article:modified_time" content="2020-08-15T09:14:02.631Z">
+<meta property="article:author" content="Gianluca Ciccarelli">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="STL">
+<meta property="article:tag" content="algorithms">
+<meta property="article:tag" content="all_of">
+<meta property="article:tag" content="any_of">
+<meta property="article:tag" content="none_of">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@increatore">
+  
+    <link rel="alternate" href="/atom.xml" title="Gianluca Ciccarelli" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.0.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Gianluca Ciccarelli</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/index.html">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/now.html">Now</a>
+        
+          <a class="main-nav-link" href="/blog">Blog</a>
+        
+          <a class="main-nav-link" href="/fiction.html">Fiction</a>
+        
+          <a class="main-nav-link" href="/reads.html">Reads</a>
+        
+          <a class="main-nav-link" href="/software.html">Software</a>
+        
+          <a class="main-nav-link" href="/about-site.html">Website</a>
+        
+          <a class="main-nav-link" target="_blank" rel="noopener" href="//github.com/sturmer">GitHub</a>
+        
+          <a class="main-nav-link" href="/about-me.html">Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://www.gergel.im"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-stl-algorithms-part-1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2013/12/23/stl-algorithms-part-1/" class="article-date">
+  <!-- Use `hideDate: true` in a .md file to hide the date -->
+  
+  <time datetime="2013-12-22T22:00:00.000Z" itemprop="datePublished">2013-12-23</time>
+  
+</a>
+
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      STL Algorithms, part 1
+    </h1>
+  
+
+        
+          [506 words]
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li><a href="/2013/12/23/stl-algorithms-part-1">Part 1</a></li>
+<li><a href="/2013/12/30/stl-algorithms-part-2">Part 2</a></li>
+<li><a href="/2014/01/06/stl-algorithms-part-3">Part 3</a></li>
+<li><a href="/2014/01/14/stl-algorithms-part-4">Part 4</a></li>
+<li><a href="/2014/02/24/stl-algorithms-part-5">Part 5</a></li>
+</ul>
+<h3 id="Why-algorithms"><a href="#Why-algorithms" class="headerlink" title="Why algorithms"></a>Why algorithms</h3><p>Standard algorithms have a prominent value in the C++ standard template library (STL). They present the great advantage of expressing an operation applied on a range of elements in a container. In this series, I am going to review all the algorithms introduced in the C++11 standard, presenting it in digestible chunks, and will provide at least an example of application for each one.</p>
+<a id="more"></a>
+
+<h3 id="all-of"><a href="#all-of" class="headerlink" title="all_of"></a><code>all_of</code></h3><p>We might want to determine whether all elements in a range satisfy some property. For example, suppose we want to find out if all the persons subscribed to this blog come from Europe. We might keep a record of a Person in the form:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> Continent &#123;</span><br><span class="line">    EUROPE, ASIA, AMERICA, AFRICA, AUSTRALIA</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Person</span> &#123;</span></span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">string</span> name;</span><br><span class="line">  Continent continent;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>Now say that we have a <code>std::vector</code> of customers. To find the answer to our previous question, we might do something like the following:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// declare p1, p2, p3</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Person&gt; persons = &#123;p1, p2, p3&#125;;</span><br><span class="line"><span class="keyword">bool</span> all_european = all_of(persons.cbegin(), persons.cend(),</span><br><span class="line">        [](<span class="keyword">const</span> Person&amp; p) &#123;</span><br><span class="line">            <span class="keyword">return</span> p.continent == Continent::EUROPE;</span><br><span class="line">        &#125;);</span><br><span class="line"><span class="keyword">if</span> (all_european)</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;All European visitors\n&quot;</span>;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Visitors from outside Europe\n&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>Formally, the signature for <code>all_of</code> is:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">InputIterator</span>, <span class="title">class</span> <span class="title">Predicate</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">bool</span> <span class="title">all_of</span>(<span class="title">InputIterator</span> <span class="title">first</span>, <span class="title">InputIterator</span> <span class="title">last</span>, <span class="title">Predicate</span> <span class="title">pred</span>);</span></span><br></pre></td></tr></table></figure>
+
+<p>One gotcha: the algorithms returns true if the range is empty. It runs in linear time on the number of elements in the range. You can find the complete code is at <a target="_blank" rel="noopener" href="https://gist.github.com/sturmer/8082362">this link</a>.</p>
+<h3 id="any-of"><a href="#any-of" class="headerlink" title="any_of"></a><code>any_of</code></h3><p>Now suppose we want to know whether <em>at least one</em> of the customers is American. We can accomplish this with the algorithm <code>std::any_of</code>, which intuitively enough can be used like the following:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">bool</span> any_american = any_of(persons.cbegin(),</span><br><span class="line">        persons.cend(),</span><br><span class="line">        [](<span class="keyword">const</span> Person&amp; p) &#123;</span><br><span class="line">            <span class="keyword">return</span> p.continent == Continent::AMERICA;</span><br><span class="line">        &#125;);</span><br><span class="line"><span class="keyword">if</span> (any_american)</span><br><span class="line">      <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;We had an American visitor\n&quot;</span>;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">      <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;No visitors from Americas\n&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>As you can see, we recycled the Predicate. The pitfall here is the reverse of the one for all_of: this algorithms returns false if the range is empty. Find the gist <a target="_blank" rel="noopener" href="https://gist.github.com/sturmer/8082455">here</a>.</p>
+<h3 id="none-of"><a href="#none-of" class="headerlink" title="none_of"></a><code>none_of</code></h3><p>Let’s change example. Say we have a vector of Shape class pointers. Shape can be derived in order to provide more specific properties:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Shape</span> &#123;</span></span><br><span class="line">    Shape() &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">float</span> <span class="title">area</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">virtual</span> ~Shape() &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span> :</span> <span class="keyword">public</span> Shape &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">float</span> <span class="built_in">height</span>;</span><br><span class="line">    <span class="keyword">float</span> <span class="built_in">width</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">float</span> <span class="title">area</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">height</span> * <span class="built_in">width</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Rectangle(<span class="keyword">float</span> h, <span class="keyword">float</span> w) : <span class="built_in">height</span>(h), <span class="built_in">width</span>(w) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Circle</span> :</span> <span class="keyword">public</span> Shape &#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">float</span> radius;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">float</span> <span class="title">area</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> radius * radius * <span class="number">3.14</span>; <span class="comment">// approx</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Circle(<span class="keyword">float</span> radius) : radius(radius) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Triangle</span> :</span> <span class="keyword">public</span> Shape &#123;&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>Now we want to see whether in a vector of Shape pointers there is any Triangle.  Since <code>none_of</code> is a negative predicate, and reasoning in negative terms is generally harder, we define the predicate outside the invocation of the algorithm, to make things clearer:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">// define rectangles and circles, no triangle</span></span><br><span class="line"><span class="comment">// put them in a vector</span></span><br><span class="line"><span class="built_in">vector</span>&lt;Shape*&gt; v&#123;&amp;c1, &amp;c2, &amp;r1, &amp;r2, &amp;r2, &amp;r4&#125;;</span><br><span class="line"><span class="keyword">auto</span> is_triangle = [](Shape* s) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">dynamic_cast</span>&lt;Triangle*&gt;(s) != <span class="literal">nullptr</span>;</span><br><span class="line">  &#125;;</span><br><span class="line"><span class="keyword">bool</span> no_triangle = none_of(v.cbegin(), v.cend(), is_triangle);</span><br><span class="line">    <span class="keyword">if</span> (no_triangle)</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;No triangle\n&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>We use the <code>dynamic_cast</code> to determine if the pointer points to a Triangle, in which case it would return a non-null pointer. The <code>std::none_of</code> algorithm, as the ones mentioned above, has linear complexity depending on the number of elements in the range. Grab the gist <a target="_blank" rel="noopener" href="https://gist.github.com/sturmer/8083022">here</a>.</p>
+<h3 id="In-the-next-episode"><a href="#In-the-next-episode" class="headerlink" title="In the next episode"></a>In the next episode</h3><p>We have covered three basic algorithms for testing properties of elements in a container: <code>all_of</code> checks whether all the elements in a range satisfy a predicate, <code>any_of</code> checks whether at least one element satisfies the predicate, while <code>none_of</code> checks that none of the elements satisfies the predicate. Lambdas give us a way of expressing very clearly the predicate: if you feel uncomfortable with them, you might want to have a look at the mini-series I have written about them (<a href="2013-12-09-lambdas-in-c11">part 1</a> and <a href="2013-12-16-lambdas-in-c11-part-2">part 2</a>).</p>
+<p>In the next installment, we are going to get into more algorithms provided by the standard.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://www.gergel.im/2013/12/23/stl-algorithms-part-1/" data-id="ckdvgdcxk002i2ofo72szds0e" class="article-share-link">Share</a>
+      
+        <a href="https://www.gergel.im/2013/12/23/stl-algorithms-part-1/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/STL/" rel="tag">STL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/algorithms/" rel="tag">algorithms</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/all-of/" rel="tag">all_of</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/any-of/" rel="tag">any_of</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/none-of/" rel="tag">none_of</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2013/12/30/stl-algorithms-part-2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          STL Algorithms, part 2
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2013/12/16/lambdas-in-cpp-11-part-2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Lambdas in C++11, part 2</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Gianluca Ciccarelli<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/index.html" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/now.html" class="mobile-nav-link">Now</a>
+  
+    <a href="/blog" class="mobile-nav-link">Blog</a>
+  
+    <a href="/fiction.html" class="mobile-nav-link">Fiction</a>
+  
+    <a href="/reads.html" class="mobile-nav-link">Reads</a>
+  
+    <a href="/software.html" class="mobile-nav-link">Software</a>
+  
+    <a href="/about-site.html" class="mobile-nav-link">Website</a>
+  
+    <a target="_blank" rel="noopener" href="//github.com/sturmer" class="mobile-nav-link">GitHub</a>
+  
+    <a href="/about-me.html" class="mobile-nav-link">Me</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'www-gergel-im-blog';
+  
+  var disqus_url = 'https://www.gergel.im/2013/12/23/stl-algorithms-part-1/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

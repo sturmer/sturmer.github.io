@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-45596498-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+  <title>Writing a simple calculator in Racket | Gianluca Ciccarelli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Frustrated by several attempts at creating GUI-based programs that I’ve tried in the past, I decided to try how differently the story could end when using a language that promises enlightenment to its">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Writing a simple calculator in Racket">
+<meta property="og:url" content="https://www.gergel.im/2015/12/06/writing-a-simple-calculator-in-racket/index.html">
+<meta property="og:site_name" content="Gianluca Ciccarelli">
+<meta property="og:description" content="Frustrated by several attempts at creating GUI-based programs that I’ve tried in the past, I decided to try how differently the story could end when using a language that promises enlightenment to its">
+<meta property="og:locale">
+<meta property="og:image" content="https://www.gergel.im/images/calculon-gui-shot.png">
+<meta property="article:published_time" content="2015-12-06T17:53:49.000Z">
+<meta property="article:modified_time" content="2020-08-15T09:14:02.638Z">
+<meta property="article:author" content="Gianluca Ciccarelli">
+<meta property="article:tag" content="racket">
+<meta property="article:tag" content="racket&#x2F;gui">
+<meta property="article:tag" content="calculator">
+<meta property="article:tag" content="calculon">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.gergel.im/images/calculon-gui-shot.png">
+<meta name="twitter:creator" content="@increatore">
+  
+    <link rel="alternate" href="/atom.xml" title="Gianluca Ciccarelli" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.0.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Gianluca Ciccarelli</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/index.html">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/now.html">Now</a>
+        
+          <a class="main-nav-link" href="/blog">Blog</a>
+        
+          <a class="main-nav-link" href="/fiction.html">Fiction</a>
+        
+          <a class="main-nav-link" href="/reads.html">Reads</a>
+        
+          <a class="main-nav-link" href="/software.html">Software</a>
+        
+          <a class="main-nav-link" href="/about-site.html">Website</a>
+        
+          <a class="main-nav-link" target="_blank" rel="noopener" href="//github.com/sturmer">GitHub</a>
+        
+          <a class="main-nav-link" href="/about-me.html">Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://www.gergel.im"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-writing-a-simple-calculator-in-racket" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/12/06/writing-a-simple-calculator-in-racket/" class="article-date">
+  <!-- Use `hideDate: true` in a .md file to hide the date -->
+  
+  <time datetime="2015-12-06T17:53:49.000Z" itemprop="datePublished">2015-12-06</time>
+  
+</a>
+
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Writing a simple calculator in Racket
+    </h1>
+  
+
+        
+          [1064 words]
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Frustrated by several attempts at creating GUI-based programs that I’ve tried in the past, I decided to try how differently the story could end when using a language that promises enlightenment to its users. I ended up writing <em>Calculon</em>, a simple calculator, and in the process learned a couple of things about Racket and the <code>racket/gui</code> module (and paid homage to <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Futurama">one of the best cartoons in history</a>).</p>
+<a id="more"></a>
+
+<h2 id="The-racket-gui-module"><a href="#The-racket-gui-module" class="headerlink" title="The racket/gui module"></a>The <code>racket/gui</code> module</h2><p>The module which I used for the GUI is called, as was to be expected, <code>racket/gui</code>. I have read a bit of the tutorial to understand the basic philosophy, and I was ready to start hacking.</p>
+<p>The principle is simple: there are some window objects which work as containers, that in turn contain elements (like buttons, menus, other containers, you name it). In the beginning, I wrote everything in a single source file, but later it was easy to factor out the pieces and I happily ended up with three parts:</p>
+<ol>
+<li>The <a target="_blank" rel="noopener" href="https://github.com/sturmer/calculon/blob/master/calculon-gui.rkt">GUI</a> itself</li>
+<li>The <a target="_blank" rel="noopener" href="https://github.com/sturmer/calculon/blob/master/calculon.rkt">expression parser</a></li>
+<li>The <a target="_blank" rel="noopener" href="https://github.com/sturmer/calculon/blob/master/calculon-test.rkt">test module</a></li>
+</ol>
+<p>Let’s tear them down to see what’s inside.</p>
+<h3 id="The-GUI"><a href="#The-GUI" class="headerlink" title="The GUI"></a>The GUI</h3><p>I wanted to have a basic layout for my calculator, so I thought to have the classic matrix of buttons with the digits, the operations, and the decimal point, to which at the end I added a reset button.</p>
+<p><img src="/images/calculon-gui-shot.png" alt="calculator-layout"></p>
+<p>The display is only for output, and shows what the user inserts by clicking the buttons (which actually is rather annoying, but limits a lot error management, since we almost completely control the input).</p>
+<p>We start by defining a generic container known as frame, inside which we start putting the display:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(define frame (new frame% [label &quot;Calculon&quot;]))</span><br><span class="line"></span><br><span class="line">(define display$ (new text-field%</span><br><span class="line">                      (label &quot;&quot;)</span><br><span class="line">                      (parent frame)</span><br><span class="line">                      (init-value &quot;0&quot;)))</span><br></pre></td></tr></table></figure>
+
+<p>The parent-child relationship is quite important and just describes who owns whom (or who belongs to whom): in this case, we say that the <code>display$</code> objct belongs to the frame.</p>
+<p>At this point, the building block is the <code>horizontal-panel%</code>, whose role is to provide an area to group elements horizontally (in this case, the buttons). So for the first row, we have the following:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">;; Row 0: ? ? sqrt C</span><br><span class="line">(define row0 (new horizontal-panel% [parent frame]))</span><br><span class="line">(new button% [parent row0]</span><br><span class="line">     [label &quot;&quot;]</span><br><span class="line">     [min-width 30]</span><br><span class="line">     [enabled #f])</span><br><span class="line">(new button% [parent row0]</span><br><span class="line">     [label &quot;&quot;]</span><br><span class="line">     [min-width 30]</span><br><span class="line">     [enabled #f])</span><br><span class="line">(new button% [parent row0]</span><br><span class="line">     [label &quot;&quot;]</span><br><span class="line">     [min-width 30]</span><br><span class="line">     [enabled #f])</span><br><span class="line">(new button% [parent row0]</span><br><span class="line">     [label &quot;R&quot;]</span><br><span class="line">     [min-width 30]</span><br><span class="line">     [callback (λ (b e)</span><br><span class="line">                 (send display$ set-value &quot;0&quot;))])</span><br></pre></td></tr></table></figure>
+
+<p>Man I love this language. Can it get easier than that? You have a line and you get buttons inside. Each button has a label, can be disabled, can be set to a minimum width, and can be associated to a callback (that takes as arguments the button object itself and the event). Buttons belong to the <code>row</code>, which in turn belongs to the <code>frame</code>.</p>
+<p>After we finish listing the rows, we show the frame itself:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(send frame show #t)</span><br></pre></td></tr></table></figure>
+
+<p>This is general syntax for object methods call: <code>send</code> means <em>Call the method show of the object frame</em>. The display shown above works the same way: Call the method <code>set-value</code> of the <code>display$</code> object.</p>
+<h4 id="GUI-related-functions"><a href="#GUI-related-functions" class="headerlink" title="GUI-related functions"></a>GUI-related functions</h4><p>After some refactoring, I left only 2 functions inside the GUI module:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">;; GUI-related functions</span><br><span class="line">;; Push a button of an operation (+, -, ...)</span><br><span class="line">(define (push-operation op)</span><br><span class="line">  (send display$ set-value (string-append (send display$ get-value) op)))</span><br><span class="line"></span><br><span class="line">;; Push a button which is not an op (digit, decimal value)</span><br><span class="line">(define (push-number button-value)</span><br><span class="line">  (define current-display (send display$ get-value))</span><br><span class="line">  (define result</span><br><span class="line">    (match current-display</span><br><span class="line">      [(regexp #rx&quot;^0&quot;) button-value]</span><br><span class="line">      [_ (string-append current-display button-value)]))</span><br><span class="line">  (send display$ set-value result))</span><br></pre></td></tr></table></figure>
+
+<p>The first one just takes the operation button we have just pressed, and created a string to send to the display. The second introduces a possibly useless complication coming from the fact that I want the initial 0 to be substituted by the first digit the user inserts. It uses my favorite function, <code>match</code>, to apply a regular expression to what is currently in the display: if it starts with 0, just substitute it with the button value (buttons in this case are only digit buttons); otherwise, just append.</p>
+<h2 id="The-expression-parser"><a href="#The-expression-parser" class="headerlink" title="The expression parser"></a>The expression parser</h2><p>The expression parser is invoked as a callback of the <code>=</code> button, and takes whatever is on the display to try and evaluate it, returning the result of the evaluation.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">(define (push-equal expr)</span><br><span class="line">   (define ops-lst (regexp-match</span><br><span class="line">                    #px&quot;(\\d+[.&#x2F;]?\\d*)\\s*([-÷+×])\\s*(\\d+[.&#x2F;]?\\d*)&quot;</span><br><span class="line">                    expr))</span><br><span class="line">   (define result 0)</span><br><span class="line">   (match ops-lst</span><br><span class="line">     [(list _ x f y)</span><br><span class="line">      (number-&gt;string ((string-&gt;f f)</span><br><span class="line">                       (string-&gt;number x)</span><br><span class="line">                       (string-&gt;number y)))]</span><br><span class="line">     [_ (raise exn:fail:user)]))</span><br></pre></td></tr></table></figure>
+
+<p>In this case, we just match the expressions of the form dictated by the (rather cumbersome) regular expression on line 3. It is actually very basic, after all the escaping is stripped; it takes also into account that Racket uses fractions when it can to display fractional numbers, and this is why I need to match both the decimal point (which is one of the possible buttons) and the ‘/‘ character of a fraction.</p>
+<p>The <code>match</code> function shines even brighter here: if what I match is of the form of a list of 3 elements <code>x f y</code>, then assume that <code>f</code> is an operation and apply it to the operands <code>x</code> and <code>y</code>.</p>
+<h2 id="Testing"><a href="#Testing" class="headerlink" title="Testing"></a>Testing</h2><p>No piece of software can be considered complete without a proper unit test module. I am pretty happy with the layout I have found for the testing modules of my Racket projects, so I’ll paste it here and try to explain in detail:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">#lang racket</span><br><span class="line"></span><br><span class="line">(require rackunit</span><br><span class="line">         rackunit&#x2F;text-ui</span><br><span class="line">         &quot;calculon.rkt&quot;)</span><br><span class="line"></span><br><span class="line">(module+ test</span><br><span class="line">  (define suite</span><br><span class="line">    (test-suite</span><br><span class="line">     &quot;calculon: callback tests&quot;</span><br><span class="line"></span><br><span class="line">     (test-case</span><br><span class="line">      &quot;Check equal callback&quot;</span><br><span class="line">      (check-equal? (push-equal &quot;8+5&quot;) &quot;13&quot;)</span><br><span class="line">      (check-equal? (push-equal &quot;12.11  - 14.03&quot;) &quot;-1.92&quot;)</span><br><span class="line">      ;(check-equal? (push-equal &quot;4&#x2F;5 * 3&quot;) &quot;12&#x2F;5&quot;)  ; FIXME</span><br><span class="line">      ;(check-equal? (push-equal &quot;20&#x2F;3 * 1&#x2F;5&quot;) &quot;10.0&quot;) ; FIXME</span><br><span class="line">      )))</span><br><span class="line">  (run-tests suite))</span><br></pre></td></tr></table></figure>
+
+<p>Notice first the require list: apart from the obvious modules for testing, I only require the expression parser. The more GUI-related function are not interesting for testing, since they only make easy transformations to their input for displaying purposes. However, testing the parser is very useful, as frees us from testing manually via pressing the buttons to try out the few operations that we want to test.</p>
+<p>I write a separate Racket module that I call test (<code>(module+ test)</code> means <em>Add what follows to the module called test</em>. Modules are an amazing mechanism and one of their feature is the ability to span several source files). Inside the module, I define a <code>test-suite</code>, which is just a collection of test cases (in this case, only one). Now inside the <code>test-case</code>, I call repeatedly <code>check-equal?</code> to compare the result of the call to <code>push-equal</code> with the result I expect. I can run it separately in DrRacket by just pushing Run, or from the command line by issuing <code>raco test calculon-test.rkt</code>:</p>
+<pre>
+  $ raco test calculon-test.rkt
+  raco test: (submod "calculon-test.rkt" test)
+  1 success(es) 0 failure(s) 0 error(s) 1 test(s) run
+  0
+  2 tests passed
+</pre>
+
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>I am very happy with the result. It is simple, but also it didn’t take much time, and I have used a GUI in a program of mine for the first time. The complete project lives on <a target="_blank" rel="noopener" href="https://github.com/sturmer/calculon">GitHub</a>; feel free to mail me your thoughts and to contribute to it.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://www.gergel.im/2015/12/06/writing-a-simple-calculator-in-racket/" data-id="ckdvgdcxw003m2ofo7aq2c7t1" class="article-share-link">Share</a>
+      
+        <a href="https://www.gergel.im/2015/12/06/writing-a-simple-calculator-in-racket/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/calculator/" rel="tag">calculator</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/calculon/" rel="tag">calculon</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/racket/" rel="tag">racket</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/racket-gui/" rel="tag">racket/gui</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/06/05/write-a-cgi-program/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Write a CGI program
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/11/17/12-weeks-racket-csapp/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Twelve weeks of Racket and CS:APP</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Gianluca Ciccarelli<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/index.html" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/now.html" class="mobile-nav-link">Now</a>
+  
+    <a href="/blog" class="mobile-nav-link">Blog</a>
+  
+    <a href="/fiction.html" class="mobile-nav-link">Fiction</a>
+  
+    <a href="/reads.html" class="mobile-nav-link">Reads</a>
+  
+    <a href="/software.html" class="mobile-nav-link">Software</a>
+  
+    <a href="/about-site.html" class="mobile-nav-link">Website</a>
+  
+    <a target="_blank" rel="noopener" href="//github.com/sturmer" class="mobile-nav-link">GitHub</a>
+  
+    <a href="/about-me.html" class="mobile-nav-link">Me</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'www-gergel-im-blog';
+  
+  var disqus_url = 'https://www.gergel.im/2015/12/06/writing-a-simple-calculator-in-racket/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

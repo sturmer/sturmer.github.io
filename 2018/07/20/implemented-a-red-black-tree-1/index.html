@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-45596498-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+  <title>I implemented a Red-Black tree (part 1) | Gianluca Ciccarelli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="A Red-Black tree is a binary search tree (BST) that takes some action to try and keep itself balanced. We know that BSTs are great at storing nodes identified by some key for which an order relationsh">
+<meta property="og:type" content="article">
+<meta property="og:title" content="I implemented a Red-Black tree (part 1)">
+<meta property="og:url" content="https://www.gergel.im/2018/07/20/implemented-a-red-black-tree-1/index.html">
+<meta property="og:site_name" content="Gianluca Ciccarelli">
+<meta property="og:description" content="A Red-Black tree is a binary search tree (BST) that takes some action to try and keep itself balanced. We know that BSTs are great at storing nodes identified by some key for which an order relationsh">
+<meta property="og:locale">
+<meta property="og:image" content="https://www.gergel.im/images/node-rotation.png">
+<meta property="og:image" content="https://www.gergel.im/images/node-rotation-after.png">
+<meta property="og:image" content="https://www.gergel.im/images/test-tree.png">
+<meta property="article:published_time" content="2018-07-20T08:23:49.000Z">
+<meta property="article:modified_time" content="2020-08-15T09:14:02.636Z">
+<meta property="article:author" content="Gianluca Ciccarelli">
+<meta property="article:tag" content="cpp">
+<meta property="article:tag" content="red-black trees">
+<meta property="article:tag" content="data structures">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.gergel.im/images/node-rotation.png">
+<meta name="twitter:creator" content="@increatore">
+  
+    <link rel="alternate" href="/atom.xml" title="Gianluca Ciccarelli" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.0.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Gianluca Ciccarelli</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/index.html">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/now.html">Now</a>
+        
+          <a class="main-nav-link" href="/blog">Blog</a>
+        
+          <a class="main-nav-link" href="/fiction.html">Fiction</a>
+        
+          <a class="main-nav-link" href="/reads.html">Reads</a>
+        
+          <a class="main-nav-link" href="/software.html">Software</a>
+        
+          <a class="main-nav-link" href="/about-site.html">Website</a>
+        
+          <a class="main-nav-link" target="_blank" rel="noopener" href="//github.com/sturmer">GitHub</a>
+        
+          <a class="main-nav-link" href="/about-me.html">Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://www.gergel.im"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-implemented-a-red-black-tree-1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/07/20/implemented-a-red-black-tree-1/" class="article-date">
+  <!-- Use `hideDate: true` in a .md file to hide the date -->
+  
+  <time datetime="2018-07-20T08:23:49.000Z" itemprop="datePublished">2018-07-20</time>
+  
+</a>
+
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      I implemented a Red-Black tree (part 1)
+    </h1>
+  
+
+        
+          [928 words]
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>A Red-Black tree is a binary search tree (BST) that takes some action to try and keep itself balanced. We know that BSTs are great at storing nodes identified by some key for which an order relationship exists (e.g., integers). They have the property that the values in the left sub-tree of each node <em>n</em> have keys smaller-than <em>n</em>‘s key <code>n.k</code>, and those in the right sub-tree have keys greater-than <code>n.k</code>[^1].</p>
+<a id="more"></a>
+
+<p>In a BST, searching for a key takes logarithmic time, if the tree is balanced, that is, if the root’s left and right sub-tree have roughly the same height. The problem is that for particular key insertion orders, this might no longer be true: in particular, if you insert the keys in sorted order, you’ll find a tree which looks more like a linked list, that makes search linear in the worst case. This is why people have come up with a number of strategies to keep the BST balanced.</p>
+<h2 id="Rotations"><a href="#Rotations" class="headerlink" title="Rotations"></a>Rotations</h2><p>A RB tree changes the <code>Insert</code> and <code>DeleteNode</code> operations by adding a bunch of invariants, to satisfy which some additional work is needed when changing the number of nodes in the tree. The basic operation is the node rotation: there is a way of rotating the position of 2 nodes while keeping the BST relationship valid. Here’s a replica of an image from CLRS<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Introduction_to_Algorithms">^2</a> to illustrate the procedure: we want to change this</p>
+<img src="/images/node-rotation.png" width="200" alt="Figure 1. Rotate procedure." />
+
+<p>into this:</p>
+<img src="/images/node-rotation-after.png" width="200" alt="Figure 2. After rotating right." />
+
+<p>Suppose that the BST properties are valid for the first graph. It is easy to see that they keep holding for the second:</p>
+<ul>
+<li>The subtree <code>a</code> had keys smaller than <code>x</code> and is still <code>x</code>‘s left sub-tree after the rotation</li>
+<li>The subtree <code>b</code> had keys larger than <code>x</code>, and is still <code>x</code>‘s right sub-tree after the rotation; it was also in <code>y</code>‘s sub-tree, and still is after the rotation</li>
+<li><code>c</code> remains <code>y</code>‘s right sub-tree</li>
+</ul>
+<p>The tree class starts like:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RBTree</span> &#123;</span></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  RBTree* root; <span class="comment">// Each node keeps a pointer to the tree&#x27;s root.</span></span><br><span class="line">  <span class="keyword">int</span> key;</span><br><span class="line">  Color color;  <span class="comment">// We&#x27;ll talk about this later :)</span></span><br><span class="line">  RBTree* p;    <span class="comment">// The node&#x27;s parent.</span></span><br><span class="line">  RBTree* left;</span><br><span class="line">  RBTree* right;</span><br><span class="line">  <span class="comment">// ...</span></span><br></pre></td></tr></table></figure>
+
+<p>The code for the rotate-right operation looks like this:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// static</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">RBTree::RightRotate</span><span class="params">(RBTree** root, RBTree* y)</span> </span>&#123;</span><br><span class="line">  assert(y);</span><br><span class="line">  RBTree* x = y-&gt;left;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// We&#x27;re not in the configuration described in Figure 1, so we just stop.</span></span><br><span class="line">  <span class="keyword">if</span> (!x) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  y-&gt;left = x-&gt;right;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (x-&gt;right) &#123;</span><br><span class="line">    x-&gt;right-&gt;p = y;</span><br><span class="line">  &#125;</span><br><span class="line">  x-&gt;p = y-&gt;p;</span><br><span class="line">  x-&gt;right = y;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!y-&gt;p) &#123;</span><br><span class="line">    <span class="comment">// y is the root:</span></span><br><span class="line">    assert(root &amp;&amp; *root);</span><br><span class="line">    *root = x;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (y-&gt;p-&gt;left == y) &#123;</span><br><span class="line">    <span class="comment">// y is a left child: make x its new left child.</span></span><br><span class="line">    y-&gt;p-&gt;left = x;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// y is a right child: make x its new right child.</span></span><br><span class="line">    y-&gt;p-&gt;right = x;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// x is the new parent of y:</span></span><br><span class="line">  y-&gt;p = x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="Test-RightRotate"><a href="#Test-RightRotate" class="headerlink" title="Test RightRotate"></a>Test <em>RightRotate</em></h2><p>The code above makes just some pointer manipulation to ensure we get in the right layout, as shown in Figure 2. Since we don’t have an <code>Insert</code> function yet, we test this by first creating an <code>RBTree</code> object and wiring up the nodes manually. We can build a test fixture in doctest like this:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ManualTreeCtor</span> &#123;</span></span><br><span class="line"> <span class="keyword">public</span>:</span><br><span class="line">  <span class="comment">// A full tree of height 3 (7 nodes).</span></span><br><span class="line">  RBTree* a;  <span class="comment">// root</span></span><br><span class="line"></span><br><span class="line">  ManualTreeCtor() : a(<span class="keyword">new</span> RBTree(<span class="number">30</span>)) &#123;</span><br><span class="line">    <span class="function"><span class="keyword">auto</span>* <span class="title">b</span><span class="params">(<span class="keyword">new</span> RBTree(<span class="number">18</span>))</span></span>;</span><br><span class="line">    a-&gt;left = b;</span><br><span class="line">    b-&gt;p = a;</span><br><span class="line">    b-&gt;root = a;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">auto</span>* <span class="title">c</span><span class="params">(<span class="keyword">new</span> RBTree(<span class="number">154</span>))</span></span>;</span><br><span class="line">    a-&gt;right = c;</span><br><span class="line">    c-&gt;p = a;</span><br><span class="line">    c-&gt;root = a;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">auto</span>* <span class="title">d</span><span class="params">(<span class="keyword">new</span> RBTree(<span class="number">9</span>))</span></span>;</span><br><span class="line">    d-&gt;p = b;</span><br><span class="line">    b-&gt;left = d;</span><br><span class="line">    d-&gt;root = a;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">auto</span>* <span class="title">e</span><span class="params">(<span class="keyword">new</span> RBTree(<span class="number">21</span>))</span></span>;</span><br><span class="line">    e-&gt;p = b;</span><br><span class="line">    b-&gt;right = e;</span><br><span class="line">    e-&gt;root = a;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">auto</span>* <span class="title">f</span><span class="params">(<span class="keyword">new</span> RBTree(<span class="number">84</span>))</span></span>;</span><br><span class="line">    f-&gt;p = c;</span><br><span class="line">    c-&gt;left = f;</span><br><span class="line">    f-&gt;root = a;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">auto</span>* <span class="title">g</span><span class="params">(<span class="keyword">new</span> RBTree(<span class="number">192</span>))</span></span>;</span><br><span class="line">    g-&gt;p = c;</span><br><span class="line">    c-&gt;right = g;</span><br><span class="line">    g-&gt;root = a;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>which just implements a tree like this: </p>
+<p><img src="/images/test-tree.png" alt="Figure 3. Test tree."></p>
+<p>We now test the cases for <code>y</code> being the root or not:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">TEST_CASE_FIXTURE(ManualTreeCtor, <span class="string">&quot;right-rotate non-root&quot;</span>) &#123;</span><br><span class="line">    RBTree::RightRotate(&amp;a, a-&gt;left);</span><br><span class="line">    CHECK(a-&gt;key == <span class="number">30</span>);</span><br><span class="line"></span><br><span class="line">    REQUIRE(a-&gt;left);</span><br><span class="line">    CHECK(a-&gt;left-&gt;key == <span class="number">9</span>);</span><br><span class="line"></span><br><span class="line">    REQUIRE(a-&gt;left-&gt;right);</span><br><span class="line">    CHECK(a-&gt;left-&gt;right-&gt;key == <span class="number">18</span>);</span><br><span class="line"></span><br><span class="line">    REQUIRE(a-&gt;left-&gt;right-&gt;right);</span><br><span class="line">    CHECK(a-&gt;left-&gt;right-&gt;right-&gt;key == <span class="number">21</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">TEST_CASE_FIXTURE(ManualTreeCtor, <span class="string">&quot;right-rotate root without using insert&quot;</span>) &#123;</span><br><span class="line">    RBTree::RightRotate(&amp;a, a);</span><br><span class="line">    CHECK(a-&gt;key == <span class="number">18</span>);</span><br><span class="line"></span><br><span class="line">    REQUIRE(a-&gt;left);</span><br><span class="line">    CHECK(a-&gt;left-&gt;key == <span class="number">9</span>);</span><br><span class="line"></span><br><span class="line">    REQUIRE(a-&gt;right);</span><br><span class="line">    CHECK(a-&gt;right-&gt;key == <span class="number">30</span>);</span><br><span class="line"></span><br><span class="line">    REQUIRE(a-&gt;right-&gt;left);</span><br><span class="line">    CHECK(a-&gt;right-&gt;left-&gt;key == <span class="number">21</span>);</span><br><span class="line"></span><br><span class="line">    REQUIRE(a-&gt;right-&gt;right);</span><br><span class="line">    CHECK(a-&gt;right-&gt;right-&gt;key == <span class="number">154</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>While I won’t show the code for the left-rotation, the logic is exactly the same (but for going from the configuration of Fig. 2 to the one in Fig. 1).</p>
+<p>With these operations in place, we can now implement the insertion operation.</p>
+<h2 id="Insertion-and-the-node’s-color"><a href="#Insertion-and-the-node’s-color" class="headerlink" title="Insertion, and the node’s color"></a>Insertion, and the node’s color</h2><p>RB trees’ nodes have an additional attribute: a color which can be either <code>RED</code> or <code>BLACK</code>. It is common to assign some <code>NIL</code> value to all leaves (I implemented it via a nullptr, without an explicit node with that color[^3]). The invariants I mentioned above can be expressed via five properties<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Red%E2%80%93black_tree">^3</a> :</p>
+<ol>
+<li>Each node is either red or black.</li>
+<li>The root is black.</li>
+<li>All leaves (NIL) are black[^4].</li>
+<li>If a node is red, then both its children are black.</li>
+<li>Every path from a given node to any of its descendant NIL nodes contains the same number of black nodes.</li>
+</ol>
+<p>These invariants can be kept when inserting. We need to reason about the sibling of the node-to-be-inserted’s parent, which we can refer to as the node’s <em>uncle</em>. After each insertion, we run an operation <code>InsertFixup</code> to restore the invariants that might have been violated. This is an implementation:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// static</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">RBTree::Insert</span><span class="params">(RBTree** root, RBTree* z)</span> </span>&#123;</span><br><span class="line">  assert(z);</span><br><span class="line">  assert(root &amp;&amp; *root);</span><br><span class="line"></span><br><span class="line">  RBTree* y = <span class="literal">nullptr</span>;</span><br><span class="line">  RBTree* x = *root;</span><br><span class="line">  <span class="keyword">while</span> (x) &#123;</span><br><span class="line">    y = x;</span><br><span class="line">    <span class="keyword">if</span> (z-&gt;key &lt; x-&gt;key) &#123;</span><br><span class="line">      x = x-&gt;left;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      x = x-&gt;right;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"> </span><br><span class="line">  z-&gt;p = y;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!y) &#123;</span><br><span class="line">    *root = z;</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (z-&gt;key &lt; y-&gt;key) &#123;</span><br><span class="line">    y-&gt;left = z;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    y-&gt;right = z;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  z-&gt;left = <span class="literal">nullptr</span>;</span><br><span class="line">  z-&gt;right = <span class="literal">nullptr</span>;</span><br><span class="line">  z-&gt;color = Color::RED;</span><br><span class="line">  InsertFixup(root, z);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The <code>InsertFixup</code> method for node <em>z</em> is a bit messy because there are many checks for null pointers, but the two branches of the <code>if</code> statement do very symmetric operations (inverting left and right), and the branch selected depends on <em>z</em>‘s parent being a left or right child.</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// static</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">RBTree::InsertFixup</span><span class="params">(RBTree** root, RBTree* z)</span> </span>&#123;</span><br><span class="line">  assert(z);</span><br><span class="line">  assert(root &amp;&amp; *root);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span> (z &amp;&amp; z-&gt;p &amp;&amp; z-&gt;p-&gt;color == Color::RED) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!z-&gt;p-&gt;p) &#123;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (z-&gt;p == z-&gt;p-&gt;p-&gt;left) &#123;</span><br><span class="line">      <span class="comment">// z&#x27;s parent is a left child. Its uncle is z&#x27;s parent right child.</span></span><br><span class="line">      <span class="keyword">auto</span>* y = z-&gt;p-&gt;p-&gt;right;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (y &amp;&amp; y-&gt;color == Color::RED) &#123;</span><br><span class="line">        <span class="comment">// Case 1: z&#x27;s uncle is red.</span></span><br><span class="line">        z-&gt;p-&gt;color = Color::BLACK;</span><br><span class="line">        y-&gt;color = Color::BLACK;</span><br><span class="line">        z-&gt;p-&gt;p-&gt;color = Color::RED;</span><br><span class="line">        z = z-&gt;p-&gt;p;        </span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (z == z-&gt;p-&gt;right) &#123;</span><br><span class="line">        <span class="comment">// Case 2: z&#x27;s uncle is black and z is a right child.</span></span><br><span class="line">        z = z-&gt;p;</span><br><span class="line">        RBTree::LeftRotate(root, z);           </span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// Case 3: z&#x27;s uncle is black and z is a left child.</span></span><br><span class="line">      <span class="keyword">if</span> (z &amp;&amp; z-&gt;p) &#123;</span><br><span class="line">        z-&gt;p-&gt;color = Color::BLACK;</span><br><span class="line">        <span class="keyword">if</span> (z-&gt;p-&gt;p) &#123;</span><br><span class="line">          z-&gt;p-&gt;p-&gt;color = Color::RED;</span><br><span class="line">          RBTree::RightRotate(root, z-&gt;p-&gt;p);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (z-&gt;p == z-&gt;p-&gt;p-&gt;right) &#123;</span><br><span class="line">        <span class="keyword">auto</span>* y = z-&gt;p-&gt;p-&gt;left;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (y &amp;&amp; y-&gt;color == Color::RED) &#123;</span><br><span class="line">          z-&gt;p-&gt;color = Color::BLACK;</span><br><span class="line">          y-&gt;color = Color::BLACK;</span><br><span class="line">          z-&gt;p-&gt;p-&gt;color = Color::RED;</span><br><span class="line">          z = z-&gt;p-&gt;p;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (z == z-&gt;p-&gt;left) &#123;</span><br><span class="line">          z = z-&gt;p;</span><br><span class="line">          RBTree::RightRotate(root, z);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (z &amp;&amp; z-&gt;p) &#123;</span><br><span class="line">          z-&gt;p-&gt;color = Color::BLACK;</span><br><span class="line">          <span class="keyword">if</span> (z-&gt;p-&gt;p) &#123;            </span><br><span class="line">            z-&gt;p-&gt;p-&gt;color = Color::RED;</span><br><span class="line">            RBTree::LeftRotate(root, z-&gt;p-&gt;p);</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  (*root)-&gt;color = Color::BLACK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>I’ve said a few words about Red-Black trees, a kind of binary search trees that have the property of remaining balanced when inserting and deleting nodes. In this post, I’ve shown the basic <code>rotate</code> operation and shown an implementation of <code>Insert</code>. In the next episodes, I’ll implement a <code>DeleteNode</code> operation, and then benchmark the tree against a classic binary search tree to see how much my implementation keeps its promises.</p>
+<p>[^1]: I am somehow simplifying by not counting the keys equal to <code>n.k</code>. However, that is a small issue for which I’ve tried a couple of easy solutions, like either relaxing the constraint on either sub-tree (e.g., smaller-than-or-equal rather than smaller-than for the left sub-tree), or using a counter in each node for repeated keys. It’s the typical tiny implementation detail algorithm courses tend to skip over.</p>
+<p>[^4]: I haven’t found this decision to limit the implementation of <code>Insert</code>, but I might revisit it when I’ll finally understand what it’s for. In particular, I plan to use a single node with no value and only the color black, which all other leaves will point to.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://www.gergel.im/2018/07/20/implemented-a-red-black-tree-1/" data-id="ckdvgdcx200172ofobjat7dc6" class="article-share-link">Share</a>
+      
+        <a href="https://www.gergel.im/2018/07/20/implemented-a-red-black-tree-1/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cpp/" rel="tag">cpp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/data-structures/" rel="tag">data structures</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/red-black-trees/" rel="tag">red-black trees</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/12/25/use-footnotes/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          I&#39;ve added nice footnotes to my website
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/07/12/implement-std-multiset/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Implement std::multiset</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Gianluca Ciccarelli<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/index.html" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/now.html" class="mobile-nav-link">Now</a>
+  
+    <a href="/blog" class="mobile-nav-link">Blog</a>
+  
+    <a href="/fiction.html" class="mobile-nav-link">Fiction</a>
+  
+    <a href="/reads.html" class="mobile-nav-link">Reads</a>
+  
+    <a href="/software.html" class="mobile-nav-link">Software</a>
+  
+    <a href="/about-site.html" class="mobile-nav-link">Website</a>
+  
+    <a target="_blank" rel="noopener" href="//github.com/sturmer" class="mobile-nav-link">GitHub</a>
+  
+    <a href="/about-me.html" class="mobile-nav-link">Me</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'www-gergel-im-blog';
+  
+  var disqus_url = 'https://www.gergel.im/2018/07/20/implemented-a-red-black-tree-1/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

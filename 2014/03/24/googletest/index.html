@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-45596498-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+  <title>Unit testing with Google Test | Gianluca Ciccarelli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="In a previous post, I have written a brief introduction to CppTest, and given some motivation as to why you should be using unit tests if you are not already. This week, I wanted to throw a glance at">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Unit testing with Google Test">
+<meta property="og:url" content="https://www.gergel.im/2014/03/24/googletest/index.html">
+<meta property="og:site_name" content="Gianluca Ciccarelli">
+<meta property="og:description" content="In a previous post, I have written a brief introduction to CppTest, and given some motivation as to why you should be using unit tests if you are not already. This week, I wanted to throw a glance at">
+<meta property="og:locale">
+<meta property="article:published_time" content="2014-03-23T22:00:00.000Z">
+<meta property="article:modified_time" content="2020-08-15T09:14:02.623Z">
+<meta property="article:author" content="Gianluca Ciccarelli">
+<meta property="article:tag" content="testing">
+<meta property="article:tag" content="libraries">
+<meta property="article:tag" content="unit tests">
+<meta property="article:tag" content="google">
+<meta property="article:tag" content="googletest">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@increatore">
+  
+    <link rel="alternate" href="/atom.xml" title="Gianluca Ciccarelli" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.0.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Gianluca Ciccarelli</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/index.html">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/now.html">Now</a>
+        
+          <a class="main-nav-link" href="/blog">Blog</a>
+        
+          <a class="main-nav-link" href="/fiction.html">Fiction</a>
+        
+          <a class="main-nav-link" href="/reads.html">Reads</a>
+        
+          <a class="main-nav-link" href="/software.html">Software</a>
+        
+          <a class="main-nav-link" href="/about-site.html">Website</a>
+        
+          <a class="main-nav-link" target="_blank" rel="noopener" href="//github.com/sturmer">GitHub</a>
+        
+          <a class="main-nav-link" href="/about-me.html">Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://www.gergel.im"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-googletest" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/03/24/googletest/" class="article-date">
+  <!-- Use `hideDate: true` in a .md file to hide the date -->
+  
+  <time datetime="2014-03-23T22:00:00.000Z" itemprop="datePublished">2014-03-24</time>
+  
+</a>
+
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Unit testing with Google Test
+    </h1>
+  
+
+        
+          [1013 words]
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>In a previous <a href="/blog/2014/03/17/cpptest">post</a>, I have written a brief introduction to <em>CppTest</em>, and given some motivation as to why you should be using unit tests if you are not already. This week, I wanted to throw a glance at the competition, so I tried <a target="_blank" rel="noopener" href="https://code.google.com/p/googletest/"><em>Google Test</em></a>. I still don’t like macros, but these look actually useful.</p>
+<a id="more"></a>
+
+<h2 id="Tests-by-example"><a href="#Tests-by-example" class="headerlink" title="Tests by example"></a>Tests by example</h2><p>As in the previous installment, I have considered the problem of finding a sequence of words that whould connect two words given in input, with the rule that to switch from one to the other we can change only one letter. The code is still buggy (sigh), and still lives on <a target="_blank" rel="noopener" href="https://github.com/sturmer/MutatingWords">GitHub</a>.</p>
+<p>The class defining the graph hasn’t changed, but this time I have had to mention explicitly the names of the methods that are supposed to access the private section of <code>Graph</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Graph</span> &#123;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// Private section here</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="keyword">friend</span> <span class="class"><span class="keyword">class</span> <span class="title">GraphTestSuite</span>;</span></span><br><span class="line">  FRIEND_TEST(GraphTestSuite, TestAddNode);</span><br><span class="line">  FRIEND_TEST(GraphTestSuite, TestDijkstra);</span><br><span class="line"></span><br><span class="line">  Graph(<span class="keyword">const</span> <span class="built_in">string</span>&amp; filename);</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">AddNode</span><span class="params">(<span class="keyword">const</span> T&amp; n)</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">Dijkstra</span><span class="params">(<span class="keyword">const</span> T&amp; start)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// other public stuff</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>Google Test has a concept of test suite, which is a class that groups together logically related tests. You don’t actually need to have a class with the name <code>GraphTestSuite</code>, unless you want to start writing code that is common to the tests in the suite, as it happened in CppTest.</p>
+<p>In this case, we have declared that the tests <code>TestAddNode</code> and <code>TestDijkstra</code> will need access to the private members of <code>Graph</code>; we can write other tests in the same suite that don’t need such access. One difference with respect to CppTest is that we don’t have to register the tests: the magic macro <code>RUN_ALL_TESTS</code> will automatically find the tests to run, and run them.</p>
+<p>In our example, we want to create a graph to be used in both the tests declared, so we actually declare a class like this:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GraphTestSuite</span> :</span> <span class="keyword">public</span> ::testing::Test &#123;</span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">SetUp</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">TearDown</span><span class="params">()</span></span>;</span><br><span class="line">  Graph&lt;<span class="built_in">string</span>&gt;* g;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>Compare <code>SetUp</code> and <code>TearDown</code> with CppTest’s <code>setup</code> and <code>tear_down</code>. As I said, no need to have a constructor only to add tests to the suite.</p>
+<p>The test for the method <code>AddNode</code> is almost the same as the one we previously wrote for it using CppTest, with the difference of course of the name of the macros. Another noticeable difference comes from an interesting presentation on testing at Google (which apparently I’m not able to find again!), which convinced me of testing one thing per test. Compare with the multiple tests in one line, properly ANDed, of the post on CppTest. Here’s the result:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">TEST_F(GraphTestSuite, TestAddNode) &#123;</span><br><span class="line">  EXPECT_EQ(g-&gt;adjlist[<span class="string">&quot;typo&quot;</span>].<span class="built_in">size</span>(), <span class="number">1</span>);</span><br><span class="line">  EXPECT_STREQ(g-&gt;adjlist[<span class="string">&quot;typo&quot;</span>][<span class="number">0</span>].c_str(), <span class="string">&quot;type&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// other tests</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="built_in">string</span> <span class="title">s1</span><span class="params">(<span class="string">&quot;file&quot;</span>)</span></span>;</span><br><span class="line">  g-&gt;AddNode(s1);</span><br><span class="line">  EXPECT_EQ(g-&gt;adjlist[<span class="string">&quot;mile&quot;</span>].<span class="built_in">size</span>(), <span class="number">5</span>);</span><br><span class="line">  EXPECT_TRUE(<span class="built_in">std</span>::<span class="built_in">find</span>(g-&gt;adjlist[<span class="string">&quot;mile&quot;</span>].<span class="built_in">begin</span>(),</span><br><span class="line">            g-&gt;adjlist[<span class="string">&quot;mile&quot;</span>].<span class="built_in">end</span>(), s1) !=</span><br><span class="line">          g-&gt;adjlist[<span class="string">&quot;mile&quot;</span>].<span class="built_in">end</span>());</span><br><span class="line">  <span class="comment">// other tests</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="EXPECT-vs-ASSERT"><a href="#EXPECT-vs-ASSERT" class="headerlink" title="EXPECT vs. ASSERT"></a><code>EXPECT</code> vs. <code>ASSERT</code></h3><p>In Google Test, we have to types of macros: <code>EXPECT</code> and <code>ASSERT</code>. After an <code>EXPECT</code> condition fails, the execution continues; after a failed <code>ASSERT</code>, it stops, because it would not make sense to continue. In this test, none of the single failures might be a serious error, and we have the advantage of being able to see more errors at a time, speeding up our development cycle.</p>
+<p><code>EXPECT_TRUE</code> tests the general case when a condition has to be true for the test to pass. <code>EXPECT_EQ</code> is a shortcut for testing for equality, and is suggested over using <code>EXPECT_TRUE</code> whenever possible, because it will print more useful debugging information in case of failure (as you can read for example in the comments <a target="_blank" rel="noopener" href="https://googletest.googlecode.com/svn/trunk/samples/sample1_unittest.cc">here</a>).</p>
+<h2 id="Running-the-tests"><a href="#Running-the-tests" class="headerlink" title="Running the tests"></a>Running the tests</h2><p>In the main function, we need to perform two operations:</p>
+<ol>
+<li>Initialize the library</li>
+<li>call <code>RUN_ALL_TESTS</code></li>
+</ol>
+<p>like this:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    ::testing::InitGoogleTest(&amp;argc, argv);</span><br><span class="line">    RUN_ALL_TESTS();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Given this use of <code>EXPECT</code>, the previous tests (in their complete form, without the parts I have commented out to keep the code snippets clear) give the following output:</p>
+<pre>
+[==========] Running 3 tests from 2 test cases.
+[----------] Global test environment set-up.
+[----------] 1 test from UtilTestSuite
+[ RUN      ] UtilTestSuite.TestGetHammingDistance
+[       OK ] UtilTestSuite.TestGetHammingDistance (0 ms)
+[----------] 1 test from UtilTestSuite (0 ms total)
+
+[----------] 2 tests from GraphTestSuite
+[ RUN      ] GraphTestSuite.TestAddNode
+[       OK ] GraphTestSuite.TestAddNode (1 ms)
+[ RUN      ] GraphTestSuite.TestDijkstra
+[  FAILED  ] GraphTestSuite.TestDijkstra (2 ms)
+[----------] 2 tests from GraphTestSuite (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 2 test cases ran. (4 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] GraphTestSuite.TestDijkstra
+
+1 FAILED TEST
+</pre>
+
+<p>Er, no, it still doesn’t work. But I’m close!</p>
+<blockquote>
+<p>CAVEAT EMPTOR<br /><br>To use Google Test, link your code with both <code>gtest</code> and <code>pthread</code>.</p>
+</blockquote>
+<h3 id="Intermezzo-installing-on-Ubuntu"><a href="#Intermezzo-installing-on-Ubuntu" class="headerlink" title="Intermezzo: installing on Ubuntu"></a>Intermezzo: installing on Ubuntu</h3><p>I have installed the library on my Ubuntu box (13.10), which is kind of different from the usual <code>apt-get</code> procedure. You have to <code>apt-get</code> the package <code>libgtest-dev</code>; then, go to <code>/usr/src/gtest</code> and compile it by issuing the following commands (see also <a target="_blank" rel="noopener" href="http://askubuntu.com/a/145913">this AskUbuntu answer</a>):</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo cmake CMakeList.txt</span><br><span class="line">sudo make</span><br><span class="line">sudo cp *.a /usr/lib</span><br></pre></td></tr></table></figure>
+
+<p>The last command copies the resulting static libraries you have just compiled into the proper system location. <s>Wonder why they do things this way these days</s> The answer linked before seems to give a hint at why things are done this way.</p>
+<h2 id="Death-tests"><a href="#Death-tests" class="headerlink" title="Death tests"></a>Death tests</h2><p>A death test is a test that checks whether a program terminates. This type of tests do not include termination by exception.</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ExitingFunction</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">cerr</span> &lt;&lt; <span class="string">&quot;[MR3432] Too bad, we are exiting&quot;</span>;</span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">TEST(FirstDeathTest, KillingAround) &#123;</span><br><span class="line">  EXPECT_EXIT(ExitingFunction(), ::testing::ExitedWithCode(<span class="number">0</span>),</span><br><span class="line">          <span class="string">&quot;[MR*] *&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">  ::testing::InitGoogleTest(&amp;argc, argv);</span><br><span class="line">  RUN_ALL_TESTS();</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;I am still here :)\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>The test above uses <code>EXPECT_EXIT</code>, which is one type of death test. The macro takes as arguments:</p>
+<ol>
+<li>a statement, in this case a call to the exiting function</li>
+<li>a predicate, in this case a canned Google Test predicate that expects the function to just exit with code 0</li>
+<li>a regular expression that should match what is printed by the function</li>
+</ol>
+<p>The result is the following:</p>
+<pre>
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from FirstDeathTest
+[ RUN      ] FirstDeathTest.KillingAround
+[       OK ] FirstDeathTest.KillingAround (5 ms)
+[----------] 1 test from FirstDeathTest (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test case ran. (5 ms total)
+[  PASSED  ] 1 test.
+I am still here :)
+</pre>
+
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>In this post, I have reported on my early experiences with Google Test. I will keep on testing it, and I’ll throw in also Google Mock, which is useful when we need to provide Mock classes in order to be able to test larger systems.</p>
+<p>As a result, I have also subscribed to the <a href="googletesting.blogspot.com/">Google Testing blog</a>, hoping to reach the illumination on testing that might help me become a better engineer.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://www.gergel.im/2014/03/24/googletest/" data-id="ckdvgdcwx000x2ofo56cn4wiq" class="article-share-link">Share</a>
+      
+        <a href="https://www.gergel.im/2014/03/24/googletest/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/google/" rel="tag">google</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/googletest/" rel="tag">googletest</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/libraries/" rel="tag">libraries</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/testing/" rel="tag">testing</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/unit-tests/" rel="tag">unit tests</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2014/05/06/competing/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Competing to get better
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2014/03/17/cpptest/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Unit testing with cpptest</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Gianluca Ciccarelli<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/index.html" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/now.html" class="mobile-nav-link">Now</a>
+  
+    <a href="/blog" class="mobile-nav-link">Blog</a>
+  
+    <a href="/fiction.html" class="mobile-nav-link">Fiction</a>
+  
+    <a href="/reads.html" class="mobile-nav-link">Reads</a>
+  
+    <a href="/software.html" class="mobile-nav-link">Software</a>
+  
+    <a href="/about-site.html" class="mobile-nav-link">Website</a>
+  
+    <a target="_blank" rel="noopener" href="//github.com/sturmer" class="mobile-nav-link">GitHub</a>
+  
+    <a href="/about-me.html" class="mobile-nav-link">Me</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'www-gergel-im-blog';
+  
+  var disqus_url = 'https://www.gergel.im/2014/03/24/googletest/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

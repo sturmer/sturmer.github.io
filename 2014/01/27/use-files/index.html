@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-45596498-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+  <title>Use files | Gianluca Ciccarelli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Recently I’ve found myself in the common situation where I have to open a file and make something with its content. This is a basic task and should present no difficulties to a programmer; I happened,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Use files">
+<meta property="og:url" content="https://www.gergel.im/2014/01/27/use-files/index.html">
+<meta property="og:site_name" content="Gianluca Ciccarelli">
+<meta property="og:description" content="Recently I’ve found myself in the common situation where I have to open a file and make something with its content. This is a basic task and should present no difficulties to a programmer; I happened,">
+<meta property="og:locale">
+<meta property="og:image" content="https://www.gergel.im/images/gra.png">
+<meta property="article:published_time" content="2014-01-26T22:00:00.000Z">
+<meta property="article:modified_time" content="2020-08-15T09:14:02.638Z">
+<meta property="article:author" content="Gianluca Ciccarelli">
+<meta property="article:tag" content="C++11">
+<meta property="article:tag" content="files">
+<meta property="article:tag" content="regex">
+<meta property="article:tag" content="streams">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.gergel.im/images/gra.png">
+<meta name="twitter:creator" content="@increatore">
+  
+    <link rel="alternate" href="/atom.xml" title="Gianluca Ciccarelli" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.0.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Gianluca Ciccarelli</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/index.html">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/now.html">Now</a>
+        
+          <a class="main-nav-link" href="/blog">Blog</a>
+        
+          <a class="main-nav-link" href="/fiction.html">Fiction</a>
+        
+          <a class="main-nav-link" href="/reads.html">Reads</a>
+        
+          <a class="main-nav-link" href="/software.html">Software</a>
+        
+          <a class="main-nav-link" href="/about-site.html">Website</a>
+        
+          <a class="main-nav-link" target="_blank" rel="noopener" href="//github.com/sturmer">GitHub</a>
+        
+          <a class="main-nav-link" href="/about-me.html">Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://www.gergel.im"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-use-files" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/01/27/use-files/" class="article-date">
+  <!-- Use `hideDate: true` in a .md file to hide the date -->
+  
+  <time datetime="2014-01-26T22:00:00.000Z" itemprop="datePublished">2014-01-27</time>
+  
+</a>
+
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Use files
+    </h1>
+  
+
+        
+          [556 words]
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Recently I’ve found myself in the common situation where I have to open a file and make something with its content. This is a basic task and should present no difficulties to a programmer; I happened, however, to get stuck for a while in search of a good way to carry out this apparently simple task. In particular, I have run into the recent addition of regular expression processing to the STL. Spoiler alert: I was not particularly happy of what I’ve found along the way.</p>
+<a id="more"></a>
+
+<h2 id="Parse-a-graph-data-file"><a href="#Parse-a-graph-data-file" class="headerlink" title="Parse a graph data file"></a>Parse a graph data file</h2><p>A file with data for a graph can be structured in several ways. I usually try to use the format I’ve learnt by reading Skiena’s book on algorithms and data structures, with a first line containing the number of vertices and of edges, and each subsequent line containing an edge in the form of a source and a destination node. A comment line can be made by starting the line itself with a pound sign.</p>
+<p>For example:</p>
+<pre>
+# Directed graph, 6 vertices, 8 edges
+6 8
+1 2
+2 1
+2 3
+2 4
+3 6
+# 4 is source to no destination
+5 4
+6 4
+</pre>
+
+<p>designates a graph in the form of the following figure:</p>
+<p><img src="/images/gra.png" alt="Graph from data file"></p>
+<h2 id="Using-streams"><a href="#Using-streams" class="headerlink" title="Using streams"></a>Using streams</h2><p>The first way I’ve found to correctly read and parse the file is based on character-by-character reading:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Using std::istream::get()</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (argc != <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="built_in">cerr</span> &lt;&lt; <span class="string">&quot;Usage: &quot;</span> &lt;&lt; argv[<span class="number">0</span>] &lt;&lt; <span class="string">&quot; FILENAME\n&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> EXIT_FAILURE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function">ifstream <span class="title">f</span><span class="params">(argv[<span class="number">1</span>])</span></span>;</span><br><span class="line">    <span class="keyword">if</span> (!f.good()) &#123;</span><br><span class="line">        <span class="built_in">cerr</span> &lt;&lt; <span class="string">&quot;Problems opening file &quot;</span> &lt;&lt; argv[<span class="number">1</span>] &lt;&lt; <span class="string">&quot;!\n&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> EXIT_FAILURE;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">bool</span> first_line = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> V = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> E = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> src = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> dest = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">char</span> c;</span><br><span class="line">    <span class="built_in">stringstream</span> <span class="built_in">line</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// This test returns true if the stream is available</span></span><br><span class="line">    <span class="comment">// for additional reading</span></span><br><span class="line">    <span class="keyword">while</span> (f.<span class="built_in">get</span>(c)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (c == <span class="string">&#x27;#&#x27;</span>) &#123;</span><br><span class="line">            f.ignore(<span class="built_in">std</span>::numeric_limits&lt;<span class="built_in">std</span>::streamsize&gt;::<span class="built_in">max</span>(), <span class="string">&#x27;\n&#x27;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (c == <span class="string">&#x27;\n&#x27;</span>) &#123;</span><br><span class="line">            <span class="comment">// line ended</span></span><br><span class="line">            <span class="keyword">if</span> (first_line) &#123;</span><br><span class="line">                <span class="built_in">line</span> &gt;&gt; V &gt;&gt; E;</span><br><span class="line">                <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;V: &quot;</span> &lt;&lt; V &lt;&lt; <span class="string">&quot;, E: &quot;</span> &lt;&lt; E &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">                first_line = <span class="literal">false</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="built_in">line</span> &gt;&gt; src &gt;&gt; dest;</span><br><span class="line">                add_edge(src, dest);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">line</span>.<span class="built_in">clear</span>();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">line</span> &lt;&lt; c;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> EXIT_SUCCESS;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Using-regex"><a href="#Using-regex" class="headerlink" title="Using regex"></a>Using regex</h3><p>The second way I’ve found uses regular expressions. Let’s have a look at the code:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> V = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> E = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">bool</span> first_line = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">if</span> (argc != <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="built_in">cerr</span> &lt;&lt; <span class="string">&quot;Usage: &quot;</span> &lt;&lt; argv[<span class="number">0</span>] &lt;&lt; <span class="string">&quot; FILENAME\n&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> EXIT_FAILURE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function">ifstream <span class="title">file</span><span class="params">(argv[<span class="number">1</span>])</span></span>;</span><br><span class="line">    <span class="keyword">if</span> (!file.good()) &#123;</span><br><span class="line">        <span class="built_in">cerr</span> &lt;&lt; <span class="string">&quot;Problems opening file &quot;</span> &lt;&lt; argv[<span class="number">1</span>] &lt;&lt; <span class="string">&quot;!\n&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> EXIT_FAILURE;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="built_in">std</span>::regex <span class="title">re</span><span class="params">(<span class="string">&quot;(.+) (.+)&quot;</span>)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(file.good()) &#123;</span><br><span class="line">        <span class="built_in">string</span> <span class="built_in">line</span>;</span><br><span class="line">        <span class="keyword">if</span> (!getline(file, <span class="built_in">line</span>))</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="built_in">std</span>::smatch result;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">std</span>::regex_search(<span class="built_in">line</span>, result, <span class="built_in">std</span>::regex(<span class="string">&quot;^#&quot;</span>))) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (!<span class="built_in">std</span>::regex_search(<span class="built_in">line</span>, result, re)) &#123;</span><br><span class="line">                <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;No match for &#x27;&quot;</span> &lt;&lt; <span class="built_in">line</span> &lt;&lt; <span class="string">&quot;&#x27;\n&quot;</span>;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (!first_line) &#123;</span><br><span class="line">                    <span class="keyword">int</span> src = <span class="built_in">std</span>::stoi(result[<span class="number">1</span>]);</span><br><span class="line">                    <span class="keyword">int</span> dest = <span class="built_in">std</span>::stoi(result[<span class="number">2</span>]);</span><br><span class="line">                    process_edge(src, dest);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    first_line = <span class="literal">false</span>;</span><br><span class="line">                    <span class="comment">// read number of vertices and edges</span></span><br><span class="line">                    V = <span class="built_in">std</span>::stoi(result[<span class="number">1</span>]);</span><br><span class="line">                    E = <span class="built_in">std</span>::stoi(result[<span class="number">2</span>]);</span><br><span class="line">                    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;V : &quot;</span> &lt;&lt; V &lt;&lt; <span class="string">&quot;, E: &quot;</span> &lt;&lt; E &lt;&lt; <span class="string">&#x27;\n&#x27;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>This code only works correctly with the clang compiler, using the clang implementation of the STL (option <code>-stdlib=libc++</code> on Ubuntu). The detail of what happens is the following:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::regex <span class="title">re</span><span class="params">(<span class="string">&quot;(.+) (.+)&quot;</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>This builds the regular expression. I want to match digits in this case, but when I tried with the escape sequence <code>\d</code> instead of the generic dot (“match any character”), I got a warning about <em>unknown escape sequence</em>, even specifying explicitly what is expected to be the default regex grammar, ECMAScript: it can be used as a second parameter to the constructor of the regex:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="built_in">std</span>::regex <span class="title">re</span><span class="params">(<span class="string">&quot;(.+) (\d+)&quot;</span>, <span class="built_in">std</span>::regex_constants::ECMAScript)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>The second interesting bit is the search:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">if</span> (<span class="built_in">std</span>::regex_search(<span class="built_in">line</span>, result, <span class="built_in">std</span>::regex(<span class="string">&quot;^#&quot;</span>))) &#123;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">if</span> (!<span class="built_in">std</span>::regex_search(<span class="built_in">line</span>, result, re)) &#123;</span><br><span class="line"><span class="comment">// ...</span></span><br></pre></td></tr></table></figure>
+
+<p>This second one, for example, looks for the regex <code>re</code> in the <code>line</code>, and stores the matching groups (delimited by the parentheses in the regular expression) in a <code>sub_match</code> object, <code>result</code>, that we can later use to initialize the integers. Note the use of the new (in the C++11 sense) functions <code>stoi</code>, that solve the basic problem of converting a numeric string into an integer number.</p>
+<p>In this case, as a greater benefit, we can match comments with a pound sign in any point of the line, provided it is the very first character of the line. Compare with what we do in the first example, where we only match the pound if it is in the first column.</p>
+<h3 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h3><p>We have had a look at how to perform a very basic task, namely, opening a file and reading its content line by line, parsing the lines as they come. The support of regular expressions is still very basic (using gcc was impossible), and clang proves to be ahead of the competition. I am an avid user of regex, so I hope that the support will become flawless in a very small time.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://www.gergel.im/2014/01/27/use-files/" data-id="ckdvgdcxt003c2ofofoo5fxxy" class="article-share-link">Share</a>
+      
+        <a href="https://www.gergel.im/2014/01/27/use-files/#disqus_thread" class="article-comment-link">Comments</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C-11/" rel="tag">C++11</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/files/" rel="tag">files</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/regex/" rel="tag">regex</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/streams/" rel="tag">streams</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2014/02/03/accessing-apis/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Accessing APIs
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2014/01/20/time-in-cpp/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Time in C++</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Gianluca Ciccarelli<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/index.html" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/now.html" class="mobile-nav-link">Now</a>
+  
+    <a href="/blog" class="mobile-nav-link">Blog</a>
+  
+    <a href="/fiction.html" class="mobile-nav-link">Fiction</a>
+  
+    <a href="/reads.html" class="mobile-nav-link">Reads</a>
+  
+    <a href="/software.html" class="mobile-nav-link">Software</a>
+  
+    <a href="/about-site.html" class="mobile-nav-link">Website</a>
+  
+    <a target="_blank" rel="noopener" href="//github.com/sturmer" class="mobile-nav-link">GitHub</a>
+  
+    <a href="/about-me.html" class="mobile-nav-link">Me</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'www-gergel-im-blog';
+  
+  var disqus_url = 'https://www.gergel.im/2014/01/27/use-files/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
