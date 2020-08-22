@@ -81,6 +81,21 @@ new Vue({
         year: 2020,
         books: [
           {
+            title: "The Tragedies, vol. 1",
+            author: "Euripides",
+            grade: 7,
+            link: null,
+            from: flags.greece,
+          },
+          {
+            title: "The Shadow of the Wind",
+            author: "Carlos Ruiz Zafón",
+            grade: 6,
+            link: null,
+            from: flags.spain,
+            published: 2001,
+          },
+          {
             title: "The Dream of the Celt",
             author: "Mario Vargas Llosa",
             grade: 5,
