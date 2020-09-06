@@ -81,6 +81,13 @@ new Vue({
         year: 2020,
         books: [
           {
+            title: "Purge",
+            author: "Sofi Oksanen",
+            grade: 8,
+            link: null,
+            from: flags.finland,
+          },
+          {
             title: "The Tragedies, vol. 1",
             author: "Euripides",
             grade: 7,
