@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-45596498-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+  <title>Retrospective Q3 2020 | Gianluca Ciccarelli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Here’s how the quarter went. Work-related OKRsO1: Make sense of data on errors and find ways to prevent themKR1. Lead team initiative during cooldown period to triage all Sentry errors. Assess the tea">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Retrospective Q3 2020">
+<meta property="og:url" content="https://www.gergel.im/2020/10/03/retro-october-2020/index.html">
+<meta property="og:site_name" content="Gianluca Ciccarelli">
+<meta property="og:description" content="Here’s how the quarter went. Work-related OKRsO1: Make sense of data on errors and find ways to prevent themKR1. Lead team initiative during cooldown period to triage all Sentry errors. Assess the tea">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-10-03T17:46:00.000Z">
+<meta property="article:modified_time" content="2020-10-03T17:47:05.074Z">
+<meta property="article:author" content="Gianluca Ciccarelli">
+<meta property="article:tag" content="retrospective">
+<meta property="article:tag" content="running">
+<meta property="article:tag" content="elixir">
+<meta property="article:tag" content="sentry">
+<meta property="article:tag" content="estonian">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:creator" content="@increatore">
+  
+    <link rel="alternate" href="/atom.xml" title="Gianluca Ciccarelli" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.0.2"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Gianluca Ciccarelli</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/index.html">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/now.html">Now</a>
+        
+          <a class="main-nav-link" href="/blog">Blog</a>
+        
+          <a class="main-nav-link" href="/fiction.html">Fiction</a>
+        
+          <a class="main-nav-link" href="/reads.html">Reads</a>
+        
+          <a class="main-nav-link" href="/software.html">Software</a>
+        
+          <a class="main-nav-link" href="/about-site.html">Website</a>
+        
+          <a class="main-nav-link" target="_blank" rel="noopener" href="//github.com/sturmer">GitHub</a>
+        
+          <a class="main-nav-link" href="/about-me.html">Me</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="Flux RSS"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Ricerca"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://www.gergel.im"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-retro-october-2020" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/10/03/retro-october-2020/" class="article-date">
+  <!-- Use `hideDate: true` in a .md file to hide the date -->
+  
+  <time datetime="2020-10-03T17:46:00.000Z" itemprop="datePublished">2020-10-03</time>
+  
+</a>
+
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Retrospective Q3 2020
+    </h1>
+  
+
+        
+          [592 words]
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Here’s how the quarter went.</p>
+<h2 id="Work-related-OKRs"><a href="#Work-related-OKRs" class="headerlink" title="Work-related OKRs"></a>Work-related OKRs</h2><h3 id="O1-Make-sense-of-data-on-errors-and-find-ways-to-prevent-them"><a href="#O1-Make-sense-of-data-on-errors-and-find-ways-to-prevent-them" class="headerlink" title="O1: Make sense of data on errors and find ways to prevent them"></a>O1: Make sense of data on errors and find ways to prevent them</h3><p><strong>KR1.</strong> Lead team initiative during cooldown period to triage all Sentry errors. Assess the team’s health based on result ❌<br><strong>KR2.</strong> Automate some steps in software production ❌<br><strong>KR3.</strong> Gather collective ideas on best practices: partially, I’ll have ❌</p>
+<p>This OKR has been frustrating and not very rewarding. It has changed shape a few times and the observable result of it might just be a few more lines of documentation in Confluence. I have learned a bit more about care-taking, the name we give to the activity of the one team member that each week, in a rotation, fields questions and maintains the systems’ health while the rest of the team pushes on the development.</p>
+<h3 id="O2-Grasp-Elixir"><a href="#O2-Grasp-Elixir" class="headerlink" title="O2. Grasp Elixir"></a>O2. Grasp Elixir</h3><p><strong>KR1.</strong> Read <em>Elixir in Action</em>, <em>Real-Time Phoenix</em> and make presentation: ❌<br><strong>KR2.</strong> Write plug with a FOSS license: ❌</p>
+<p>The book <em>Elixir in Action</em> never reached my desk. Not the best of the excuses, but not the worst. Halfway through the quarter I started meeting once a week with other readers of <em>Real-Time Phoenix</em>, which has been motivating and fruitful. It is a very hard book though and we’re still on chapter 5 (and personally I’m on chapter 6), but there are 19 chapters in the book. I’m not even sure if it’s realistic to expect this done by the end of the year, but I’ll try to set a realistic goal for myself to do at least 6 more chapters or so.</p>
+<p>The plug’s is a sad story. There’s a task in our board but I haven’t been allowed to tackle it. Simple as that. I need to find time on my own to actually push on this goal.</p>
+<h2 id="Personal-OKRs"><a href="#Personal-OKRs" class="headerlink" title="Personal OKRs"></a>Personal OKRs</h2><h3 id="O3-Improve-Estonian"><a href="#O3-Improve-Estonian" class="headerlink" title="O3. Improve Estonian"></a>O3. Improve Estonian</h3><p><strong>KR1.</strong> Finish Keeleklikk A1: Not sure where I’ve got in terms of levels. I’m at section 4 out of 16, so less than 25% through. I’m not even sure what level you get once you complete the course 😅. I’ll be more precise for next quarter’s OKR, but honestly I don’t know if I’ve done this ❌<br><strong>KR2.</strong> Study 3 hours per week: I’ve studied 11 hours 30 minutes since August 12th, when I started the course. That’s 6 weeks, so I had less than 2 hours per week. I’ve reorganized my schedule and accepted that I won’t dedicate more than half an hour a day, but this time it’s a miss ❌<br><strong>KR3.</strong> Review Anki cards daily: I haven’t done it daily but quite often. Still ❌</p>
+<p>I haven’t been very constant but I’m happy with where I’ve gotten. I’ll pace it better next quarter.</p>
+<h3 id="O4-Improve-running-stats"><a href="#O4-Improve-running-stats" class="headerlink" title="O4. Improve running stats"></a>O4. Improve running stats</h3><p><strong>KR1.</strong> Run a total of 200km: I ran 256.19km ✅<br><strong>KR2.</strong> Run a 1-km lap in 4’30”: Did 4’15” on September 9th ✅<br><strong>KR3.</strong> Get to average pace of 5’: I’ve got to 4:54 in the 5K on September 14th, but couldn’t do better than 5:02 in the 10K on September 30th. Still a win ✅<br><strong>KR4.</strong> Do 14 workouts in a month (week alternation 4-3-4-3): I’ve done 15 workouts ✅</p>
+<p>I could’ve been more ambitious with this OKR, but I’m very happy with it. I’ll see what I can get done with the next one, when the weather will start to get rough.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://www.gergel.im/2020/10/03/retro-october-2020/" data-id="ckftzgnbu002hxjfob1j3fk7e" class="article-share-link">Condividi</a>
+      
+        <a href="https://www.gergel.im/2020/10/03/retro-october-2020/#disqus_thread" class="article-comment-link">Commenti</a>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elixir/" rel="tag">elixir</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/estonian/" rel="tag">estonian</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/retrospective/" rel="tag">retrospective</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/running/" rel="tag">running</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sentry/" rel="tag">sentry</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/08/22/retro-august-2020/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Meno recente</strong>
+      <div class="article-nav-title">Retrospective August 2020</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Gianluca Ciccarelli<br>
+      Costruito con <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/index.html" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/now.html" class="mobile-nav-link">Now</a>
+  
+    <a href="/blog" class="mobile-nav-link">Blog</a>
+  
+    <a href="/fiction.html" class="mobile-nav-link">Fiction</a>
+  
+    <a href="/reads.html" class="mobile-nav-link">Reads</a>
+  
+    <a href="/software.html" class="mobile-nav-link">Software</a>
+  
+    <a href="/about-site.html" class="mobile-nav-link">Website</a>
+  
+    <a target="_blank" rel="noopener" href="//github.com/sturmer" class="mobile-nav-link">GitHub</a>
+  
+    <a href="/about-me.html" class="mobile-nav-link">Me</a>
+  
+</nav>
+    
+<script>
+  var disqus_shortname = 'www-gergel-im-blog';
+  
+  var disqus_url = 'https://www.gergel.im/2020/10/03/retro-october-2020/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

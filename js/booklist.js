@@ -86,6 +86,7 @@ new Vue({
             grade: 9,
             link: "/reviews/2020/le-garçon.html",
             from: flags.france,
+            pubdate: 2016
           },
           {
             title: "Ripper",
@@ -93,6 +94,7 @@ new Vue({
             grade: 3,
             link: null,
             from: flags.chile,
+            pubdate: 2013
           },
           {
             title: "Purge",
@@ -100,6 +102,7 @@ new Vue({
             grade: 8,
             link: null,
             from: flags.finland,
+            pubdate: 2008
           },
           {
             title: "The Tragedies, vol. 1",
