@@ -81,6 +81,20 @@ new Vue({
         year: 2020,
         books: [
           {
+            title: "Le garçon",
+            author: "Marcus Malte",
+            grade: 9,
+            link: "/reviews/2020/le-garçon.html",
+            from: flags.france,
+          },
+          {
+            title: "Ripper",
+            author: "Isabel Allende",
+            grade: 3,
+            link: null,
+            from: flags.chile,
+          },
+          {
             title: "Purge",
             author: "Sofi Oksanen",
             grade: 8,
