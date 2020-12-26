@@ -20,10 +20,12 @@ const flags = {
   israel: "&#127470;&#127473;",
   italy: "&#127470;&#127481;",
   jamaica: "&#127471;&#127474;",
+  japan: "&#x1f1ef;&#x1f1f5;",
   morocco: "&#127474;&#127462;",
   peru: "&#127477;&#127466;",
   poland: "&#127477;&#127473;",
   portugal: "&#x1F1F5;&#x1F1F9;",
+  russia: "&#x1f1f7;&#x1f1fa;",
   scotland: "&#x1F3F4;&#xE0067;&#xE0062;&#xE0073;&#xE0063;&#xE0074;&#xE007F;",
   south_africa: "&#127487;&#127462;",
   sweden: "&#x1f1f8;&#x1f1ea;",
@@ -80,6 +82,60 @@ new Vue({
       {
         year: 2020,
         books: [
+          {
+            title: "Stoner",
+            author: "John Williams",
+            grade: 9,
+            link: null,
+            from: flags.us
+          },
+          {
+            title: "Real-Time Phoenix",
+            author: "Stephen Bussey",
+            grade: 7,
+            link: null
+          },
+          {
+            title: "The Fountainhead",
+            author: "Ayn Rand",
+            grade: 8,
+            link: null,
+            from: `${flags.us}/${flags.russia}`
+          },
+          {
+            title: "Jonathan Strange & Mr. Norrell",
+            author: "Susanna Clarke",
+            grade: 10,
+            link: null,
+            from: flags.uk
+          },
+          {
+            title: "Atomic Habits",
+            author: "James Clear",
+            grade: 8,
+            link: null,
+            from: flags.us
+          },
+          {
+            title: "The Death of Ivan Ilyich",
+            author: "Leo Tolstoy",
+            grade: 9,
+            link: null
+          },
+          {
+            title: "Sputnik Sweetheart",
+            author: "Murakami Haruki",
+            grade: 8,
+            link: null,
+            from: flags.japan
+          },
+          {
+            title: "Wuthering Heights",
+            author: "Emily Brönte",
+            grade: 4,
+            link: null,
+            from: flags.uk
+          },
           {
             title: "Le garçon",
             author: "Marcus Malte",
