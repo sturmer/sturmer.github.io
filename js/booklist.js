@@ -48,10 +48,10 @@ Vue.component("booklist", {
       <ul>
         <div v-for="book in r.books">
           <li>
-            <span v-if="book.link">
-              <a :href="book.link"><b>{{ book.title }}</b></a>
+            <span v-if="book.lt">
+            <a :href="book.lt"><b>{{ book.title }}</b></a>
             </span>
-            <span v-else><b>{{ book.title }}</b></span><span v-if="book.published"> ({{book.published}})</span> &mdash; by {{ book.author }}
+            <span v-else><b>{{ book.title }}</b></span> <span v-if="book.link"><sup><a :href="book.link">[review]</a></sup></span> <span v-if="book.pubdate"> ({{book.pubdate}})</span> &mdash; by {{ book.author }}
             <span v-html="book.from"></span>({{ book.grade }}/10).
           </li>
         </div>
@@ -86,14 +86,16 @@ new Vue({
             title: "Stoner",
             author: "John Williams",
             grade: 9,
-            link: null,
-            from: flags.us
+            link: "/reviews/2020/stoner.html",
+            pubdate: 1965,
+            lt: "//www.librarything.com/work/169174/"
           },
           {
             title: "Real-Time Phoenix",
             author: "Stephen Bussey",
             grade: 7,
-            link: null
+            link: "/2020/12/26/real-time-phoenix/",
+            lt: "//www.librarything.com/work/25306228/"
           },
           {
             title: "The Fountainhead",
@@ -142,7 +144,8 @@ new Vue({
             grade: 9,
             link: "/reviews/2020/le-garçon.html",
             from: flags.france,
-            pubdate: 2016
+            pubdate: 2016,
+            lt: "//www.librarything.com/work/14272499/"
           },
           {
             title: "Ripper",
@@ -173,7 +176,7 @@ new Vue({
             grade: 6,
             link: null,
             from: flags.spain,
-            published: 2001,
+            pubdate: 2001,
           },
           {
             title: "The Dream of the Celt",
@@ -181,7 +184,7 @@ new Vue({
             grade: 5,
             link: null,
             from: flags.peru,
-            published: 2010,
+            pubdate: 2010,
           },
           {
             title: "The Savage Detectives",
@@ -189,7 +192,7 @@ new Vue({
             grade: 8,
             link: null,
             from: flags.chile,
-            published: 1998,
+            pubdate: 1998,
           },
           {
             title: "Humboldt's Gift",
@@ -197,7 +200,8 @@ new Vue({
             grade: 7,
             link: "/reviews/2020/humboldt-s-gift.html",
             from: flags.us,
-            published: 1975,
+            pubdate: 1975,
+            lt: "//www.librarything.com/work/10094/"
           },
           {
             title: "Death's End",
@@ -205,7 +209,8 @@ new Vue({
             grade: 8,
             link: "/reviews/2020/death-s-end.html",
             from: flags.china,
-            published: 2010,
+            pubdate: 2010,
+            lt: "//www.librarything.com/work/15960642/"
           },
           {
             title: "A Tale of Two Cities",
@@ -213,7 +218,8 @@ new Vue({
             grade: 7,
             link: "/reviews/2020/a-tale-of-two-cities.html",
             from: flags.uk,
-            published: 1859,
+            pubdate: 1859,
+            lt: "//www.librarything.com/work/17728/"
           },
           {
             title: "Storm in a Teacup: The Physics of Everyday Life",
@@ -221,7 +227,8 @@ new Vue({
             grade: 5,
             link: "/reviews/2020/storm-in-a-teacup.html",
             from: flags.uk,
-            published: 2016,
+            pubdate: 2016,
+            lt: "//www.librarything.com/work/18419267/"
           },
           {
             title: "La Pornographie",
@@ -229,7 +236,8 @@ new Vue({
             grade: 9,
             link: "/reviews/2020/la-pornographie.html",
             from: flags.poland,
-            published: 1960,
+            pubdate: 1960,
+            lt: "//www.librarything.com/work/90350661/"
           },
           {
             title: "12 Rules for Life: An Antidote to Chaos",
@@ -237,7 +245,7 @@ new Vue({
             grade: 7,
             link: null,
             from: flags.canada,
-            published: 2018,
+            pubdate: 2018,
           },
           {
             title: "Collected Fictions",
@@ -245,7 +253,7 @@ new Vue({
             grade: 8,
             link: null,
             from: flags.argentina,
-            published: "1935-1983",
+            pubdate: "1935-1983",
           },
           {
             title: "Malombra",
@@ -253,7 +261,7 @@ new Vue({
             grade: 7,
             link: null,
             from: flags.italy,
-            published: 1881,
+            pubdate: 1881,
           },
           {
             title: "Extension du domaine de la lutte",
@@ -261,7 +269,8 @@ new Vue({
             grade: 10,
             link: "/reviews/2020/extension-du-domaine-de-la-lutte.html",
             from: flags.france,
-            published: 1994,
+            pubdate: 1994,
+            lt: "//www.librarything.com/work/16151/"
           },
           {
             title: "Swing Time",
@@ -269,7 +278,8 @@ new Vue({
             grade: 8,
             link: "/reviews/2020/swing-time.html",
             from: flags.uk,
-            published: 2016,
+            pubdate: 2016,
+            lt: "//www.librarything.com/work/17897154"
           },
           {
             title: "V for Vendetta",
@@ -277,7 +287,7 @@ new Vue({
             grade: 4,
             link: null,
             from: flags.uk,
-            published: "1982-1989",
+            pubdate: "1982-1989",
           },
           {
             title: "A Scanner Darkly",
@@ -285,7 +295,7 @@ new Vue({
             grade: 8,
             link: null,
             from: flags.us,
-            published: 1977,
+            pubdate: 1977,
           },
           {
             title: "Life on Mars",
@@ -293,7 +303,8 @@ new Vue({
             grade: 6,
             link: "/reviews/2020/life-on-mars.html",
             from: flags.us,
-            published: 2011,
+            pubdate: 2011,
+            lt: "//www.librarything.com/work/11092458/"
           },
           {
             title: "Double Star",
@@ -301,7 +312,8 @@ new Vue({
             grade: 7,
             link: "/reviews/2020/double-star.html",
             from: flags.us,
-            published: 1956,
+            pubdate: 1956,
+            lt: "//www.librarything.com/work/7502/"
           },
           {
             title: "Who Rules the World?",
@@ -309,7 +321,7 @@ new Vue({
             grade: 9,
             link: null,
             from: flags.us,
-            published: 2016,
+            pubdate: 2016,
           },
           {
             title: "Scythe",
@@ -317,7 +329,7 @@ new Vue({
             grade: 3,
             link: null,
             from: flags.us,
-            published: 2016,
+            pubdate: 2016,
           },
           {
             title: "Operation Shylock",
@@ -325,7 +337,7 @@ new Vue({
             grade: 7,
             link: null,
             from: flags.us,
-            published: 1993,
+            pubdate: 1993,
           },
           {
             // Jan 19-24
@@ -334,7 +346,7 @@ new Vue({
             grade: 7,
             link: null,
             from: flags.israel,
-            published: 2014,
+            pubdate: 2014,
           },
           {
             title: "It",
@@ -342,7 +354,7 @@ new Vue({
             grade: 1,
             link: null,
             from: flags.us,
-            published: 1986,
+            pubdate: 1986,
           },
           {
             title: "Everything is F*cked",
@@ -350,7 +362,7 @@ new Vue({
             grade: 6,
             link: null,
             from: flags.us,
-            published: 2019,
+            pubdate: 2019,
           },
         ],
       },
@@ -384,7 +396,7 @@ new Vue({
             grade: 10,
             link: null,
             from: `${flags.france}/${flags.czechia}`,
-            published: 1984,
+            pubdate: 1984,
           },
           {
             title: "In Asia",
@@ -400,7 +412,7 @@ new Vue({
             grade: 7,
             link: null,
             from: flags.china,
-            published: 2008,
+            pubdate: 2008,
           },
           {
             title: "The Clown",
@@ -408,7 +420,7 @@ new Vue({
             grade: 6,
             link: null, // ❯ node myscripts/review.js -t "The Clown" -a "Heinrich Böll" -g 6 -i 65736
             from: flags.germany,
-            published: 1963,
+            pubdate: 1963,
           },
           {
             title: "Les Liaisons dangereuses",
