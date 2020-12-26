@@ -101,9 +101,10 @@ new Vue({
             title: "The Fountainhead",
             author: "Ayn Rand",
             grade: 8,
-            link: null,
-            from: `${flags.us}/${flags.russia}`
-          },
+            link: "/reviews/2020/the-fountainhead.html",
+            pubdate: 1943,
+            lt: "//www.librarything.com/work/3702"
+        },
           {
             title: "Jonathan Strange & Mr. Norrell",
             author: "Susanna Clarke",
