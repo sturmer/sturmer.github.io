@@ -80,6 +80,27 @@ new Vue({
   data: {
     reads: [
       {
+        year: 2021,
+        books: [
+          // {
+          //   title: "Torto Arado",
+          //   author: "Itamar Vieira Junior",
+          //   grade: 10,
+          //   link: "/reviews/2021/torto-arado.html",
+          //   pubdate: 2019,
+          //   lt: "//www.openlibrary.org/works/OL24141556W"
+          // },
+          {
+            title: "American Pastoral",
+            author: "Philip Roth",
+            grade: 8,
+            link: "/reviews/2021/american-pastoral.html",
+            pubdate: 1997,
+            lt: "//www.openlibrary.org/works/OL1009341M"
+          },
+        ]
+      },
+      {
         year: 2020,
         books: [
           {
