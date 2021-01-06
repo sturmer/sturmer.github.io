@@ -96,13 +96,21 @@ new Vue({
             grade: 8,
             link: "/reviews/2021/american-pastoral.html",
             pubdate: 1997,
-            lt: "//www.openlibrary.org/works/OL1009341M"
+            lt: "//www.openlibrary.org/works/OL1009341M",
           },
         ]
       },
       {
         year: 2020,
         books: [
+          {
+            title: "On Writing: A Memoir of the Craft",
+            author: "Stephen King",
+            grade: 7,
+            link: null,
+            pubdate: 1999,
+            lt: "//openlibrary.org/works/OL81601W"
+          },
           {
             title: "Stoner",
             author: "John Williams",
