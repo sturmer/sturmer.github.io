@@ -82,14 +82,23 @@ new Vue({
       {
         year: 2021,
         books: [
-          // {
-          //   title: "Torto Arado",
-          //   author: "Itamar Vieira Junior",
-          //   grade: 10,
-          //   link: "/reviews/2021/torto-arado.html",
-          //   pubdate: 2019,
-          //   lt: "//www.openlibrary.org/works/OL24141556W"
-          // },
+          {
+            title: "Nothing Is True and Everything Is Possible",
+            author: "Peter Pomerantsev",
+            grade: 6,
+            link: null,
+            pubdate: 2012,
+            lt: "//openlibrary.org/books/OL28201488M/"
+          },
+          {
+            title: "Torto Arado",
+            author: "Itamar Vieira Junior",
+            grade: 8,
+            // link: "/reviews/2021/torto-arado.html",
+            link: null,
+            pubdate: 2019,
+            lt: "//www.openlibrary.org/works/OL24141556W"
+          },
           {
             title: "American Pastoral",
             author: "Philip Roth",
