@@ -197,13 +197,6 @@ blockquote:before {
 blockquote p {
   display: inline;
 }
-#app ul {
-  list-style: none;
-}
-#app th,
-#app td {
-  text-align: center;
-}
 .article-date,
 .article-category-link,
 .archive-year {
