@@ -2,6 +2,5 @@ User-agent: *
 Disallow: /js
 Disallow: /fancybox
 Disallow: /images
-Disallow: /movies.html
 Disallow: /at.html
 Disallow: /beta.html
