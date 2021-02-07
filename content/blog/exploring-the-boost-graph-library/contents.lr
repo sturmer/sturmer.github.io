@@ -1,0 +1,129 @@
+title: Exploring the Boost Graph Library
+---
+author: Gian
+---
+tags:
+- Boost
+- BGL
+- graphs
+- C++
+- Dijkstra
+---
+body:
+
+[Part 2](/blog/exploring-the-boost-graph-library-part-2/)
+
+With this post I'm starting a series about the Boost Graph Library (BGL). My objective is to present the material in small, easy-to-digest chunks, in order to build an understanding of this library and of the C++ concepts that it uses.
+
+<!-- more -->
+
+The code is a only a slight variation of the code presented in the [quick tutorial](http://www.boost.org/doc/libs/1_55_0/libs/graph/doc/quick_tour.html) section about the BGL. For a copy of the example revised as it appears in this post, see this [gist](https://gist.github.com/sturmer/7498715 "Compilable code example").
+
+### Representing the graph
+
+First off, we know that a graph is representable in a couple of ways. One of these is the adjacency list, a data structure where we have a correspondence between each node and all its neighbors, i.e., the nodes that are 1 edge away. So for a graph like:
+
+![CLRS 22.4](clrs-22.4.png)
+
+the adjacency list would look like:
+
+<pre>
+1: 2, 4
+2: 5
+3: 5, 6
+4: 2
+5: 4
+6: 6
+</pre>
+
+(this graph can be found on CLRS).
+
+To represent this list, we declare that our Graph _is_ its adjacency list:
+
+```c++
+typedef
+    adjacency_list<vecS, vecS, bidirectionalS>
+    Graph;
+```
+
+This means: use `std::vector` for out-edges (the edges that are directed from the node outward) and for the vertex set. Other choices might have been, among the others, `listS` and `setS`. What we actually choose depends on the application, because some data structures optimize for space, other for times (see this [brief yet complete and very useful discussion][discuss]).
+
+```c++
+enum { _1, _2, _3, _4, _5, _6, N };
+const int num_vertices = N;
+const char* name = "CLRS_22.4";
+```
+
+Nothing special here: we decide to give identifiers to the nodes for our convenience. With this setup, we use those `enum` values to actually create the array of the edges:
+
+```c++
+typedef std::pair<int, int> Edge;
+Edge edge_array[] = {
+  Edge(_1,_2), Edge(_1,_4), Edge(_2,_5),
+  Edge(_4,_2), Edge(_5,_4), Edge(_3,_5),
+  Edge(_3,_6), Edge(_6,_6)
+};
+const int num_edges =
+    sizeof(edge_array)/sizeof(Edge);
+```
+
+Finally we define the graph (note that we only use the `edge_array`, and we use it as an iterator):
+
+```c++
+Graph g(edge_array,
+    edge_array + num_edges,
+    num_vertices);
+```
+
+### Properties of a Graph object
+
+A great feature of the BGL is the availability of fully customizable _properties_, that can be assigned to vertices and edges, according to the application we are modeling. They can be weights, for example, if we are going to use Dijkstra's algorithm for the shortest path. A property is accessed through a `property_map` object. Among the properties already defined, we can find the index of the vertices, that we access with a call to the `get()` function:
+
+```c++
+typedef
+  property_map<Graph, vertex_index_t>::type
+  IndexMap;
+IndexMap index = get(vertex_index, g);
+```
+
+Now let's just print the vertices, using our index property:
+
+```c++
+std::cout << "vertices(g) = ";
+typedef
+  graph_traits<Graph>::vertex_iterator
+  vertex_iter;
+std::pair<vertex_iter, vertex_iter> vp;
+for (vp = vertices(g);
+     vp.first != vp.second;
+     ++vp.first)
+  std::cout << index[*vp.first] << " ";
+std::cout << std::endl;
+```
+
+We use `graph_traits` to get the right iterator. The Iterator concept is crucial to the BGL library, and is an evolution of the same concept in STL, in that the graph iterator differs according to how we want to traverse the graph: by vertices, by adjacency, by visitor.
+
+The iterator we get here is a `vertex_iterator`, which, not surprisingly, allows us to traverse the list of vertices. The function
+
+```c++
+std::pair<vertex_iterator, vertex_iterator> vertices(g)
+```
+
+which is part of the `VertexListGraph` interface, returns a range as a pair of iterators to first element and one past the last. Given the property_map object, we index it by unreferencing the iterator, getting the output:
+
+<pre>
+vertices(g) = 0 1 2 3 4 5
+</pre>
+
+### What's next
+
+We have seen how to create a graph, and how to get access to its vertex indices.
+
+In the next installment, we are going to see how to apply some famous graph algorithm with this nice library.
+
+[discuss]: http://www.boost.org/doc/libs/1_55_0/libs/graph/doc/using_adjacency_list.html#sec:choosing-graph-type
+
+---
+pub_date: 2013-11-18
+---
+twitter_handle: increatore

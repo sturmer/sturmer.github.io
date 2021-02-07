@@ -1,0 +1,124 @@
+title: Lambdas in C++11, part 2
+---
+author: Gian
+---
+body:
+
+In the [previous post][part1], I have shown the syntax of lambda expressions in C++11, also known as closures, that are basically unnamed function objects that can be passed around for convenience, enhancing correctness through readability.
+
+<!-- more -->
+
+In this installment, as promised, we will have a look at one of the basic advantages of using lambdas, by first introducing a small Functor (a function class, or, a class with an overloading of `operator()`), and then seeing it being substituted with a shiny closure.
+
+### Small functor
+
+In the previous version of the language, several of the STL containers allow the user to provide a class to a container constructor, that encapsulates the notion of order among elements of the container. This notion is important for usage with sorting algorithms (like `std::sort`), but might become fundamental when using certain containers, like sets or priority queues.
+
+Consider, for example, the following program:
+
+```c++
+#include "task.hpp"
+// includes, using declarations
+
+int main() {
+   Task task1(1, "Laundry");
+   Task task2(3, "Hackery");
+   Task task3(2, "Grocery");
+   priority_queue<Task, vector<Task>, less<Task>> q;
+   q.push(task1);
+   q.push(task2);
+   q.push(task3);
+   while (!q.empty()) {
+       cout << q.top() << '\n';
+       q.pop();
+   }
+}
+```
+
+This program declares 3 tasks, each one identified by a priority and a name. The priority queue is defined over the class `Task`, is implemented with a `std::vector`, and depends on a standard functor, `less`. (Having to specify the use of a vector comes unfortunately from the way the `priority_queue` is designed.)
+
+The `std::less` class is a convenience class provided by the standard library to be used with containers and algorithms. We can use it to customize the sorting order of the tasks in our priority queue. While the default types have their specialization already, that works mostly out-of-the-box, we need to provide a criterion to our queue for the right sorting. Say, for example, that the sorting is per ascending priority (i.e., task with priority 9 has higher priority than task with priority 0): we would express it like:
+
+```c++
+namespace std {
+template<>
+struct less<Task> {
+    bool operator()(const Task& t1, const Task& t2)
+    {
+        return t1.priority_ < t2.priority_;
+    }
+};
+}
+```
+
+Pretty simple: we specialize the template struct for the class `Task`, and add it to the `std` namespace. For completeness, let\'s have a look at the `Task` class declaration:
+
+```c++
+struct Task {
+    int priority_;
+    string description_;
+    Task(int p, string d) : priority_(p), description_(d) {}
+};
+```
+
+If we compile the program, the output of the resulting executable is the following:
+
+<pre>
+3: Hackery
+2: Grocery
+1: Laundry
+</pre>
+
+### Beauty of the lambda
+
+The point is, we are trying to do something very simple: we only want to pass a function to the `priority_queue` constructor, to let it do its job of keeping the tasks sorted. In previous versions of the standard, we had to specialize a template struct, and plug it in the `std` namespace. While certainly not a major feat, try to compare it with the following, closure-based implementation:
+
+```c++
+// #includes, using declarations
+struct Task {
+    int priority_;
+    string description_;
+    Task(int p, string d) : priority_(p), description_(d) {}
+};
+
+ostream& operator<<(ostream& os, const Task& t) {
+    os << t.priority_ << ": " << t.description_;
+    return os;
+}
+
+int main() {
+   Task task1(1, "Laundry");
+   Task task2(3, "Hackery");
+   Task task3(2, "Grocery");
+   auto compare_tasks = [](const Task& t1, const Task& t2) { return t1.priority_ < t2.priority_; };
+   priority_queue<Task, vector<Task>, decltype(compare_tasks)> q(compare_tasks);
+   q.push(task1);
+   q.push(task2);
+   q.push(task3);
+   while (!q.empty()) {
+       cout << q.top() << '\n';
+       q.pop();
+   }
+}
+```
+
+We don't even need a separate header, because we have no template. The only trick here is to wrap the parameter `compare_tasks` in a `decltype`. In a nutshell, `decltype` returns the type of the expression used as its argument (but see [`dcl.type.simple`] in the standard for the precise definition). This is necessary, because a template parameter needs be a class, or the result of an expression that can be computed at compile time. The lambda is not a class, but an object of anonymous type: see, for example, again [`expr.prim.lambda`]:
+
+> The type of the lambda-expression (which is also the type of the closure object) is a unique, unnamed non- union class type [...]
+
+This means that we need a way to express the type of the lambda. One way to do it is that first we define the lambda to be of type auto, and then we express the type itself as the result of a `decltype` evaluation, which is equivalent to saying: _Whatever is the type of this closure, feed it to the priority_queue constructor_. This solves the problem, and makes the program compilable and the output identical to the version with functors.
+
+See also this [Stack Overflow answer](http://stackoverflow.com/a/3867323) for a thorough discussion about the advantages and disadvantages of this solution: I found it really useful to understand the need for `decltype`.
+
+### Conclusion
+
+Lambdas provide a convenient, readable, and concise way to express the notion of a function object. They are useful in every context where it is necessary to pass a function around, like to implement callback mechanisms, and notably as function objects that interact nicely with STL algorithms and containers. As a side-note, let me confess that I prefer to call them _closures_ only because I am not able to spell the word _lambda_ correctly on the fly (when out of Vim, of course :)).
+
+This concludes our mini-tour of the closures in C++11. As usual, the complete version of the code we have discussed in this post is available as a [Gist](https://gist.github.com/sturmer/7915819).
+
+[part1]: /blog/lambdas-in-c11/
+
+---
+pub_date: 2013-12-16
+---
+twitter_handle: increatore

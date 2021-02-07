@@ -1,0 +1,51 @@
+title: How to Start a TypeScript Project on Node.js
+---
+author: Gian
+---
+body:
+
+In this post, I'll describe a quick setup to start hacking on a TypeScript project on `Node.js`, using `yarn` as package manager instead of npm. I'll use an app called [readnext](https://github.com/sturmer/readnext) as example.
+
+<!-- more -->
+
+## Setup
+Create a directory and initialize yarn:
+```sh
+mkdir readnext
+cd readnext
+yarn init
+```
+
+To add dependencies, use `yarn add`:
+```sh
+yarn add tsc
+yarn add typescript
+yarn add typescript-eslint-parser
+yarn add express
+yarn add ts-node  # for live compile+run
+yarn add nodemon  # will invoke ts-node when a file changes
+```
+
+We will use ts-node and nodemon to automate the restart of the application when we make changes. This will recompile the source and launch nodemon to keep looking for changes (as suggested in [tdd]). Tweak `package.json` to include "scripts":
+
+```js
+"scripts": {
+    "start": "npm run build:live",
+    "build:live": "nodemon --exec ./node_modules/.bin/ts-node -- ./server.ts"
+  }
+```
+
+(Oh, and now it would be a good time to init a git repo: `git init`. Add `server.ts`, `tsconfig.json`, `package.json`, and `yarn.lock`.)
+
+### Aside: Where is tsc?
+If you do `which tsc` you'll get nothing; it's because tsc is actually inside  `./node_modules/tsc/bin/tsc`. *Update (2019-01-07):* you can run it without worrying about the exact location by running `npx tsc` instead.
+
+## Develop
+Start the server with `yarn start`. Every time a file is changed, `localhost:3000` will change (reload to make that happen).
+
+[tdd]: https://basarat.gitbooks.io/typescript/docs/quick/nodejs.html
+
+---
+pub_date: 2018-06-13
+---
+twitter_handle: increatore

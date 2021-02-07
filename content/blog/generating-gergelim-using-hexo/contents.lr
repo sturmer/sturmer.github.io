@@ -1,0 +1,77 @@
+title: Generating gergel.im Using Hexo
+---
+author: Gian
+---
+body:
+
+I've changed the static site generator that powers `www.gergel.im`. In this post, I explain the motivation behind this change, describe a few issue I had during the setup, and finally spend a word about my new workflow for content creation.
+
+<!-- more -->
+
+# Motivation
+
+The time I dedicate to Racket is too small by now, so for a while I have decided to drop Frog, the generator I've been using until recently. Also, since my interest has switched to JavaScript, I thought it would be a neat idea to find a JS-based generator. This is how I ran into Hexo.
+
+I have grabbed the opportunity to transform the website more into my presentation to the world, stressing the fact that it's my personal page.
+
+# Setup
+
+Migrating has been painfully manual, but also surprisingly straightforward. I blame especially my laziness. For instance, for each post, Frog requires a front matter in the form (notice the 4 spaces in front of each line):
+
+<pre>
+    Title: A good title
+    Date: YYYY-MM-DDThh:mm:ss
+    Tags: tag-1, tag-2, ..., tag-n
+</pre>
+
+To comply with Hexo's format, I needed to switch to yml (notice the termination with triple-dash and the change of date format):
+
+<pre>
+title: A good title
+date: YYYY/MM/DD hh:mm:ss
+tags:
+- tag-1
+- tag-2
+...
+- tag-n
+--
+</pre>
+
+Only after doing it maybe fifteen times (I have roughly 25 posts) I started thinking about how vim could help me speed that up.
+
+I spent a bit of time trying to figure out how to lay out the folder structure so as to have a blog inside a website. This can be achieved by using the `index_generator[path]` property in \_config.yml, while keeping the root to my webpage to `/`:
+
+<pre>
+url: https://www.gergel.im/
+root: /
+index_generator:
+  path: 'blog'
+  per_page: 10
+  order_by: -date
+</pre>
+
+Apart from this, laying out the files was pretty easy.
+
+# Workflow
+
+I deploy the website using the git deployer. This takes the content of the generated `public` folder, copies it into another folder (don't know why), and pushes it to `master`. To also keep track of the source files, I created a `develop` branch. This means that I don't control `master` from my machine, but rather let the deployer push to it, and from time to time I just pull from my repository to have a local `master` in sync. I don't even need to do that, since I won't make any manual change to this branch. The only reason it's there, actually, is that GitHub Pages for users require that the content in master be rendered (unlike project pages).
+
+My workflow for writing posts is now the following:
+
+1.  checkout `develop` (usually I'm there already)
+1.  `hexo generate --watch` to generate files when changing anything in the repository
+1.  `hexo server` to check the results
+1.  write content in `source/_posts/a-title.md`
+
+At this point, if I go to `localhost:4000/blog/<permalink structure>/a-title/`, I can see the resulting page. When I'm happy with it, I do:
+
+1.  commit changes to develop: `git ci -am'Some message'`
+1.  push to origin/develop
+1.  `hexo clean` and then `hexo deploy`
+
+The resulting code is [stored on GitHub](https://github.com/sturmer/sturmer.github.io/tree/develop), feel free to inspect it in case it might help you with your own setup.
+
+---
+pub_date: 2017-12-10
+---
+twitter_handle: increatore

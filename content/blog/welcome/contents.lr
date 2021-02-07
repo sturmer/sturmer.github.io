@@ -1,0 +1,31 @@
+title: Welcome!
+---
+author: Gian
+---
+body:
+
+Hi guest! My name is Gianluca and this blog is part of [gergel.im](https://www.gergel.im "The Gergel.im Project"), my project of documenting my experiences with the C++ programming language. My objective is to consistently improve my C++ skills.
+
+<!-- more -->
+
+I blog as a practitioner and learner, and in no way as an expert. I hope to collect much feedback along the way: I believe that the primary tool to seriously learning C++ is:
+
+1.  doing
+1.  getting feedback about the output
+
+In the long run, I hope that my notes can help my fellow learners and practitioners gain new perspectives and solve some of their problems.
+
+Apart from actually working with C++ during my daily job, which provides me some experience on the field, my learning approach follows several concurrent paths:
+
+- personal projects
+- books
+- programming snippets focused on specific features
+- analysis of blogs and stackoverflow questions
+- reading code: STL, Boost, and a pinch of protobuf are among my current readings
+
+Be sure to keep in touch by following me via email subscription, RSS, Social Networks, or however you prefer.
+
+---
+pub_date: 2013-11-10
+---
+twitter_handle: increatore

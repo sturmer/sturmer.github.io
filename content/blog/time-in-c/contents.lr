@@ -1,0 +1,149 @@
+title: Time in C++
+---
+author: Gian
+---
+body:
+
+### Using time: the chrono header
+
+Until before the introduction of the `chrono` library in the STL with the C++11 standard, we were forced to deal with time in a couple of ways, notably using Boost or using some wrapper around the `time.h` library header, from C.
+
+<!-- more -->
+
+With the latest standard (soon to be replaced by C++14!), most of the functionality of the Boost DateTime library has been ported to the STL, with some simplifications that are most welcome.
+
+The `chrono` library header is based on a few concepts. The first is the concept of clock: the clock measures time. Three clocks are made available on the system, but for illustration purposes, their distinction is unimportant (we will see it later). The second concept is that of _duration_: it is intuitively an amount of time. The third is the concept of `time_point`: it is defined as a duration calculated with respect to an _epoch_, which in turn is the beginning of time.
+
+### Duration
+
+The simplest concept is the duration. In C++, it is defined as depending on two types, the numeric type we want to use to represent it, and the number of seconds per tick. The tick determines the resolution of the duration type: if we imagine a clock to tick once each tick seconds, then for example we can easily see that a duration in minutes can be expressed as:
+
+```c++
+duration<int, std::ratio<60>> mins;
+```
+
+This simply means: my duration is represented as an `int`, and a duration of 3 would mean <em>three times 60 seconds</em>, or 3 minutes. `std::ratio` is a useful C++ type that expresses divisions. It is a compile-time constant, and when only one number is specified, then it's the numerator, and the denominator is 1. For example,
+
+```c++
+std::ratio<1, 10>
+```
+
+is a convenient way to write the fraction 1/10.
+
+The STL predefines some convenient durations, like `minutes` (defined as above), `seconds`, and the likes. Durations can be easily converted between each other, so if we want to convert a duration in minutes into a duration in seconds, we would write:
+
+```c++
+constexpr int TICKS = 20;
+duration<int, std::ratio<60>> mins(TICKS);
+cout << mins.count() << " minutes = " <<
+    std::chrono::seconds(mins).count() << " seconds\n";
+```
+
+for which the output would be:
+
+<pre>
+20 minutes = 1200 seconds
+</pre>
+
+Notice the use of the method `count()`, that expresses the number of ticks in the duration.
+
+Durations can easily be used with operators:
+
+```c++
+using std::chrono::minutes;
+using std::chrono::hours;
+using std::chrono::seconds;
+using std::cout;
+
+int main() {
+    hours d0(2);
+    minutes d1(32);
+    seconds d2(44);
+
+    auto t = seconds(d0 + d1 + d2);
+    cout << "2h32'44\" = " << t.count() << "\"\n";
+    return 0;
+}
+```
+
+would generate an output of:
+
+<pre>
+2h32'44" = 9164"
+</pre>
+
+### Time points and clocks
+
+As said, time points are fundamentally a duration with respect to an epoch. A clock, on the other hand, is a structure containing (among the other things) a `time_point` and a `duration`. The following code would work on a system with an implementation of the I/O manipulator `put_time`:
+
+```c++
+int main() {
+    std::chrono::system_clock::time_point now =
+        std::chrono::system_clock::now();
+
+    time_t as_tt = std::chrono::system_clock::to_time_t(now);
+    std::tm* c_time = localtime(&as_tt);
+    cout << std::put_time(c_time, "%H:%M:%S") << '\n';
+    return 0;
+}
+```
+
+Unfortunately, my system is not such system. This required me, in order to produce the same result, to hack with the C API provided by `chrono`:
+
+```c++
+int main() {
+    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+
+    time_t as_tt = std::chrono::system_clock::to_time_t(now);
+    std::tm* c_time = localtime(&as_tt);
+
+    char buf[60] = {0};
+    strftime(buf, sizeof(buf), "%Y/%m/%d@%H:%M:%S", c_time);
+    cout << buf << '\n';
+    return 0;
+}
+```
+
+This generates the following output:
+
+<pre>
+2014/01/20@19:35:13
+</pre>
+
+Time points are easy to use together with clocks in order to compute some date in the future or in the past. For example, consider if we want to add one week to today, and know what day it is. We can easily do that with the following code:
+
+```c++
+#include <chrono>
+#include <iostream>
+#include <ctime>
+
+using std::cout;
+using std::chrono::system_clock::time_point;
+
+int main() {
+    time_point now =
+        std::chrono::system_clock::now();
+
+    time_point tp_later = now +
+        std::chrono::hours(7*24);
+
+    time_t later_as_tt = std::chrono::system_clock::to_time_t(tp_later);
+    std::tm* c_time = localtime(&later_as_tt);
+
+    char buf[20] = {0};
+    strftime(buf, sizeof(buf), "%Y/%m/%d", c_time);
+    cout << buf << '\n';
+    return 0;
+}
+```
+
+### Pitfalls
+
+When dealing with durations and times, there are some pitfalls. The nice conversion operation we have seen with durations fails miserably at compile time, if the type used to represent the duration itself might lose precision when converted: for example, if you construct a duration in minutes represented with `int`, and use a duration in hours to initialize it, the compiler would bark because it would lose information during the construction process.
+
+Other common issues come from the loss of precision in the clocks due to the machine not being able to have too precise time resolutions, or due to OSes that fail to update the clock faster than the resolution itself (example: resolution of 1 ms, and OS updating the clock every 10 ms).
+
+---
+pub_date: 2014-01-20
+---
+twitter_handle: increatore

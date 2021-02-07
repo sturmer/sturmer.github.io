@@ -1,0 +1,83 @@
+title: Breaking Asynchronous Loops
+---
+author: Gian
+---
+body:
+
+Suppose you want to iterate over an array. On each element, you want to call a function that takes some callback, and if the callback executes some test successfully, then don't execute the remaining iterations.
+
+<!-- more -->
+
+I needed to examine the elements of an array and try to acquire a lock on the first of them not locked yet. It started as something like this:
+```js
+function myFunction(myArray, callback) {
+    for (const el of myArray) {
+        acquireResource((err, resource) => {
+            if (err) {
+                // Do next iteration.
+            }
+
+            // Resource acquired! Get out of this loop now!
+            return callback();
+        });
+    }
+}
+```
+
+For the sake of simplicity, we can imagine the `acquireResource` function to be pretty silly and just always be successful:
+```js
+function acquireResource(callback) {
+    return callback(null, {a: 1});
+}
+```
+
+Would you be surprised if I told you that this loop runs `myArray.length` times, regardless of us calling the callback sooner or later? Well, I was (apologies). The problem is that the callback is called when the function `acquireResource` ends, which in Node happens at the end of the for loop when the callbacks are called.
+
+```js
+> myFunction([1, 2, 4], () => {
+...     console.log('called');
+... });
+called
+called
+called
+```
+
+The solution that I've found is based on recursion. It looks like this:
+```js
+function recur(anArray, index, callback) {
+    if (index >= anArray.length) {
+        return callback();
+    }
+
+    acquireResource((err, resource) => {
+        if (err) {
+            // Repeat for the next element!
+            recur(anArray, index + 1, callback);
+        }
+        return callback();
+    });
+}
+
+function myFunction(myArray, callback) {
+    recur(myArray, 0, callback);    
+}
+```
+
+`myFunction` calls `recur` with the array and an initial index 0, passing the callback. If the function is called too many times, it means we're used up the array, so we don't need to do anything (the initial check in the `recur` function). Otherwise, we call recur with the next index. When we're done, we just call the callback, and never go over the other elements in the array. Cool, uh?
+
+```js
+> recur([1, 2, 3], 0, () => {
+...     console.log('I am called');
+... });
+I am called
+```
+
+(Things would probably have been simpler if I were allowed to use async/await, but the function `acquireResource` was callback-based and so there wasn't much I could do about it.)
+
+Have I missed an obvious error? Do you know a better solution? Leave a comment!
+---
+pub_date: 2019-03-08
+---
+twitter_handle:
+
+ increatore

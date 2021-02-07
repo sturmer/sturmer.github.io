@@ -1,0 +1,58 @@
+title: How to Write a CGI Program
+---
+author: Gian
+---
+body:
+
+Today I wanted to make some experiments with CGI on my newly-installed Ubuntu 16.04. There are a few steps to take before starting to experiment, and I'm writing them down here in case anyone else wants to try something similar.
+
+<!-- more -->
+
+## TL;DR
+
+1.  `sudo a2enmod cgi`
+2.  Write program, build, copy it into `/usr/lib/cgi-bin`
+3.  `sudo chmod a+x <yourprogram>`
+4.  Go to `localhost/cgi-bin/<yourprogram>`
+5.  Enjoy
+
+Make sure your first line of output is `Content-type: text/plain\n\n`, and you should be fine.
+
+## Configure Apache
+
+On Ubuntu, the main configuration for apache lies in the directory `/etc/sites-available/000-default.conf`. The principle is that you have a bunch of configurations available, and a subset of them that are also _enabled_. Enabling a configuration means simply that a symlink to some file in the `sites-available` gets created in `sites-enabled`. Rather than doing this manually, the Apache documentation encourages to use a command, `a2enconf`. Which, well, does exactly that: creates the symlink.
+
+In the same spirit, you use a command `a2enmod` to enable modules. Point is, the CGI module is not enabled by default; to turn it on, all you need is one `sudo a2enmod cgi` command away. Note: you might receive a warning, saying that you are using a multithreaded MPM, in which case this command will be automatically translated into `sudo a2enmod cgid` (notice the final _d_).
+
+When you enable a module, you are asked to restart (not reload) the server:
+
+```sh
+sudo service apache2 restart
+```
+
+## Write the program
+
+The program needs to respect the directions given in the official [RFC](http://www.ietf.org/rfc/rfc3875). What? Too long, you say? Well, to get started, you only need to make sure to declare, as the first line of your output, the content type you are about to produce, followed by a blank line. According to HTTP, what you are doing is providing an HTTP Response header, which is the only one you have to provide explicitly. You then need a blank line that indicates that you are done with the response headers; what comes next is then the Response body.
+
+So for example, here is a silly _Hello, world_ program:
+
+```c++
+#include <iostream>
+
+using namespace std;
+
+int main() {
+    cout << "Content-type: text/plain\n\n";
+    cout << "Hello, world!\n";
+    return 0;
+}
+```
+
+## Run it!
+
+Build this program and save the executable in the directory `/usr/lib/cgi-bin/`. This path is defined in one of the enabled configurations (usually under `/etc/apache2/conf-enabled/`), which is aptly named `serve-cgi-bin.conf`. Make sure to give permissions to execute the program (`sudo chmod a+x <yourfile>` should suffice). At this point, just open your browser at `localhost/cgi-bin/hello` (where `hello` is the name you actually gave too your executable program), and you should be able to see a page displaying the friendly greeting.
+
+---
+pub_date: 2016-06-05
+---
+twitter_handle: increatore

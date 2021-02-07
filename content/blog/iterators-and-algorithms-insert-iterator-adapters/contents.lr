@@ -1,0 +1,141 @@
+title: Iterators and Algorithms: Insert Iterator Adapters
+---
+author: Gian
+---
+body:
+
+This week I have had a look at two nice types of iterators: the _move iterators_ and the _insert iterators_. Their main use seems to be related to STL algorithms.
+
+<!-- more -->
+
+## Problem: Copy a `std::vector` into another
+
+Let's suppose that we have a vector of the usual `int` type, that we fill diligently with an initializer list. After a few lines of code, we want to copy its elements into another vector. Our vanilla try will be:
+
+```c++
+vector<int> v1({1,2,3,4,5,6,7,8,9,10});
+vector<int> v2(v1);
+```
+
+This is OK, because the constructor of `v2` is invoked in order to copy every element of v1. Let's complicate matters, and say we only want the odd elements of `v1` to be used to initialize `v2`. We have a look at our reference card for STL algorithms (when will I prepare one?), and notice the presence of the `copy_if` algorithm, which works like this (extracted from my GNU standard library headers):
+
+```c++
+template<typename _InputIterator, typename _OutputIterator,
+   typename _Predicate>
+_OutputIterator
+copy_if(_InputIterator __first, _InputIterator __last,
+    _OutputIterator __result, _Predicate __pred)
+```
+
+It takes an input range (`__first`, `__last`), and an iterator to the beginning of the result container, plus a predicate to select the elements. One innocent way of using it would be:
+
+```c++
+vector<int> v1({1,2,3,4,5,6,7,8,9,10});
+vector<int> v2;
+copy_if(v1.begin(), v1.end(), v1.begin(),
+        [](int n) { return n%2 != 0; });
+```
+
+Which is cute, actually. Only problem is, that if now you try to run your program, it will segfault without a blink. And why is that? Simply because the iterator returned by `v2.begin()` behaves like a null pointer:
+
+```sh
+(gdb) p v2
+$2 = {<std::_Vector_base<int, std::allocator<int> >> = {
+    _M_impl = {<std::allocator<int>> = {<__gnu_cxx::new_allocator<int>> = {<No data fields>}, <No data fields>}, _M_start = 0x0, _M_finish = 0x0,
+      _M_end_of_storage = 0x0}}, <No data fields>}
+(gdb) p v2.begin()
+$3 = {_M_current = 0x0}
+```
+
+This you can check by running a test like
+
+```c++
+if (v2.begin() == v2.end()) {
+    // Problem: v2 is empty
+    ...
+}
+```
+
+or equivalently, checking for `v2`'s `size()`.
+
+## Insert iterator adapters
+
+This is where the insert iterator comes in handy. The problem is that the `copy_if` algorithm is not supposed to insert new elements in an empty container. What we need is an _insert iterator adapter_. They come in three flavors:
+
+```c++
+template<typename _Container>
+class insert_iterator
+: public iterator<output_iterator_tag, void, void, void, void>
+
+template<typename _Container>
+class back_insert_iterator
+: public iterator<output_iterator_tag, void, void, void, void>
+
+template<typename _Container>
+class front_insert_iterator
+: public iterator<output_iterator_tag, void, void, void, void>
+```
+
+As you see, all of them are derived from the standard iterator with traits of an `output_iterator_tag`. I find it useful to show the hierarchy of iterators, described also in Stroustrup:
+
+> Input/Output <- Forward <- Bidirectional <- Random access
+
+This means that the adapters provide the basic operator features, dereference with assignment (`*p=`) and increment by one (`++p`).
+
+Their use can be summarized as follows:
+
+> An insert iterator adapter, defined on a container, calls the
+> appropriate insertion method on the container when it is assigned.
+
+### The `back_insert_iterator`
+
+Look at the definition of the `back_insert_iterator`'s `operator=()` in my system's STL implementation:
+
+```c++
+back_insert_iterator&
+operator=(const typename _Container::value_type& __value) {
+    container->push_back(__value);
+    return *this;
+}
+
+back_insert_iterator&
+operator=(typename _Container::value_type&& __value) {
+    container->push_back(std::move(__value));
+    return *this;
+}
+```
+
+This means that we can have code that does the following:
+
+```c++
+vector<int> v1({1,2,3,4,5,6,7,8,9,10});
+back_insert_iterator<vector<int>> b(v1);
+b = 11;
+```
+
+We have just added an element to `v1`. Now let's get back at our original example:
+
+```c++
+vector<int> v1({1,2,3,4,5,6,7,8,9,10});
+vector<int> v2;
+/*
+ * The right way.
+ */
+back_insert_iterator<vector<int>> inserter(v2);
+copy_if(v1.begin(), v1.end(), inserter, [](int n){return n%2 != 0; });
+
+/*
+ * Variation. Use a back_inserter.
+ */
+copy_if(v1.begin(), v1.end(), back_inserter(v2), [](int n){return n%2 != 0; });
+```
+
+As you can see on line 12 of the snippet above, we can also use an function called `back_inserter`, which returns a `back_insert_iterator` defined on the type of the argument passed.
+
+## Summary
+
+In this post, I have written about my experiments with insert iterator adapters, which are useful classes offered by the STL that can be used to provide an insertion interface for STL containers. I have started with the problem of using STL algorithms with containers, and shown how to solve it using these standard C++ classes.
+---
+pub_date: 2014-02-17
+---
+twitter_handle: increatore
