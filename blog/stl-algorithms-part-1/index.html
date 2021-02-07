@@ -1,0 +1,146 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../static/style.css">
+<title>STL Algorithms, part 1 — Gergelim</title>
+<body>
+  <header>
+    <h1>Gergelim</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a href="../../">Welcome</a></li>
+        
+          <li class="active"><a href="../">Blog</a></li>
+        
+          <li><a href="../../projects/">Projects</a></li>
+        
+          <li><a href="../../about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </header>
+  <div class="page">
+    
+  
+  <div class="blog-post">
+  
+    <h2>STL Algorithms, part 1</h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2013-12-23
+  </p>
+  <ul>
+<li><a href="./">Part 1</a></li>
+<li><a href="../stl-algorithms-part-2/">Part 2</a></li>
+<li><a href="../stl-algorithms-part-3/">Part 3</a></li>
+<li><a href="../stl-algorithms-part-4/">Part 4</a></li>
+<li><a href="../stl-algorithms-part-5/">Part 5</a></li>
+</ul>
+<h3>Why algorithms</h3>
+<p>Standard algorithms have a prominent value in the C++ standard template library (STL). They present the great advantage of expressing an operation applied on a range of elements in a container. In this series, I am going to review all the algorithms introduced in the C++11 standard, presenting it in digestible chunks, and will provide at least an example of application for each one.</p>
+<!-- more -->
+
+<h3><code>all_of</code></h3>
+<p>We might want to determine whether all elements in a range satisfy some property. For example, suppose we want to find out if all the persons subscribed to this blog come from Europe. We might keep a record of a Person in the form:</p>
+<div class="hll"><pre><span></span><span class="k">enum</span> <span class="nc">Continent</span> <span class="p">{</span>
+    <span class="n">EUROPE</span><span class="p">,</span> <span class="n">ASIA</span><span class="p">,</span> <span class="n">AMERICA</span><span class="p">,</span> <span class="n">AFRICA</span><span class="p">,</span> <span class="n">AUSTRALIA</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="nc">Person</span> <span class="p">{</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">name</span><span class="p">;</span>
+  <span class="n">Continent</span> <span class="n">continent</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+<p>Now say that we have a <code>std::vector</code> of customers. To find the answer to our previous question, we might do something like the following:</p>
+<div class="hll"><pre><span></span><span class="c1">// declare p1, p2, p3</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">persons</span> <span class="o">=</span> <span class="p">{</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span><span class="p">};</span>
+<span class="kt">bool</span> <span class="n">all_european</span> <span class="o">=</span> <span class="n">all_of</span><span class="p">(</span><span class="n">persons</span><span class="p">.</span><span class="n">cbegin</span><span class="p">(),</span> <span class="n">persons</span><span class="p">.</span><span class="n">cend</span><span class="p">(),</span>
+        <span class="p">[](</span><span class="k">const</span> <span class="n">Person</span><span class="o">&amp;</span> <span class="n">p</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">p</span><span class="p">.</span><span class="n">continent</span> <span class="o">==</span> <span class="n">Continent</span><span class="o">::</span><span class="n">EUROPE</span><span class="p">;</span>
+        <span class="p">});</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">all_european</span><span class="p">)</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;All European visitors</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="k">else</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Visitors from outside Europe</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</pre></div>
+<p>Formally, the signature for <code>all_of</code> is:</p>
+<div class="hll"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">InputIterator</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Predicate</span><span class="o">&gt;</span>
+<span class="kt">bool</span> <span class="n">all_of</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">first</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">last</span><span class="p">,</span> <span class="n">Predicate</span> <span class="n">pred</span><span class="p">);</span>
+</pre></div>
+<p>One gotcha: the algorithms returns true if the range is empty. It runs in linear time on the number of elements in the range. You can find the complete code is at <a href="https://gist.github.com/sturmer/8082362">this link</a>.</p>
+<h3><code>any_of</code></h3>
+<p>Now suppose we want to know whether <em>at least one</em> of the customers is American. We can accomplish this with the algorithm <code>std::any_of</code>, which intuitively enough can be used like the following:</p>
+<div class="hll"><pre><span></span><span class="c1">// ...</span>
+<span class="kt">bool</span> <span class="n">any_american</span> <span class="o">=</span> <span class="n">any_of</span><span class="p">(</span><span class="n">persons</span><span class="p">.</span><span class="n">cbegin</span><span class="p">(),</span>
+        <span class="n">persons</span><span class="p">.</span><span class="n">cend</span><span class="p">(),</span>
+        <span class="p">[](</span><span class="k">const</span> <span class="n">Person</span><span class="o">&amp;</span> <span class="n">p</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">p</span><span class="p">.</span><span class="n">continent</span> <span class="o">==</span> <span class="n">Continent</span><span class="o">::</span><span class="n">AMERICA</span><span class="p">;</span>
+        <span class="p">});</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">any_american</span><span class="p">)</span>
+      <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;We had an American visitor</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+  <span class="k">else</span>
+      <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;No visitors from Americas</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</pre></div>
+<p>As you can see, we recycled the Predicate. The pitfall here is the reverse of the one for all_of: this algorithms returns false if the range is empty. Find the gist <a href="https://gist.github.com/sturmer/8082455">here</a>.</p>
+<h3><code>none_of</code></h3>
+<p>Let's change example. Say we have a vector of Shape class pointers. Shape can be derived in order to provide more specific properties:</p>
+<div class="hll"><pre><span></span><span class="k">struct</span> <span class="nc">Shape</span> <span class="p">{</span>
+    <span class="n">Shape</span><span class="p">()</span> <span class="p">{}</span>
+    <span class="k">virtual</span> <span class="kt">float</span> <span class="n">area</span><span class="p">()</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">virtual</span> <span class="o">~</span><span class="n">Shape</span><span class="p">()</span> <span class="p">{}</span>
+<span class="p">};</span>
+
+<span class="k">class</span> <span class="nc">Rectangle</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Shape</span> <span class="p">{</span>
+<span class="k">private</span><span class="o">:</span>
+    <span class="kt">float</span> <span class="n">height</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">width</span><span class="p">;</span>
+
+<span class="k">public</span><span class="o">:</span>
+    <span class="kt">float</span> <span class="n">area</span><span class="p">()</span> <span class="k">override</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">height</span> <span class="o">*</span> <span class="n">width</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">Rectangle</span><span class="p">(</span><span class="kt">float</span> <span class="n">h</span><span class="p">,</span> <span class="kt">float</span> <span class="n">w</span><span class="p">)</span> <span class="o">:</span> <span class="n">height</span><span class="p">(</span><span class="n">h</span><span class="p">),</span> <span class="n">width</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="p">{}</span>
+<span class="p">};</span>
+
+<span class="k">class</span> <span class="nc">Circle</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Shape</span> <span class="p">{</span>
+<span class="k">private</span><span class="o">:</span>
+    <span class="kt">float</span> <span class="n">radius</span><span class="p">;</span>
+
+<span class="k">public</span><span class="o">:</span>
+    <span class="kt">float</span> <span class="n">area</span><span class="p">()</span> <span class="k">override</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">radius</span> <span class="o">*</span> <span class="mf">3.14</span><span class="p">;</span> <span class="c1">// approx</span>
+    <span class="p">}</span>
+
+    <span class="n">Circle</span><span class="p">(</span><span class="kt">float</span> <span class="n">radius</span><span class="p">)</span> <span class="o">:</span> <span class="n">radius</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span> <span class="p">{}</span>
+<span class="p">};</span>
+
+<span class="k">class</span> <span class="nc">Triangle</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Shape</span> <span class="p">{};</span>
+</pre></div>
+<p>Now we want to see whether in a vector of Shape pointers there is any Triangle.  Since <code>none_of</code> is a negative predicate, and reasoning in negative terms is generally harder, we define the predicate outside the invocation of the algorithm, to make things clearer:</p>
+<div class="hll"><pre><span></span><span class="c1">// define rectangles and circles, no triangle</span>
+<span class="c1">// put them in a vector</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="n">Shape</span><span class="o">*&gt;</span> <span class="n">v</span><span class="p">{</span><span class="o">&amp;</span><span class="n">c1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">c2</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">r1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">r2</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">r2</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">r4</span><span class="p">};</span>
+<span class="k">auto</span> <span class="n">is_triangle</span> <span class="o">=</span> <span class="p">[](</span><span class="n">Shape</span><span class="o">*</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="k">dynamic_cast</span><span class="o">&lt;</span><span class="n">Triangle</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">;</span>
+  <span class="p">};</span>
+<span class="kt">bool</span> <span class="n">no_triangle</span> <span class="o">=</span> <span class="n">none_of</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">cbegin</span><span class="p">(),</span> <span class="n">v</span><span class="p">.</span><span class="n">cend</span><span class="p">(),</span> <span class="n">is_triangle</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">no_triangle</span><span class="p">)</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;No triangle</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</pre></div>
+<p>We use the <code>dynamic_cast</code> to determine if the pointer points to a Triangle, in which case it would return a non-null pointer. The <code>std::none_of</code> algorithm, as the ones mentioned above, has linear complexity depending on the number of elements in the range. Grab the gist <a href="https://gist.github.com/sturmer/8083022">here</a>.</p>
+<h3>In the next episode</h3>
+<p>We have covered three basic algorithms for testing properties of elements in a container: <code>all_of</code> checks whether all the elements in a range satisfy a predicate, <code>any_of</code> checks whether at least one element satisfies the predicate, while <code>none_of</code> checks that none of the elements satisfies the predicate. Lambdas give us a way of expressing very clearly the predicate: if you feel uncomfortable with them, you might want to have a look at the mini-series I have written about them (<a href="../lambdas-in-c11/">part 1</a> and <a href="../lambdas-in-c11-part-2/">part 2</a>).</p>
+<p>In the next installment, we are going to get into more algorithms provided by the standard.</p>
+
+  </div>
+
+
+  </div>
+  <footer>
+    &copy; Copyright 2021 by Gianluca Ciccarelli.
+  </footer>
+</body>

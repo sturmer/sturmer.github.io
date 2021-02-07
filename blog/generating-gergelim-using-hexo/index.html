@@ -1,0 +1,91 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../static/style.css">
+<title>Generating gergel.im Using Hexo — Gergelim</title>
+<body>
+  <header>
+    <h1>Gergelim</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a href="../../">Welcome</a></li>
+        
+          <li class="active"><a href="../">Blog</a></li>
+        
+          <li><a href="../../projects/">Projects</a></li>
+        
+          <li><a href="../../about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </header>
+  <div class="page">
+    
+  
+  <div class="blog-post">
+  
+    <h2>Generating gergel.im Using Hexo</h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2017-12-10
+  </p>
+  <p>I've changed the static site generator that powers <code>www.gergel.im</code>. In this post, I explain the motivation behind this change, describe a few issue I had during the setup, and finally spend a word about my new workflow for content creation.</p>
+<!-- more -->
+
+<h1>Motivation</h1>
+<p>The time I dedicate to Racket is too small by now, so for a while I have decided to drop Frog, the generator I've been using until recently. Also, since my interest has switched to JavaScript, I thought it would be a neat idea to find a JS-based generator. This is how I ran into Hexo.</p>
+<p>I have grabbed the opportunity to transform the website more into my presentation to the world, stressing the fact that it's my personal page.</p>
+<h1>Setup</h1>
+<p>Migrating has been painfully manual, but also surprisingly straightforward. I blame especially my laziness. For instance, for each post, Frog requires a front matter in the form (notice the 4 spaces in front of each line):</p>
+<pre>
+    Title: A good title
+    Date: YYYY-MM-DDThh:mm:ss
+    Tags: tag-1, tag-2, ..., tag-n
+</pre><p>To comply with Hexo's format, I needed to switch to yml (notice the termination with triple-dash and the change of date format):</p>
+<pre>
+title: A good title
+date: YYYY/MM/DD hh:mm:ss
+tags:
+- tag-1
+- tag-2
+...
+- tag-n
+--
+</pre><p>Only after doing it maybe fifteen times (I have roughly 25 posts) I started thinking about how vim could help me speed that up.</p>
+<p>I spent a bit of time trying to figure out how to lay out the folder structure so as to have a blog inside a website. This can be achieved by using the <code>index_generator[path]</code> property in _config.yml, while keeping the root to my webpage to <code>/</code>:</p>
+<pre>
+url: https://www.gergel.im/
+root: /
+index_generator:
+  path: 'blog'
+  per_page: 10
+  order_by: -date
+</pre><p>Apart from this, laying out the files was pretty easy.</p>
+<h1>Workflow</h1>
+<p>I deploy the website using the git deployer. This takes the content of the generated <code>public</code> folder, copies it into another folder (don't know why), and pushes it to <code>master</code>. To also keep track of the source files, I created a <code>develop</code> branch. This means that I don't control <code>master</code> from my machine, but rather let the deployer push to it, and from time to time I just pull from my repository to have a local <code>master</code> in sync. I don't even need to do that, since I won't make any manual change to this branch. The only reason it's there, actually, is that GitHub Pages for users require that the content in master be rendered (unlike project pages).</p>
+<p>My workflow for writing posts is now the following:</p>
+<ol>
+<li>checkout <code>develop</code> (usually I'm there already)</li>
+<li><code>hexo generate --watch</code> to generate files when changing anything in the repository</li>
+<li><code>hexo server</code> to check the results</li>
+<li>write content in <code>source/_posts/a-title.md</code></li>
+</ol>
+<p>At this point, if I go to <code>localhost:4000/blog/&lt;permalink structure&gt;/a-title/</code>, I can see the resulting page. When I'm happy with it, I do:</p>
+<ol>
+<li>commit changes to develop: <code>git ci -am'Some message'</code></li>
+<li>push to origin/develop</li>
+<li><code>hexo clean</code> and then <code>hexo deploy</code></li>
+</ol>
+<p>The resulting code is <a href="https://github.com/sturmer/sturmer.github.io/tree/develop">stored on GitHub</a>, feel free to inspect it in case it might help you with your own setup.</p>
+
+  </div>
+
+
+  </div>
+  <footer>
+    &copy; Copyright 2021 by Gianluca Ciccarelli.
+  </footer>
+</body>

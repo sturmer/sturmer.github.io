@@ -1,0 +1,71 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../static/style.css">
+<title>How to Start a TypeScript Project on Node.js — Gergelim</title>
+<body>
+  <header>
+    <h1>Gergelim</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a href="../../">Welcome</a></li>
+        
+          <li class="active"><a href="../">Blog</a></li>
+        
+          <li><a href="../../projects/">Projects</a></li>
+        
+          <li><a href="../../about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </header>
+  <div class="page">
+    
+  
+  <div class="blog-post">
+  
+    <h2>How to Start a TypeScript Project on Node.js</h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2018-06-13
+  </p>
+  <p>In this post, I'll describe a quick setup to start hacking on a TypeScript project on <code>Node.js</code>, using <code>yarn</code> as package manager instead of npm. I'll use an app called <a href="https://github.com/sturmer/readnext">readnext</a> as example.</p>
+<!-- more -->
+
+<h2>Setup</h2>
+<p>Create a directory and initialize yarn:</p>
+<div class="hll"><pre><span></span>mkdir readnext
+<span class="nb">cd</span> readnext
+yarn init
+</pre></div>
+<p>To add dependencies, use <code>yarn add</code>:</p>
+<div class="hll"><pre><span></span>yarn add tsc
+yarn add typescript
+yarn add typescript-eslint-parser
+yarn add express
+yarn add ts-node  <span class="c1"># for live compile+run</span>
+yarn add nodemon  <span class="c1"># will invoke ts-node when a file changes</span>
+</pre></div>
+<p>We will use ts-node and nodemon to automate the restart of the application when we make changes. This will recompile the source and launch nodemon to keep looking for changes (as suggested in <a href="https://basarat.gitbooks.io/typescript/docs/quick/nodejs.html">tdd</a>). Tweak <code>package.json</code> to include "scripts":</p>
+<div class="hll"><pre><span></span><span class="s2">&quot;scripts&quot;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s2">&quot;start&quot;</span><span class="o">:</span> <span class="s2">&quot;npm run build:live&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;build:live&quot;</span><span class="o">:</span> <span class="s2">&quot;nodemon --exec ./node_modules/.bin/ts-node -- ./server.ts&quot;</span>
+  <span class="p">}</span>
+</pre></div>
+<p>(Oh, and now it would be a good time to init a git repo: <code>git init</code>. Add <code>server.ts</code>, <code>tsconfig.json</code>, <code>package.json</code>, and <code>yarn.lock</code>.)</p>
+<h3>Aside: Where is tsc?</h3>
+<p>If you do <code>which tsc</code> you'll get nothing; it's because tsc is actually inside  <code>./node_modules/tsc/bin/tsc</code>. <em>Update (2019-01-07):</em> you can run it without worrying about the exact location by running <code>npx tsc</code> instead.</p>
+<h2>Develop</h2>
+<p>Start the server with <code>yarn start</code>. Every time a file is changed, <code>localhost:3000</code> will change (reload to make that happen).</p>
+
+  </div>
+
+
+  </div>
+  <footer>
+    &copy; Copyright 2021 by Gianluca Ciccarelli.
+  </footer>
+</body>

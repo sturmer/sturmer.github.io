@@ -1,0 +1,159 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../static/style.css">
+<title>Writing a Simple Calculator in Racket — Gergelim</title>
+<body>
+  <header>
+    <h1>Gergelim</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a href="../../">Welcome</a></li>
+        
+          <li class="active"><a href="../">Blog</a></li>
+        
+          <li><a href="../../projects/">Projects</a></li>
+        
+          <li><a href="../../about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </header>
+  <div class="page">
+    
+  
+  <div class="blog-post">
+  
+    <h2>Writing a Simple Calculator in Racket</h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2015-12-06
+  </p>
+  <p>Frustrated by several attempts at creating GUI-based programs that I've tried in the past, I decided to try how differently the story could end when using a language that promises enlightenment to its users. I ended up writing <em>Calculon</em>, a simple calculator, and in the process learned a couple of things about Racket and the <code>racket/gui</code> module (and paid homage to <a href="https://en.wikipedia.org/wiki/Futurama">one of the best cartoons in history</a>).</p>
+<!-- more -->
+
+<h2>The <code>racket/gui</code> module</h2>
+<p>The module which I used for the GUI is called, as was to be expected, <code>racket/gui</code>. I have read a bit of the tutorial to understand the basic philosophy, and I was ready to start hacking.</p>
+<p>The principle is simple: there are some window objects which work as containers, that in turn contain elements (like buttons, menus, other containers, you name it). In the beginning, I wrote everything in a single source file, but later it was easy to factor out the pieces and I happily ended up with three parts:</p>
+<ol>
+<li>The <a href="https://github.com/sturmer/calculon/blob/master/calculon-gui.rkt">GUI</a> itself</li>
+<li>The <a href="https://github.com/sturmer/calculon/blob/master/calculon.rkt">expression parser</a></li>
+<li>The <a href="https://github.com/sturmer/calculon/blob/master/calculon-test.rkt">test module</a></li>
+</ol>
+<p>Let's tear them down to see what's inside.</p>
+<h3>The GUI</h3>
+<p>I wanted to have a basic layout for my calculator, so I thought to have the classic matrix of buttons with the digits, the operations, and the decimal point, to which at the end I added a reset button.</p>
+<p><img src="../../images/calculon-gui-shot.png" alt="calculator-layout"></p>
+<p>The display is only for output, and shows what the user inserts by clicking the buttons (which actually is rather annoying, but limits a lot error management, since we almost completely control the input).</p>
+<p>We start by defining a generic container known as frame, inside which we start putting the display:</p>
+<div class="hll"><pre><span></span><span class="p">(</span><span class="k">define</span> <span class="n">frame</span> <span class="p">(</span><span class="k">new</span> <span class="n">frame%</span> <span class="p">[</span><span class="n">label</span> <span class="s2">&quot;Calculon&quot;</span><span class="p">]))</span>
+
+<span class="p">(</span><span class="k">define</span> <span class="n">display$</span> <span class="p">(</span><span class="k">new</span> <span class="n">text-field%</span>
+                      <span class="p">(</span><span class="n">label</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                      <span class="p">(</span><span class="n">parent</span> <span class="n">frame</span><span class="p">)</span>
+                      <span class="p">(</span><span class="n">init-value</span> <span class="s2">&quot;0&quot;</span><span class="p">)))</span>
+</pre></div>
+<p>The parent-child relationship is quite important and just describes who owns whom (or who belongs to whom): in this case, we say that the <code>display$</code> objct belongs to the frame.</p>
+<p>At this point, the building block is the <code>horizontal-panel%</code>, whose role is to provide an area to group elements horizontally (in this case, the buttons). So for the first row, we have the following:</p>
+<div class="hll"><pre><span></span><span class="c1">;; Row 0: ? ? sqrt C</span>
+<span class="p">(</span><span class="k">define</span> <span class="n">row0</span> <span class="p">(</span><span class="k">new</span> <span class="n">horizontal-panel%</span> <span class="p">[</span><span class="n">parent</span> <span class="n">frame</span><span class="p">]))</span>
+<span class="p">(</span><span class="k">new</span> <span class="n">button%</span> <span class="p">[</span><span class="n">parent</span> <span class="n">row0</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">label</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">min-width</span> <span class="mi">30</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">enabled</span> <span class="no">#f</span><span class="p">])</span>
+<span class="p">(</span><span class="k">new</span> <span class="n">button%</span> <span class="p">[</span><span class="n">parent</span> <span class="n">row0</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">label</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">min-width</span> <span class="mi">30</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">enabled</span> <span class="no">#f</span><span class="p">])</span>
+<span class="p">(</span><span class="k">new</span> <span class="n">button%</span> <span class="p">[</span><span class="n">parent</span> <span class="n">row0</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">label</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">min-width</span> <span class="mi">30</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">enabled</span> <span class="no">#f</span><span class="p">])</span>
+<span class="p">(</span><span class="k">new</span> <span class="n">button%</span> <span class="p">[</span><span class="n">parent</span> <span class="n">row0</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">label</span> <span class="s2">&quot;R&quot;</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">min-width</span> <span class="mi">30</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">callback</span> <span class="p">(</span><span class="k">λ</span> <span class="p">(</span><span class="n">b</span> <span class="n">e</span><span class="p">)</span>
+                 <span class="p">(</span><span class="k">send</span> <span class="n">display$</span> <span class="n">set-value</span> <span class="s2">&quot;0&quot;</span><span class="p">))])</span>
+</pre></div>
+<p>Man I love this language. Can it get easier than that? You have a line and you get buttons inside. Each button has a label, can be disabled, can be set to a minimum width, and can be associated to a callback (that takes as arguments the button object itself and the event). Buttons belong to the <code>row</code>, which in turn belongs to the <code>frame</code>.</p>
+<p>After we finish listing the rows, we show the frame itself:</p>
+<div class="hll"><pre><span></span><span class="p">(</span><span class="k">send</span> <span class="n">frame</span> <span class="n">show</span> <span class="no">#t</span><span class="p">)</span>
+</pre></div>
+<p>This is general syntax for object methods call: <code>send</code> means <em>Call the method show of the object frame</em>. The display shown above works the same way: Call the method <code>set-value</code> of the <code>display$</code> object.</p>
+<h4>GUI-related functions</h4>
+<p>After some refactoring, I left only 2 functions inside the GUI module:</p>
+<div class="hll"><pre><span></span><span class="c1">;; GUI-related functions</span>
+<span class="c1">;; Push a button of an operation (+, -, ...)</span>
+<span class="p">(</span><span class="k">define</span> <span class="p">(</span><span class="n">push-operation</span> <span class="n">op</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">send</span> <span class="n">display$</span> <span class="n">set-value</span> <span class="p">(</span><span class="nb">string-append</span> <span class="p">(</span><span class="k">send</span> <span class="n">display$</span> <span class="n">get-value</span><span class="p">)</span> <span class="n">op</span><span class="p">)))</span>
+
+<span class="c1">;; Push a button which is not an op (digit, decimal value)</span>
+<span class="p">(</span><span class="k">define</span> <span class="p">(</span><span class="n">push-number</span> <span class="n">button-value</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">define</span> <span class="n">current-display</span> <span class="p">(</span><span class="k">send</span> <span class="n">display$</span> <span class="n">get-value</span><span class="p">))</span>
+  <span class="p">(</span><span class="k">define</span> <span class="n">result</span>
+    <span class="p">(</span><span class="k">match</span> <span class="n">current-display</span>
+      <span class="p">[(</span><span class="nb">regexp</span> <span class="sr">#rx&quot;^0&quot;</span><span class="p">)</span> <span class="n">button-value</span><span class="p">]</span>
+      <span class="p">[</span><span class="k">_</span> <span class="p">(</span><span class="nb">string-append</span> <span class="n">current-display</span> <span class="n">button-value</span><span class="p">)]))</span>
+  <span class="p">(</span><span class="k">send</span> <span class="n">display$</span> <span class="n">set-value</span> <span class="n">result</span><span class="p">))</span>
+</pre></div>
+<p>The first one just takes the operation button we have just pressed, and created a string to send to the display. The second introduces a possibly useless complication coming from the fact that I want the initial 0 to be substituted by the first digit the user inserts. It uses my favorite function, <code>match</code>, to apply a regular expression to what is currently in the display: if it starts with 0, just substitute it with the button value (buttons in this case are only digit buttons); otherwise, just append.</p>
+<h2>The expression parser</h2>
+<p>The expression parser is invoked as a callback of the <code>=</code> button, and takes whatever is on the display to try and evaluate it, returning the result of the evaluation.</p>
+<div class="hll"><pre><span></span><span class="p">(</span><span class="k">define</span> <span class="p">(</span><span class="n">push-equal</span> <span class="n">expr</span><span class="p">)</span>
+   <span class="p">(</span><span class="k">define</span> <span class="n">ops-lst</span> <span class="p">(</span><span class="nb">regexp-match</span>
+                    <span class="sr">#px&quot;(\\d+[./]?\\d*)\\s*([-÷+×])\\s*(\\d+[./]?\\d*)&quot;</span>
+                    <span class="n">expr</span><span class="p">))</span>
+   <span class="p">(</span><span class="k">define</span> <span class="n">result</span> <span class="mi">0</span><span class="p">)</span>
+   <span class="p">(</span><span class="k">match</span> <span class="n">ops-lst</span>
+     <span class="p">[(</span><span class="nb">list</span> <span class="k">_</span> <span class="n">x</span> <span class="n">f</span> <span class="n">y</span><span class="p">)</span>
+      <span class="p">(</span><span class="nb">number-&gt;string</span> <span class="p">((</span><span class="n">string-&gt;f</span> <span class="n">f</span><span class="p">)</span>
+                       <span class="p">(</span><span class="nb">string-&gt;number</span> <span class="n">x</span><span class="p">)</span>
+                       <span class="p">(</span><span class="nb">string-&gt;number</span> <span class="n">y</span><span class="p">)))]</span>
+     <span class="p">[</span><span class="k">_</span> <span class="p">(</span><span class="nb">raise</span> <span class="nb">exn:fail:user</span><span class="p">)]))</span>
+</pre></div>
+<p>In this case, we just match the expressions of the form dictated by the (rather cumbersome) regular expression on line 3. It is actually very basic, after all the escaping is stripped; it takes also into account that Racket uses fractions when it can to display fractional numbers, and this is why I need to match both the decimal point (which is one of the possible buttons) and the '/' character of a fraction.</p>
+<p>The <code>match</code> function shines even brighter here: if what I match is of the form of a list of 3 elements <code>x f y</code>, then assume that <code>f</code> is an operation and apply it to the operands <code>x</code> and <code>y</code>.</p>
+<h2>Testing</h2>
+<p>No piece of software can be considered complete without a proper unit test module. I am pretty happy with the layout I have found for the testing modules of my Racket projects, so I'll paste it here and try to explain in detail:</p>
+<div class="hll"><pre><span></span><span class="kn">#lang </span><span class="nn">racket</span>
+
+<span class="p">(</span><span class="k">require</span> <span class="n">rackunit</span>
+         <span class="n">rackunit/text-ui</span>
+         <span class="s2">&quot;calculon.rkt&quot;</span><span class="p">)</span>
+
+<span class="p">(</span><span class="k">module+</span> <span class="n">test</span>
+  <span class="p">(</span><span class="k">define</span> <span class="n">suite</span>
+    <span class="p">(</span><span class="n">test-suite</span>
+     <span class="s2">&quot;calculon: callback tests&quot;</span>
+
+     <span class="p">(</span><span class="n">test-case</span>
+      <span class="s2">&quot;Check equal callback&quot;</span>
+      <span class="p">(</span><span class="n">check-equal?</span> <span class="p">(</span><span class="n">push-equal</span> <span class="s2">&quot;8+5&quot;</span><span class="p">)</span> <span class="s2">&quot;13&quot;</span><span class="p">)</span>
+      <span class="p">(</span><span class="n">check-equal?</span> <span class="p">(</span><span class="n">push-equal</span> <span class="s2">&quot;12.11  - 14.03&quot;</span><span class="p">)</span> <span class="s2">&quot;-1.92&quot;</span><span class="p">)</span>
+      <span class="c1">;(check-equal? (push-equal &quot;4/5 * 3&quot;) &quot;12/5&quot;)  ; FIXME</span>
+      <span class="c1">;(check-equal? (push-equal &quot;20/3 * 1/5&quot;) &quot;10.0&quot;) ; FIXME</span>
+      <span class="p">)))</span>
+  <span class="p">(</span><span class="n">run-tests</span> <span class="n">suite</span><span class="p">))</span>
+</pre></div>
+<p>Notice first the require list: apart from the obvious modules for testing, I only require the expression parser. The more GUI-related function are not interesting for testing, since they only make easy transformations to their input for displaying purposes. However, testing the parser is very useful, as frees us from testing manually via pressing the buttons to try out the few operations that we want to test.</p>
+<p>I write a separate Racket module that I call test (<code>(module+ test)</code> means <em>Add what follows to the module called test</em>. Modules are an amazing mechanism and one of their feature is the ability to span several source files). Inside the module, I define a <code>test-suite</code>, which is just a collection of test cases (in this case, only one). Now inside the <code>test-case</code>, I call repeatedly <code>check-equal?</code> to compare the result of the call to <code>push-equal</code> with the result I expect. I can run it separately in DrRacket by just pushing Run, or from the command line by issuing <code>raco test calculon-test.rkt</code>:</p>
+<pre>
+  $ raco test calculon-test.rkt
+  raco test: (submod "calculon-test.rkt" test)
+  1 success(es) 0 failure(s) 0 error(s) 1 test(s) run
+  0
+  2 tests passed
+</pre><h2>Conclusion</h2>
+<p>I am very happy with the result. It is simple, but also it didn't take much time, and I have used a GUI in a program of mine for the first time. The complete project lives on <a href="https://github.com/sturmer/calculon">GitHub</a>; feel free to mail me your thoughts and to contribute to it.</p>
+
+  </div>
+
+
+  </div>
+  <footer>
+    &copy; Copyright 2021 by Gianluca Ciccarelli.
+  </footer>
+</body>

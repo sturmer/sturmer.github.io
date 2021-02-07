@@ -1,0 +1,76 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../static/style.css">
+<title>How to Write a CGI Program — Gergelim</title>
+<body>
+  <header>
+    <h1>Gergelim</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a href="../../">Welcome</a></li>
+        
+          <li class="active"><a href="../">Blog</a></li>
+        
+          <li><a href="../../projects/">Projects</a></li>
+        
+          <li><a href="../../about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </header>
+  <div class="page">
+    
+  
+  <div class="blog-post">
+  
+    <h2>How to Write a CGI Program</h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2016-06-05
+  </p>
+  <p>Today I wanted to make some experiments with CGI on my newly-installed Ubuntu 16.04. There are a few steps to take before starting to experiment, and I'm writing them down here in case anyone else wants to try something similar.</p>
+<!-- more -->
+
+<h2>TL;DR</h2>
+<ol>
+<li><code>sudo a2enmod cgi</code></li>
+<li>Write program, build, copy it into <code>/usr/lib/cgi-bin</code></li>
+<li><code>sudo chmod a+x &lt;yourprogram&gt;</code></li>
+<li>Go to <code>localhost/cgi-bin/&lt;yourprogram&gt;</code></li>
+<li>Enjoy</li>
+</ol>
+<p>Make sure your first line of output is <code>Content-type: text/plain\n\n</code>, and you should be fine.</p>
+<h2>Configure Apache</h2>
+<p>On Ubuntu, the main configuration for apache lies in the directory <code>/etc/sites-available/000-default.conf</code>. The principle is that you have a bunch of configurations available, and a subset of them that are also <em>enabled</em>. Enabling a configuration means simply that a symlink to some file in the <code>sites-available</code> gets created in <code>sites-enabled</code>. Rather than doing this manually, the Apache documentation encourages to use a command, <code>a2enconf</code>. Which, well, does exactly that: creates the symlink.</p>
+<p>In the same spirit, you use a command <code>a2enmod</code> to enable modules. Point is, the CGI module is not enabled by default; to turn it on, all you need is one <code>sudo a2enmod cgi</code> command away. Note: you might receive a warning, saying that you are using a multithreaded MPM, in which case this command will be automatically translated into <code>sudo a2enmod cgid</code> (notice the final <em>d</em>).</p>
+<p>When you enable a module, you are asked to restart (not reload) the server:</p>
+<div class="hll"><pre><span></span>sudo service apache2 restart
+</pre></div>
+<h2>Write the program</h2>
+<p>The program needs to respect the directions given in the official <a href="http://www.ietf.org/rfc/rfc3875">RFC</a>. What? Too long, you say? Well, to get started, you only need to make sure to declare, as the first line of your output, the content type you are about to produce, followed by a blank line. According to HTTP, what you are doing is providing an HTTP Response header, which is the only one you have to provide explicitly. You then need a blank line that indicates that you are done with the response headers; what comes next is then the Response body.</p>
+<p>So for example, here is a silly <em>Hello, world</em> program:</p>
+<div class="hll"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Content-type: text/plain</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello, world!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<h2>Run it!</h2>
+<p>Build this program and save the executable in the directory <code>/usr/lib/cgi-bin/</code>. This path is defined in one of the enabled configurations (usually under <code>/etc/apache2/conf-enabled/</code>), which is aptly named <code>serve-cgi-bin.conf</code>. Make sure to give permissions to execute the program (<code>sudo chmod a+x &lt;yourfile&gt;</code> should suffice). At this point, just open your browser at <code>localhost/cgi-bin/hello</code> (where <code>hello</code> is the name you actually gave too your executable program), and you should be able to see a page displaying the friendly greeting.</p>
+
+  </div>
+
+
+  </div>
+  <footer>
+    &copy; Copyright 2021 by Gianluca Ciccarelli.
+  </footer>
+</body>

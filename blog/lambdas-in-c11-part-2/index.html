@@ -1,0 +1,128 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../static/style.css">
+<title>Lambdas in C++11, part 2 — Gergelim</title>
+<body>
+  <header>
+    <h1>Gergelim</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a href="../../">Welcome</a></li>
+        
+          <li class="active"><a href="../">Blog</a></li>
+        
+          <li><a href="../../projects/">Projects</a></li>
+        
+          <li><a href="../../about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </header>
+  <div class="page">
+    
+  
+  <div class="blog-post">
+  
+    <h2>Lambdas in C++11, part 2</h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2013-12-16
+  </p>
+  <p>In the <a href="../lambdas-in-c11/">previous post</a>, I have shown the syntax of lambda expressions in C++11, also known as closures, that are basically unnamed function objects that can be passed around for convenience, enhancing correctness through readability.</p>
+<!-- more -->
+
+<p>In this installment, as promised, we will have a look at one of the basic advantages of using lambdas, by first introducing a small Functor (a function class, or, a class with an overloading of <code>operator()</code>), and then seeing it being substituted with a shiny closure.</p>
+<h3>Small functor</h3>
+<p>In the previous version of the language, several of the STL containers allow the user to provide a class to a container constructor, that encapsulates the notion of order among elements of the container. This notion is important for usage with sorting algorithms (like <code>std::sort</code>), but might become fundamental when using certain containers, like sets or priority queues.</p>
+<p>Consider, for example, the following program:</p>
+<div class="hll"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;task.hpp&quot;</span><span class="cp"></span>
+<span class="c1">// includes, using declarations</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+   <span class="n">Task</span> <span class="n">task1</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;Laundry&quot;</span><span class="p">);</span>
+   <span class="n">Task</span> <span class="n">task2</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">&quot;Hackery&quot;</span><span class="p">);</span>
+   <span class="n">Task</span> <span class="n">task3</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">&quot;Grocery&quot;</span><span class="p">);</span>
+   <span class="n">priority_queue</span><span class="o">&lt;</span><span class="n">Task</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">less</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;&gt;</span> <span class="n">q</span><span class="p">;</span>
+   <span class="n">q</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">task1</span><span class="p">);</span>
+   <span class="n">q</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">task2</span><span class="p">);</span>
+   <span class="n">q</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">task3</span><span class="p">);</span>
+   <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">q</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+       <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">q</span><span class="p">.</span><span class="n">top</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+       <span class="n">q</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p>This program declares 3 tasks, each one identified by a priority and a name. The priority queue is defined over the class <code>Task</code>, is implemented with a <code>std::vector</code>, and depends on a standard functor, <code>less</code>. (Having to specify the use of a vector comes unfortunately from the way the <code>priority_queue</code> is designed.)</p>
+<p>The <code>std::less</code> class is a convenience class provided by the standard library to be used with containers and algorithms. We can use it to customize the sorting order of the tasks in our priority queue. While the default types have their specialization already, that works mostly out-of-the-box, we need to provide a criterion to our queue for the right sorting. Say, for example, that the sorting is per ascending priority (i.e., task with priority 9 has higher priority than task with priority 0): we would express it like:</p>
+<div class="hll"><pre><span></span><span class="k">namespace</span> <span class="n">std</span> <span class="p">{</span>
+<span class="k">template</span><span class="o">&lt;&gt;</span>
+<span class="k">struct</span> <span class="nc">less</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="kt">bool</span> <span class="nf">operator</span><span class="p">()(</span><span class="k">const</span> <span class="n">Task</span><span class="o">&amp;</span> <span class="n">t1</span><span class="p">,</span> <span class="k">const</span> <span class="n">Task</span><span class="o">&amp;</span> <span class="n">t2</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">t1</span><span class="p">.</span><span class="n">priority_</span> <span class="o">&lt;</span> <span class="n">t2</span><span class="p">.</span><span class="n">priority_</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+<span class="p">}</span>
+</pre></div>
+<p>Pretty simple: we specialize the template struct for the class <code>Task</code>, and add it to the <code>std</code> namespace. For completeness, let\'s have a look at the <code>Task</code> class declaration:</p>
+<div class="hll"><pre><span></span><span class="k">struct</span> <span class="nc">Task</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">priority_</span><span class="p">;</span>
+    <span class="n">string</span> <span class="n">description_</span><span class="p">;</span>
+    <span class="n">Task</span><span class="p">(</span><span class="kt">int</span> <span class="n">p</span><span class="p">,</span> <span class="n">string</span> <span class="n">d</span><span class="p">)</span> <span class="o">:</span> <span class="n">priority_</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">description_</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="p">{}</span>
+<span class="p">};</span>
+</pre></div>
+<p>If we compile the program, the output of the resulting executable is the following:</p>
+<pre>
+3: Hackery
+2: Grocery
+1: Laundry
+</pre><h3>Beauty of the lambda</h3>
+<p>The point is, we are trying to do something very simple: we only want to pass a function to the <code>priority_queue</code> constructor, to let it do its job of keeping the tasks sorted. In previous versions of the standard, we had to specialize a template struct, and plug it in the <code>std</code> namespace. While certainly not a major feat, try to compare it with the following, closure-based implementation:</p>
+<div class="hll"><pre><span></span><span class="c1">// #includes, using declarations</span>
+<span class="k">struct</span> <span class="nc">Task</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">priority_</span><span class="p">;</span>
+    <span class="n">string</span> <span class="n">description_</span><span class="p">;</span>
+    <span class="n">Task</span><span class="p">(</span><span class="kt">int</span> <span class="n">p</span><span class="p">,</span> <span class="n">string</span> <span class="n">d</span><span class="p">)</span> <span class="o">:</span> <span class="n">priority_</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">description_</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="p">{}</span>
+<span class="p">};</span>
+
+<span class="n">ostream</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">&lt;&lt;</span><span class="p">(</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">os</span><span class="p">,</span> <span class="k">const</span> <span class="n">Task</span><span class="o">&amp;</span> <span class="n">t</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="n">t</span><span class="p">.</span><span class="n">priority_</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">t</span><span class="p">.</span><span class="n">description_</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">os</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+   <span class="n">Task</span> <span class="nf">task1</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;Laundry&quot;</span><span class="p">);</span>
+   <span class="n">Task</span> <span class="nf">task2</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">&quot;Hackery&quot;</span><span class="p">);</span>
+   <span class="n">Task</span> <span class="nf">task3</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">&quot;Grocery&quot;</span><span class="p">);</span>
+   <span class="k">auto</span> <span class="n">compare_tasks</span> <span class="o">=</span> <span class="p">[](</span><span class="k">const</span> <span class="n">Task</span><span class="o">&amp;</span> <span class="n">t1</span><span class="p">,</span> <span class="k">const</span> <span class="n">Task</span><span class="o">&amp;</span> <span class="n">t2</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">t1</span><span class="p">.</span><span class="n">priority_</span> <span class="o">&lt;</span> <span class="n">t2</span><span class="p">.</span><span class="n">priority_</span><span class="p">;</span> <span class="p">};</span>
+   <span class="n">priority_queue</span><span class="o">&lt;</span><span class="n">Task</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;</span><span class="p">,</span> <span class="k">decltype</span><span class="p">(</span><span class="n">compare_tasks</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">q</span><span class="p">(</span><span class="n">compare_tasks</span><span class="p">);</span>
+   <span class="n">q</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">task1</span><span class="p">);</span>
+   <span class="n">q</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">task2</span><span class="p">);</span>
+   <span class="n">q</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">task3</span><span class="p">);</span>
+   <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">q</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+       <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">q</span><span class="p">.</span><span class="n">top</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+       <span class="n">q</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p>We don't even need a separate header, because we have no template. The only trick here is to wrap the parameter <code>compare_tasks</code> in a <code>decltype</code>. In a nutshell, <code>decltype</code> returns the type of the expression used as its argument (but see [<code>dcl.type.simple</code>] in the standard for the precise definition). This is necessary, because a template parameter needs be a class, or the result of an expression that can be computed at compile time. The lambda is not a class, but an object of anonymous type: see, for example, again [<code>expr.prim.lambda</code>]:</p>
+<blockquote><p>The type of the lambda-expression (which is also the type of the closure object) is a unique, unnamed non- union class type [...]</p>
+</blockquote>
+<p>This means that we need a way to express the type of the lambda. One way to do it is that first we define the lambda to be of type auto, and then we express the type itself as the result of a <code>decltype</code> evaluation, which is equivalent to saying: _Whatever is the type of this closure, feed it to the priority<em>queue constructor</em>. This solves the problem, and makes the program compilable and the output identical to the version with functors.</p>
+<p>See also this <a href="http://stackoverflow.com/a/3867323">Stack Overflow answer</a> for a thorough discussion about the advantages and disadvantages of this solution: I found it really useful to understand the need for <code>decltype</code>.</p>
+<h3>Conclusion</h3>
+<p>Lambdas provide a convenient, readable, and concise way to express the notion of a function object. They are useful in every context where it is necessary to pass a function around, like to implement callback mechanisms, and notably as function objects that interact nicely with STL algorithms and containers. As a side-note, let me confess that I prefer to call them <em>closures</em> only because I am not able to spell the word <em>lambda</em> correctly on the fly (when out of Vim, of course :)).</p>
+<p>This concludes our mini-tour of the closures in C++11. As usual, the complete version of the code we have discussed in this post is available as a <a href="https://gist.github.com/sturmer/7915819">Gist</a>.</p>
+
+  </div>
+
+
+  </div>
+  <footer>
+    &copy; Copyright 2021 by Gianluca Ciccarelli.
+  </footer>
+</body>

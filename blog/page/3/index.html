@@ -1,0 +1,680 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../../static/style.css">
+<title>Blog — Gergelim</title>
+<body>
+  <header>
+    <h1>Gergelim</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a href="../../../">Welcome</a></li>
+        
+          <li class="active"><a href="../../">Blog</a></li>
+        
+          <li><a href="../../../projects/">Projects</a></li>
+        
+          <li><a href="../../../about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </header>
+  <div class="page">
+    
+  
+    
+  <div class="blog-post">
+  
+    <h2><a href="../../how-to-start-a-typescript-project-on-nodejs/">How to Start a TypeScript Project on Node.js</a></h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2018-06-13
+  </p>
+  <p>In this post, I'll describe a quick setup to start hacking on a TypeScript project on <code>Node.js</code>, using <code>yarn</code> as package manager instead of npm. I'll use an app called <a href="https://github.com/sturmer/readnext">readnext</a> as example.</p>
+<!-- more -->
+
+<h2>Setup</h2>
+<p>Create a directory and initialize yarn:</p>
+<div class="hll"><pre><span></span>mkdir readnext
+<span class="nb">cd</span> readnext
+yarn init
+</pre></div>
+<p>To add dependencies, use <code>yarn add</code>:</p>
+<div class="hll"><pre><span></span>yarn add tsc
+yarn add typescript
+yarn add typescript-eslint-parser
+yarn add express
+yarn add ts-node  <span class="c1"># for live compile+run</span>
+yarn add nodemon  <span class="c1"># will invoke ts-node when a file changes</span>
+</pre></div>
+<p>We will use ts-node and nodemon to automate the restart of the application when we make changes. This will recompile the source and launch nodemon to keep looking for changes (as suggested in <a href="https://basarat.gitbooks.io/typescript/docs/quick/nodejs.html">tdd</a>). Tweak <code>package.json</code> to include "scripts":</p>
+<div class="hll"><pre><span></span><span class="s2">&quot;scripts&quot;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s2">&quot;start&quot;</span><span class="o">:</span> <span class="s2">&quot;npm run build:live&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;build:live&quot;</span><span class="o">:</span> <span class="s2">&quot;nodemon --exec ./node_modules/.bin/ts-node -- ./server.ts&quot;</span>
+  <span class="p">}</span>
+</pre></div>
+<p>(Oh, and now it would be a good time to init a git repo: <code>git init</code>. Add <code>server.ts</code>, <code>tsconfig.json</code>, <code>package.json</code>, and <code>yarn.lock</code>.)</p>
+<h3>Aside: Where is tsc?</h3>
+<p>If you do <code>which tsc</code> you'll get nothing; it's because tsc is actually inside  <code>./node_modules/tsc/bin/tsc</code>. <em>Update (2019-01-07):</em> you can run it without worrying about the exact location by running <code>npx tsc</code> instead.</p>
+<h2>Develop</h2>
+<p>Start the server with <code>yarn start</code>. Every time a file is changed, <code>localhost:3000</code> will change (reload to make that happen).</p>
+
+  </div>
+
+  
+    
+  <div class="blog-post">
+  
+    <h2><a href="../../designing-data-intensive-applications-by-martin-kleppmann-510/">Designing Data-Intensive Applications, by Martin Kleppmann (5/10)</a></h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2018-02-17
+  </p>
+  <p>This book is a survey of the staggering amount of pieces of technology that can be used to build data-intensive applications, defined (in my rough interpretation) as user-facing systems that treat significant amounts of data and are expected to do it quickly. Contains reflections on trade-offs to take into account when choosing one solution over the other.
+<!-- more --></p>
+<h2>Recommended to...</h2>
+<p>Read this if you work with distributed systems and want a fairly exhaustive overview of what's going on in your codebase. If you know your (Apache) Kafka and your Hadoop and your ZooKeeper, you might as well spend your time in better reads.</p>
+<h2>A somehow longer version</h2>
+<p>The undeniable merit of this book is to bring together in a reasonable space a wealth of research on distributed systems. Allow me a hazardous analogy. Reading about NP-hard problems makes you aware that there's a class of problems that you can't solve efficiently, unless you come up with an improvement on the state of the art; reading this book helps you get acquainted (I won't say familiar) with situations in which a problem is hard and/or has been solved using a given class of technology.</p>
+<p>In general, I don't like surveys. They're sometimes very useful though.</p>
+<p>I don't like them because the bad ones tend to fall into what could be called the <em>shopping list trap</em>: just keep listing names to show that you've done your research. "Problem X is hard. Product 1 solves it by using methodology M, but gives up on this functionality; product 2 offers it but lacks this other feature. My dear friend at company C integrates 1 and 2 and offers this, but then your circumstances might not require the expense." Sounds familiar?</p>
+<p>But surveys are sometimes very useful, because you get exposed to lots of ideas, and hopefully you'll be able to recognize a problem when you see it and know how to look for a piece of software that solves it (a shopping list might be useful in that case), or you know that you need to write one.</p>
+<p>I consider this book a rather good survey. I've read my fair share about problems in distributed systems before, but I was lacking the bird's eye view that is very important, and that you acquire only after much experience. I don't really believe in condensing experience, but this book is a good attempt at that. You still need to sweat blood on real systems in order to appreciate the beasts you're dealing with.</p>
+<p>The last chapter was horribly hard to read. The idea of giving a personal interpretation of trends is commendable, but in this case, the execution just felt unnecessarily heavy. Then, an unexpected and appreciated reflection on the surveillance state in the very last section of the book, which is an eye-opener. If it wasn't for that, you could skip that chapter. (Well you still can, and only read that section.)</p>
+
+  </div>
+
+  
+    
+  <div class="blog-post">
+  
+    <h2><a href="../../notes-on-amazon-ecs/">Notes on Amazon ECS</a></h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2018-01-30
+  </p>
+  <p>Here are some notes I've taken while reading <a href="https://aws.amazon.com/blogs/compute/building-blocks-of-amazon-ecs/">Building Blocks of Amazon ECS</a>.</p>
+<!-- more -->
+
+<h2>Regions and Availability Zones (AZs)</h2>
+<p>AWS is divided into <em>regions</em>.</p>
+<ul>
+<li>They are geographically separated</li>
+<li>Each consists of multiple isolated data centers.</li>
+</ul>
+<p>A region is divided into (≥ 2) <em>Availability Zones</em>.</p>
+<ul>
+<li>AZs are isolated from each other, but inter-connected via fast network connections.</li>
+<li>One AZ can span more data centers. Common failures in one AZ don't affect other AZs in the same region, making outages of a whole region more rare.</li>
+</ul>
+<p>To get more availability, deploy a service over multiple AZs.</p>
+<h2>Containers</h2>
+<p>A container virtualizes an operating system, while a Virtual Machine virtualizes physical hardware. This means that a container <em>is not</em> a VM.</p>
+<p>A (container) <em>image</em> is a package that groups</p>
+<ul>
+<li>the code of the application we want to run</li>
+<li>and all the application's dependencies</li>
+</ul>
+<p>Images can be deployed on any host machine. The container takes care of the communication with the host.</p>
+<p>ECS allows running containerized applications on a cluster of EC2 instances (that are the containers' hosts). ECS works natively with Docker containers.</p>
+<h2>Container instances</h2>
+<p>An ECS instance is a special EC2 instance that</p>
+<ul>
+<li>runs an ECS container agent</li>
+<li>has an IAM policy and role (IAM is Amazon's identity management system)</li>
+<li>is registered into our ECS cluster</li>
+</ul>
+<p>An <em>ECS task</em> is a group of containers. They logically belong together in order to make up an application/system. Tasks are not created directly, but through a task definition, that declares which containers belong to the task.</p>
+<p>The <em>ECS container agent</em> is a program that handles communication between the (ECS) scheduler (the component that manages the ECS tasks) and the ECS instances. The <em>ECS scheduler</em> decides on which instance a container runs, according to some user-specifiable constraints.</p>
+<p>An <em>ECS cluster</em> is a group of container instances inside a region (but possibly, and preferably, across multiple AZs).</p>
+<p>To register an instance in a cluster, the instance needs an agent running.</p>
+<h2>Services</h2>
+<p>A service is a way of automating the concept of what to run. Conceptually, it looks like: "I want N tasks, defined by task definition D". This recipe is processed by the ECS infrastructure, that makes sure that those tasks are running, possibly restarting them if they go down.</p>
+
+  </div>
+
+  
+    
+  <div class="blog-post">
+  
+    <h2><a href="../../generating-gergelim-using-hexo/">Generating gergel.im Using Hexo</a></h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2017-12-10
+  </p>
+  <p>I've changed the static site generator that powers <code>www.gergel.im</code>. In this post, I explain the motivation behind this change, describe a few issue I had during the setup, and finally spend a word about my new workflow for content creation.</p>
+<!-- more -->
+
+<h1>Motivation</h1>
+<p>The time I dedicate to Racket is too small by now, so for a while I have decided to drop Frog, the generator I've been using until recently. Also, since my interest has switched to JavaScript, I thought it would be a neat idea to find a JS-based generator. This is how I ran into Hexo.</p>
+<p>I have grabbed the opportunity to transform the website more into my presentation to the world, stressing the fact that it's my personal page.</p>
+<h1>Setup</h1>
+<p>Migrating has been painfully manual, but also surprisingly straightforward. I blame especially my laziness. For instance, for each post, Frog requires a front matter in the form (notice the 4 spaces in front of each line):</p>
+<pre>
+    Title: A good title
+    Date: YYYY-MM-DDThh:mm:ss
+    Tags: tag-1, tag-2, ..., tag-n
+</pre><p>To comply with Hexo's format, I needed to switch to yml (notice the termination with triple-dash and the change of date format):</p>
+<pre>
+title: A good title
+date: YYYY/MM/DD hh:mm:ss
+tags:
+- tag-1
+- tag-2
+...
+- tag-n
+--
+</pre><p>Only after doing it maybe fifteen times (I have roughly 25 posts) I started thinking about how vim could help me speed that up.</p>
+<p>I spent a bit of time trying to figure out how to lay out the folder structure so as to have a blog inside a website. This can be achieved by using the <code>index_generator[path]</code> property in _config.yml, while keeping the root to my webpage to <code>/</code>:</p>
+<pre>
+url: https://www.gergel.im/
+root: /
+index_generator:
+  path: 'blog'
+  per_page: 10
+  order_by: -date
+</pre><p>Apart from this, laying out the files was pretty easy.</p>
+<h1>Workflow</h1>
+<p>I deploy the website using the git deployer. This takes the content of the generated <code>public</code> folder, copies it into another folder (don't know why), and pushes it to <code>master</code>. To also keep track of the source files, I created a <code>develop</code> branch. This means that I don't control <code>master</code> from my machine, but rather let the deployer push to it, and from time to time I just pull from my repository to have a local <code>master</code> in sync. I don't even need to do that, since I won't make any manual change to this branch. The only reason it's there, actually, is that GitHub Pages for users require that the content in master be rendered (unlike project pages).</p>
+<p>My workflow for writing posts is now the following:</p>
+<ol>
+<li>checkout <code>develop</code> (usually I'm there already)</li>
+<li><code>hexo generate --watch</code> to generate files when changing anything in the repository</li>
+<li><code>hexo server</code> to check the results</li>
+<li>write content in <code>source/_posts/a-title.md</code></li>
+</ol>
+<p>At this point, if I go to <code>localhost:4000/blog/&lt;permalink structure&gt;/a-title/</code>, I can see the resulting page. When I'm happy with it, I do:</p>
+<ol>
+<li>commit changes to develop: <code>git ci -am'Some message'</code></li>
+<li>push to origin/develop</li>
+<li><code>hexo clean</code> and then <code>hexo deploy</code></li>
+</ol>
+<p>The resulting code is <a href="https://github.com/sturmer/sturmer.github.io/tree/develop">stored on GitHub</a>, feel free to inspect it in case it might help you with your own setup.</p>
+
+  </div>
+
+  
+    
+  <div class="blog-post">
+  
+    <h2><a href="../../switching-gergelim-to-https/">Switching gergel.im to https</a></h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2017-02-01
+  </p>
+  <p>Today I ran into an article by one <a href="https://www.troyhunt.com/https-adoption-has-reached-the-tipping-point/">Troy Hunt</a> that talks about the fact that https is now past the status of exception, and is becoming the new norm.</p>
+<!--more -->
+
+<p>Not long ago, I had thought about switching this website to the secure protocol, but was intimidated by the prospect of work and bureaucracy that I needed to get into. Troy's post was enough to make me give it a serious try; I must admit, it was so much simpler than I expected, that I could easily have done it earlier.</p>
+<p>Apparently, GitHub pages allows you to automatically switch to https, if you don't use a custom domain name, but <em>yourname</em>.github.io. Come on, GH! I was so close! As the most astute reader might suspect, I do use a custom domain name. What to do?</p>
+<p>I googled a bit more and found <a href="https://sheharyar.me/blog/free-ssl-for-github-pages-with-custom-domains/">this page</a> (kudos!), that introduced me to the amazing Cloudflare, that offers a zillion of services to improve websites (I was impressed by the CDN that serves your page faster). The pricing plans for businesses appear intimidating, but for personal web pages, they have a free one. I was sold on the spot!</p>
+<p>I needed to change the DNS on my domain registrar, and everything was setup, but, uh, my website itself.</p>
+<p>I went through all the links, and removed the <em>http:</em> and <em>https:</em> parts. This works ── I didn't know. I also included <a href="https://github.com/sturmer/sturmer.github.io/commit/eb30c5b70d1ecfbec1939d9b49dd3ef6b46b1d8f#diff-15ca5b452b8160308132063abf26b8a7">the simple script</a> found in the post above, to redirect anything to https that comes from http.</p>
+<p>And the trick is done! Gergel.im is now served via https.</p>
+
+  </div>
+
+  
+    
+  <div class="blog-post">
+  
+    <h2><a href="../../destructors-are-not-always-called-in-case-of-exceptions/">Destructors Are Not Always Called in Case of Exceptions!</a></h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2016-06-05
+  </p>
+  <p>Wrong assumption: when an exception occurs, a stack unwinding occurs, which means that the relevant destructors of objects are called in the appropriate order.</p>
+<!-- more -->
+
+<h2>My wrong assumption</h2>
+<p>Suppose we have this snippet:</p>
+<div class="hll"><pre><span></span><span class="k">struct</span> <span class="nc">A</span> <span class="p">{</span>
+    <span class="p">[[</span> <span class="n">noreturn</span> <span class="p">]]</span> <span class="kt">void</span> <span class="n">op</span><span class="p">()</span> <span class="p">{</span> <span class="k">throw</span> <span class="mi">1</span><span class="p">;</span> <span class="p">}</span>
+    <span class="o">~</span><span class="n">A</span><span class="p">()</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Deleting obj...</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">A</span> <span class="n">a</span><span class="p">;</span>
+  <span class="n">a</span><span class="p">.</span><span class="n">op</span><span class="p">();</span>   <span class="c1">// The dtor might never be called!</span>
+<span class="p">}</span>
+</pre></div>
+<p>Is <code>a</code>'s destructor called when the exception is thrown? I thought so; I was wrong. This is the output of the snippet above:</p>
+<pre>
+terminate called after throwing an instance of 'int'
+Aborted (core dumped)
+</pre><h2>Explanation</h2>
+<p>When <code>op()</code> is called, the exception is thrown, and there is no handle for it; it gets out of the main function, so that <code>std::terminate</code> is called and the program aborts (see this <a href="http://stackoverflow.com/a/12887534/382880">question on StackOverflow</a>). From the standard (<code>[except.throw]</code>):</p>
+<blockquote><p>When an exception is thrown, control is transferred to the nearest handler with a matching type; "nearest" means the handler for which the <em>compound-statement</em> or <em>ctor-initializer</em> following the <code>try</code> keyword was most recently entered by the thread of control and not yet exited.</p>
+</blockquote>
+<p>and later on:</p>
+<blockquote><p>If no matching handler is found, the function <code>std::terminate()</code> is called; whether or not the stack is unwound before this call to <code>std::terminate()</code> is implementation-defined</p>
+</blockquote>
+<h2>Correction</h2>
+<p>A way to have this exception handled is to wrap the construction of A and the call to <code>op()</code> into a <code>try</code> block:</p>
+<div class="hll"><pre><span></span><span class="k">struct</span> <span class="nc">A</span> <span class="p">{</span>
+    <span class="p">[[</span> <span class="n">noreturn</span> <span class="p">]]</span> <span class="kt">void</span> <span class="n">op</span><span class="p">()</span> <span class="p">{</span> <span class="k">throw</span> <span class="mi">1</span><span class="p">;</span> <span class="p">}</span>
+    <span class="o">~</span><span class="n">A</span><span class="p">()</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Deleting obj...</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">try</span> <span class="p">{</span>
+    <span class="n">A</span> <span class="n">a</span><span class="p">;</span>
+    <span class="n">a</span><span class="p">.</span><span class="n">op</span><span class="p">();</span>   <span class="c1">// the dtor is guaranteed to be called</span>
+  <span class="p">}</span> <span class="k">catch</span><span class="p">(...)</span> <span class="p">{</span>
+    <span class="k">throw</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<pre>
+Deleting obj...
+terminate called after throwing an instance of 'int'
+Aborted (core dumped)
+</pre><p>Notice that just putting the constructor of <code>A</code> out of the <code>try</code> gets us back to the destructor not being called! Read carefully the first snippet from the standard:</p>
+<blockquote><p>... "nearest" means the handler for which the compound-statement or ctor-initializer <strong>following</strong> the <code>try</code> keyword.</p>
+</blockquote>
+<p>So if we had:</p>
+<div class="hll"><pre><span></span><span class="c1">// This might not call the dtor!</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">A</span> <span class="n">a</span><span class="p">;</span>
+  <span class="k">try</span> <span class="p">{</span>
+    <span class="n">a</span><span class="p">.</span><span class="n">op</span><span class="p">();</span>
+  <span class="p">}</span> <span class="k">catch</span><span class="p">(...)</span> <span class="p">{</span>
+    <span class="k">throw</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p>there would be no ctor-initializer (nor compound-statement, but that wasn't there before either) after the <code>try</code>.</p>
+<p>Apparently, whether or not the stack is unwound is implementation-defined, meaning that on other configurations the result of my experiment wouldn't be the same. But why risking?</p>
+
+  </div>
+
+  
+    
+  <div class="blog-post">
+  
+    <h2><a href="../../how-to-write-a-cgi-program/">How to Write a CGI Program</a></h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2016-06-05
+  </p>
+  <p>Today I wanted to make some experiments with CGI on my newly-installed Ubuntu 16.04. There are a few steps to take before starting to experiment, and I'm writing them down here in case anyone else wants to try something similar.</p>
+<!-- more -->
+
+<h2>TL;DR</h2>
+<ol>
+<li><code>sudo a2enmod cgi</code></li>
+<li>Write program, build, copy it into <code>/usr/lib/cgi-bin</code></li>
+<li><code>sudo chmod a+x &lt;yourprogram&gt;</code></li>
+<li>Go to <code>localhost/cgi-bin/&lt;yourprogram&gt;</code></li>
+<li>Enjoy</li>
+</ol>
+<p>Make sure your first line of output is <code>Content-type: text/plain\n\n</code>, and you should be fine.</p>
+<h2>Configure Apache</h2>
+<p>On Ubuntu, the main configuration for apache lies in the directory <code>/etc/sites-available/000-default.conf</code>. The principle is that you have a bunch of configurations available, and a subset of them that are also <em>enabled</em>. Enabling a configuration means simply that a symlink to some file in the <code>sites-available</code> gets created in <code>sites-enabled</code>. Rather than doing this manually, the Apache documentation encourages to use a command, <code>a2enconf</code>. Which, well, does exactly that: creates the symlink.</p>
+<p>In the same spirit, you use a command <code>a2enmod</code> to enable modules. Point is, the CGI module is not enabled by default; to turn it on, all you need is one <code>sudo a2enmod cgi</code> command away. Note: you might receive a warning, saying that you are using a multithreaded MPM, in which case this command will be automatically translated into <code>sudo a2enmod cgid</code> (notice the final <em>d</em>).</p>
+<p>When you enable a module, you are asked to restart (not reload) the server:</p>
+<div class="hll"><pre><span></span>sudo service apache2 restart
+</pre></div>
+<h2>Write the program</h2>
+<p>The program needs to respect the directions given in the official <a href="http://www.ietf.org/rfc/rfc3875">RFC</a>. What? Too long, you say? Well, to get started, you only need to make sure to declare, as the first line of your output, the content type you are about to produce, followed by a blank line. According to HTTP, what you are doing is providing an HTTP Response header, which is the only one you have to provide explicitly. You then need a blank line that indicates that you are done with the response headers; what comes next is then the Response body.</p>
+<p>So for example, here is a silly <em>Hello, world</em> program:</p>
+<div class="hll"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Content-type: text/plain</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello, world!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<h2>Run it!</h2>
+<p>Build this program and save the executable in the directory <code>/usr/lib/cgi-bin/</code>. This path is defined in one of the enabled configurations (usually under <code>/etc/apache2/conf-enabled/</code>), which is aptly named <code>serve-cgi-bin.conf</code>. Make sure to give permissions to execute the program (<code>sudo chmod a+x &lt;yourfile&gt;</code> should suffice). At this point, just open your browser at <code>localhost/cgi-bin/hello</code> (where <code>hello</code> is the name you actually gave too your executable program), and you should be able to see a page displaying the friendly greeting.</p>
+
+  </div>
+
+  
+    
+  <div class="blog-post">
+  
+    <h2><a href="../../writing-a-simple-calculator-in-racket/">Writing a Simple Calculator in Racket</a></h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2015-12-06
+  </p>
+  <p>Frustrated by several attempts at creating GUI-based programs that I've tried in the past, I decided to try how differently the story could end when using a language that promises enlightenment to its users. I ended up writing <em>Calculon</em>, a simple calculator, and in the process learned a couple of things about Racket and the <code>racket/gui</code> module (and paid homage to <a href="https://en.wikipedia.org/wiki/Futurama">one of the best cartoons in history</a>).</p>
+<!-- more -->
+
+<h2>The <code>racket/gui</code> module</h2>
+<p>The module which I used for the GUI is called, as was to be expected, <code>racket/gui</code>. I have read a bit of the tutorial to understand the basic philosophy, and I was ready to start hacking.</p>
+<p>The principle is simple: there are some window objects which work as containers, that in turn contain elements (like buttons, menus, other containers, you name it). In the beginning, I wrote everything in a single source file, but later it was easy to factor out the pieces and I happily ended up with three parts:</p>
+<ol>
+<li>The <a href="https://github.com/sturmer/calculon/blob/master/calculon-gui.rkt">GUI</a> itself</li>
+<li>The <a href="https://github.com/sturmer/calculon/blob/master/calculon.rkt">expression parser</a></li>
+<li>The <a href="https://github.com/sturmer/calculon/blob/master/calculon-test.rkt">test module</a></li>
+</ol>
+<p>Let's tear them down to see what's inside.</p>
+<h3>The GUI</h3>
+<p>I wanted to have a basic layout for my calculator, so I thought to have the classic matrix of buttons with the digits, the operations, and the decimal point, to which at the end I added a reset button.</p>
+<p><img src="../../../images/calculon-gui-shot.png" alt="calculator-layout"></p>
+<p>The display is only for output, and shows what the user inserts by clicking the buttons (which actually is rather annoying, but limits a lot error management, since we almost completely control the input).</p>
+<p>We start by defining a generic container known as frame, inside which we start putting the display:</p>
+<div class="hll"><pre><span></span><span class="p">(</span><span class="k">define</span> <span class="n">frame</span> <span class="p">(</span><span class="k">new</span> <span class="n">frame%</span> <span class="p">[</span><span class="n">label</span> <span class="s2">&quot;Calculon&quot;</span><span class="p">]))</span>
+
+<span class="p">(</span><span class="k">define</span> <span class="n">display$</span> <span class="p">(</span><span class="k">new</span> <span class="n">text-field%</span>
+                      <span class="p">(</span><span class="n">label</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                      <span class="p">(</span><span class="n">parent</span> <span class="n">frame</span><span class="p">)</span>
+                      <span class="p">(</span><span class="n">init-value</span> <span class="s2">&quot;0&quot;</span><span class="p">)))</span>
+</pre></div>
+<p>The parent-child relationship is quite important and just describes who owns whom (or who belongs to whom): in this case, we say that the <code>display$</code> objct belongs to the frame.</p>
+<p>At this point, the building block is the <code>horizontal-panel%</code>, whose role is to provide an area to group elements horizontally (in this case, the buttons). So for the first row, we have the following:</p>
+<div class="hll"><pre><span></span><span class="c1">;; Row 0: ? ? sqrt C</span>
+<span class="p">(</span><span class="k">define</span> <span class="n">row0</span> <span class="p">(</span><span class="k">new</span> <span class="n">horizontal-panel%</span> <span class="p">[</span><span class="n">parent</span> <span class="n">frame</span><span class="p">]))</span>
+<span class="p">(</span><span class="k">new</span> <span class="n">button%</span> <span class="p">[</span><span class="n">parent</span> <span class="n">row0</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">label</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">min-width</span> <span class="mi">30</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">enabled</span> <span class="no">#f</span><span class="p">])</span>
+<span class="p">(</span><span class="k">new</span> <span class="n">button%</span> <span class="p">[</span><span class="n">parent</span> <span class="n">row0</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">label</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">min-width</span> <span class="mi">30</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">enabled</span> <span class="no">#f</span><span class="p">])</span>
+<span class="p">(</span><span class="k">new</span> <span class="n">button%</span> <span class="p">[</span><span class="n">parent</span> <span class="n">row0</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">label</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">min-width</span> <span class="mi">30</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">enabled</span> <span class="no">#f</span><span class="p">])</span>
+<span class="p">(</span><span class="k">new</span> <span class="n">button%</span> <span class="p">[</span><span class="n">parent</span> <span class="n">row0</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">label</span> <span class="s2">&quot;R&quot;</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">min-width</span> <span class="mi">30</span><span class="p">]</span>
+     <span class="p">[</span><span class="n">callback</span> <span class="p">(</span><span class="k">λ</span> <span class="p">(</span><span class="n">b</span> <span class="n">e</span><span class="p">)</span>
+                 <span class="p">(</span><span class="k">send</span> <span class="n">display$</span> <span class="n">set-value</span> <span class="s2">&quot;0&quot;</span><span class="p">))])</span>
+</pre></div>
+<p>Man I love this language. Can it get easier than that? You have a line and you get buttons inside. Each button has a label, can be disabled, can be set to a minimum width, and can be associated to a callback (that takes as arguments the button object itself and the event). Buttons belong to the <code>row</code>, which in turn belongs to the <code>frame</code>.</p>
+<p>After we finish listing the rows, we show the frame itself:</p>
+<div class="hll"><pre><span></span><span class="p">(</span><span class="k">send</span> <span class="n">frame</span> <span class="n">show</span> <span class="no">#t</span><span class="p">)</span>
+</pre></div>
+<p>This is general syntax for object methods call: <code>send</code> means <em>Call the method show of the object frame</em>. The display shown above works the same way: Call the method <code>set-value</code> of the <code>display$</code> object.</p>
+<h4>GUI-related functions</h4>
+<p>After some refactoring, I left only 2 functions inside the GUI module:</p>
+<div class="hll"><pre><span></span><span class="c1">;; GUI-related functions</span>
+<span class="c1">;; Push a button of an operation (+, -, ...)</span>
+<span class="p">(</span><span class="k">define</span> <span class="p">(</span><span class="n">push-operation</span> <span class="n">op</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">send</span> <span class="n">display$</span> <span class="n">set-value</span> <span class="p">(</span><span class="nb">string-append</span> <span class="p">(</span><span class="k">send</span> <span class="n">display$</span> <span class="n">get-value</span><span class="p">)</span> <span class="n">op</span><span class="p">)))</span>
+
+<span class="c1">;; Push a button which is not an op (digit, decimal value)</span>
+<span class="p">(</span><span class="k">define</span> <span class="p">(</span><span class="n">push-number</span> <span class="n">button-value</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">define</span> <span class="n">current-display</span> <span class="p">(</span><span class="k">send</span> <span class="n">display$</span> <span class="n">get-value</span><span class="p">))</span>
+  <span class="p">(</span><span class="k">define</span> <span class="n">result</span>
+    <span class="p">(</span><span class="k">match</span> <span class="n">current-display</span>
+      <span class="p">[(</span><span class="nb">regexp</span> <span class="sr">#rx&quot;^0&quot;</span><span class="p">)</span> <span class="n">button-value</span><span class="p">]</span>
+      <span class="p">[</span><span class="k">_</span> <span class="p">(</span><span class="nb">string-append</span> <span class="n">current-display</span> <span class="n">button-value</span><span class="p">)]))</span>
+  <span class="p">(</span><span class="k">send</span> <span class="n">display$</span> <span class="n">set-value</span> <span class="n">result</span><span class="p">))</span>
+</pre></div>
+<p>The first one just takes the operation button we have just pressed, and created a string to send to the display. The second introduces a possibly useless complication coming from the fact that I want the initial 0 to be substituted by the first digit the user inserts. It uses my favorite function, <code>match</code>, to apply a regular expression to what is currently in the display: if it starts with 0, just substitute it with the button value (buttons in this case are only digit buttons); otherwise, just append.</p>
+<h2>The expression parser</h2>
+<p>The expression parser is invoked as a callback of the <code>=</code> button, and takes whatever is on the display to try and evaluate it, returning the result of the evaluation.</p>
+<div class="hll"><pre><span></span><span class="p">(</span><span class="k">define</span> <span class="p">(</span><span class="n">push-equal</span> <span class="n">expr</span><span class="p">)</span>
+   <span class="p">(</span><span class="k">define</span> <span class="n">ops-lst</span> <span class="p">(</span><span class="nb">regexp-match</span>
+                    <span class="sr">#px&quot;(\\d+[./]?\\d*)\\s*([-÷+×])\\s*(\\d+[./]?\\d*)&quot;</span>
+                    <span class="n">expr</span><span class="p">))</span>
+   <span class="p">(</span><span class="k">define</span> <span class="n">result</span> <span class="mi">0</span><span class="p">)</span>
+   <span class="p">(</span><span class="k">match</span> <span class="n">ops-lst</span>
+     <span class="p">[(</span><span class="nb">list</span> <span class="k">_</span> <span class="n">x</span> <span class="n">f</span> <span class="n">y</span><span class="p">)</span>
+      <span class="p">(</span><span class="nb">number-&gt;string</span> <span class="p">((</span><span class="n">string-&gt;f</span> <span class="n">f</span><span class="p">)</span>
+                       <span class="p">(</span><span class="nb">string-&gt;number</span> <span class="n">x</span><span class="p">)</span>
+                       <span class="p">(</span><span class="nb">string-&gt;number</span> <span class="n">y</span><span class="p">)))]</span>
+     <span class="p">[</span><span class="k">_</span> <span class="p">(</span><span class="nb">raise</span> <span class="nb">exn:fail:user</span><span class="p">)]))</span>
+</pre></div>
+<p>In this case, we just match the expressions of the form dictated by the (rather cumbersome) regular expression on line 3. It is actually very basic, after all the escaping is stripped; it takes also into account that Racket uses fractions when it can to display fractional numbers, and this is why I need to match both the decimal point (which is one of the possible buttons) and the '/' character of a fraction.</p>
+<p>The <code>match</code> function shines even brighter here: if what I match is of the form of a list of 3 elements <code>x f y</code>, then assume that <code>f</code> is an operation and apply it to the operands <code>x</code> and <code>y</code>.</p>
+<h2>Testing</h2>
+<p>No piece of software can be considered complete without a proper unit test module. I am pretty happy with the layout I have found for the testing modules of my Racket projects, so I'll paste it here and try to explain in detail:</p>
+<div class="hll"><pre><span></span><span class="kn">#lang </span><span class="nn">racket</span>
+
+<span class="p">(</span><span class="k">require</span> <span class="n">rackunit</span>
+         <span class="n">rackunit/text-ui</span>
+         <span class="s2">&quot;calculon.rkt&quot;</span><span class="p">)</span>
+
+<span class="p">(</span><span class="k">module+</span> <span class="n">test</span>
+  <span class="p">(</span><span class="k">define</span> <span class="n">suite</span>
+    <span class="p">(</span><span class="n">test-suite</span>
+     <span class="s2">&quot;calculon: callback tests&quot;</span>
+
+     <span class="p">(</span><span class="n">test-case</span>
+      <span class="s2">&quot;Check equal callback&quot;</span>
+      <span class="p">(</span><span class="n">check-equal?</span> <span class="p">(</span><span class="n">push-equal</span> <span class="s2">&quot;8+5&quot;</span><span class="p">)</span> <span class="s2">&quot;13&quot;</span><span class="p">)</span>
+      <span class="p">(</span><span class="n">check-equal?</span> <span class="p">(</span><span class="n">push-equal</span> <span class="s2">&quot;12.11  - 14.03&quot;</span><span class="p">)</span> <span class="s2">&quot;-1.92&quot;</span><span class="p">)</span>
+      <span class="c1">;(check-equal? (push-equal &quot;4/5 * 3&quot;) &quot;12/5&quot;)  ; FIXME</span>
+      <span class="c1">;(check-equal? (push-equal &quot;20/3 * 1/5&quot;) &quot;10.0&quot;) ; FIXME</span>
+      <span class="p">)))</span>
+  <span class="p">(</span><span class="n">run-tests</span> <span class="n">suite</span><span class="p">))</span>
+</pre></div>
+<p>Notice first the require list: apart from the obvious modules for testing, I only require the expression parser. The more GUI-related function are not interesting for testing, since they only make easy transformations to their input for displaying purposes. However, testing the parser is very useful, as frees us from testing manually via pressing the buttons to try out the few operations that we want to test.</p>
+<p>I write a separate Racket module that I call test (<code>(module+ test)</code> means <em>Add what follows to the module called test</em>. Modules are an amazing mechanism and one of their feature is the ability to span several source files). Inside the module, I define a <code>test-suite</code>, which is just a collection of test cases (in this case, only one). Now inside the <code>test-case</code>, I call repeatedly <code>check-equal?</code> to compare the result of the call to <code>push-equal</code> with the result I expect. I can run it separately in DrRacket by just pushing Run, or from the command line by issuing <code>raco test calculon-test.rkt</code>:</p>
+<pre>
+  $ raco test calculon-test.rkt
+  raco test: (submod "calculon-test.rkt" test)
+  1 success(es) 0 failure(s) 0 error(s) 1 test(s) run
+  0
+  2 tests passed
+</pre><h2>Conclusion</h2>
+<p>I am very happy with the result. It is simple, but also it didn't take much time, and I have used a GUI in a program of mine for the first time. The complete project lives on <a href="https://github.com/sturmer/calculon">GitHub</a>; feel free to mail me your thoughts and to contribute to it.</p>
+
+  </div>
+
+  
+    
+  <div class="blog-post">
+  
+    <h2><a href="../../twelve-weeks-of-racket-and-csapp/">Twelve weeks of Racket and CS:APP</a></h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2015-11-17
+  </p>
+  <p><a href="../../2015/11/03/track-the-lifetime-of-std-classes-instances/">As promised</a>, this is a wrap up of my experience concentrating for (slightly more than) 12 weeks on only 2 subjects. For this first stint, I chose to learn <a href="https://racket-lang.org/">Racket</a> and to read <a href="https://www.amazon.co.uk/gp/product/013409266X">Computer Systems: A Programmer's Perspective</a>. Not long ago I have lost interest in providing ultimate motivations for what I do in my free time; I'll just stick to what happened. (I can't promise I won't motivate everything else, which is not ultimate.)</p>
+<!-- more -->
+
+<h2>Starting Racket, and why I will go on</h2>
+<p>Racket is sensational. Historically, I have come from C++ and object-oriented programming, which turned into a love for Java, only to then run away disgusted, full of awe before the purity of C (sic). Functional programming is something I have run into only after my college graduation, and for a few years, it remained a buzzword in the back of my head reminding me of something I wanted, one day, to try.</p>
+<p>Some time ago, I read a <a href="https://practicaltypography.com/why-racket-why-lisp.html">very enthusiastic post on Racket</a>, who got me excited. Since roughly the end of August, I have dedicated 45 minutes a day, every working day, to learn Racket. I've done a few things, and I am amazed of that, even though it might seem peanuts to the casual reader (and maybe to the causal one too).</p>
+<h3>Great community, early contributions</h3>
+<p>I knew that the Haskell community was very welcoming; I can say the same of the Racket one. I'll give an example. I have found these (supposedly) easy <a href="https://github.com/racket/racket/wiki/Intro-Projects">Intro projects</a> to get my feet wet, and I saw someone posting his very first experiences with Racket on the <a href="https://groups.google.com/forum/#!forum/racket-users/">Google group</a>, so I picked one of the projects (I wrote a very simple program for finding anagrams), and posted on the group <a href="https://groups.google.com/d/topic/racket-users/UGE4kn21xBg/discussion">only to say that</a>. A few hours later, I get a reply from Greg Hendershott, a very kind person with lots of impressive contributions to the community, among which <a href="https://github.com/greghendershott/frog">Frog</a>, a blog software written (obviously) in Racket, and <a href="https://www.greghendershott.com/fear-of-macros/">Fear of the macros</a>, a great reading on Racket macros.</p>
+<p>I have also contributed a <a href="https://github.com/exercism/xracket/pull/25">couple</a> of <a href="https://github.com/exercism/xracket/pull/27">patches</a> to the Racket's track of <a href="https://exercism.io/">exercism.io</a>, having the chance to collaborate with other spectacular people who managed to suggest me a couple of very instructive improvements on my code.</p>
+<p>I will also cite my good experience with <a href="https://www.hackerrank.com/domains/fp/intro">HackerRank's functional programming challenges</a>, who made me try the basics and keeps me company when I want to do some katas.</p>
+<h3>The way people can use Racket is awe-inspiring</h3>
+<p><a href="https://www.infoq.com/presentations/Racket">The Racket Way</a> has impressed me. Imagine a language with which you can do everything, including slides for presentations and writing books. A language that gives you the chance to write other languages, which are still Racket, no, <em>a</em> Racket, that you can use to other things.</p>
+<p>With C++, no, actually with any Turing-complete language, you <em>could</em> do everything. To the risk of repeating what other more brilliant people have already said with better-chosen words, however, it is not the same to write something in assembly or in Python.</p>
+<p>But there's more. Here's a personal anecdote: I have intermittently written software in OO languages since 2000, and have never been able to write something with a GUI. I know, it's silly; I could've taken the time to try. I did. Several times. I have tried Qt, then wxWidgets with C++; then said to myself, why not Python? I don't want to write a lot of boilerplate code, I want just to see a damn thing on the screen. Maybe I wasn't constant enough on these endeavors; but after a week of reading and trying, if you only see the result of some tutorial on the screen, and you are not creating your own thing yet, you start getting demotivated.</p>
+<p>This morning in 50 minutes I have written a <a href="https://github.com/sturmer/calculon">basic, buggy calculator in Racket</a>.</p>
+<h3>Racket: approved!</h3>
+<p>I have this dream of being able to write purely functional programs not so late from now (whatever that means!). And I am amazed at the possibilities. This is why I have decided to use Racket for another 12 weeks.</p>
+<h2>CS:APP, and why I'll do something else instead</h2>
+<p>(My interpretation of) the promise of <em>Computer Systems: A Programmer's Perspective</em> is quite captivating: revise your knowledge of the whole system, concentrating more on which aspects impact a programmer writing his program.</p>
+<p>The book starts from a general introduction to systems, and then progresses from arithmetic representation to assembly to processor design, up until virtual memory, concurrency, and other high-level constructs.</p>
+<p>I was thrilled because during my last job search I have run often into the wall of "Design a possibly big system made by interconnected subsystems, to solve problem X", which is a skill I feel I don't own yet. The foreword of the book and the index got me hooked, as I thought that a good revision would do me good and <em>teach</em> me the skill.</p>
+<h3>Why I stopped</h3>
+<p>I think I can no doubt learn this skill, but not by reading a book; or at least, not only. What I need is direct experience building systems, which is exactly what I am doing now.</p>
+<p>It is of no use to read about virtual memory, like I did in college, and never try to write a virtual memory system for the need of it. Nothing is comparable to the way we learn when in real need. At that point, maybe after the mess that got to the delivery of a product, I might consider reading an well-organized treatise, that would then click with steps I followed <em>in a totally different order, possibly with a totally different focus</em>.</p>
+<p>The book is just great; it is not for me now though. If I want to focus on concurrency, I read a book on concurrency and at the same time I work on a project using it. I have found no other method working for me. In other words, I only have praises for a book; but it is only a book.</p>
+<h2>The next 12 weeks</h2>
+<p>These first 12 weeks started somewhere in late August and officially ended on November 8. I'm not sure I'll start 12 more right away, since I am in a peculiar time of the year, and I'll have to stop 3 weeks for vacation at some point.</p>
+<p>The plan so far is to fill this time with a lot of Racket and as much thinking, and come up with a project I want to focus on for the next 12-weeks stretch.</p>
+
+  </div>
+
+  
+    
+  <div class="blog-post">
+  
+    <h2><a href="../../track-the-lifetime-of-std-classes-instances/">Track the Lifetime of std Classes&#39; Instances</a></h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2015-11-03
+  </p>
+  <p>I remembered a simple trick I used to know, but that could not remember on the spot, to solve a problem in understanding the exact lifetime of C++ objects.</p>
+<!-- more -->
+
+<h2>Problem statement</h2>
+<p>Reading about <code>unique_ptr</code>'s, I have found some issue trying to understand the exact lifetime of objects of such types. When is the ownership of a <code>unique_ptr</code> exactly yielded? What happens when the first one passes its ownership?</p>
+<h2>A bad idea</h2>
+<p>I have gone through a silly phase where I have thought that I could log messages at crucial moments of the objects' lifetime by just writing to standard output in constructors, destructors, copy/move constructors, and copy/move assignment operators. The first idea is to wrap such functions in the object being passed as argument to the <code>unique_ptr</code>:</p>
+<div class="hll"><pre><span></span><span class="k">struct</span> <span class="nc">S</span> <span class="p">{</span>
+    <span class="n">S</span><span class="p">()</span> <span class="p">{</span> <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;S()</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="cm">/*</span>
+<span class="cm">     * These will never be called, since what we are</span>
+<span class="cm">     * copying/moving is the unique_ptr. How do we</span>
+<span class="cm">     * extend a unique_ptr to print its</span>
+<span class="cm">     * creation/destruction times?</span>
+<span class="cm">     */</span>
+    <span class="n">S</span><span class="p">(</span><span class="k">const</span> <span class="n">S</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;S(const S&amp; s)&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">hex</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">s</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">S</span><span class="p">(</span><span class="n">S</span><span class="o">&amp;&amp;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;S(S&amp;&amp; s)&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">hex</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">s</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="o">~</span><span class="n">S</span><span class="p">()</span> <span class="p">{</span> <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;~S()</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+<p>I even have the naive question expressed in a comment. Of course this wouldn't work. While this approach <em>does</em> work when you want to follow the structure <code>S</code>'s lifetime, it certainly doesn't when you want to follow the lifetime of the wrapping smart pointer.</p>
+<p>I banged my head against Google and ran into some unrelated threads on StackOverflow. No one ever had this problem before? There must be something terribly wrong with what I am looking for...</p>
+<h2>How can we do better?</h2>
+<p>At the end of my study session, I thought about the obvious:</p>
+<blockquote><p>Just wrap the <code>unique_ptr</code> in a structure, and print a message in this structure's ctors, dtors, and copy/move ctors and assignment operators</p>
+</blockquote>
+<p>So I separated my code out into a header, and used it instead:</p>
+<div class="hll"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;memory&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;iomanip&gt;</span><span class="cp"></span>
+
+<span class="c1">// Instrument a unique_ptr with some logging, to follow its</span>
+<span class="c1">// lifetime.</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="nc">unique</span> <span class="p">{</span>
+    <span class="n">unique</span><span class="p">()</span> <span class="o">:</span> <span class="n">_p</span><span class="p">(</span><span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;unique() &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">hex</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">_p</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">unique</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">p</span><span class="p">)</span> <span class="o">:</span> <span class="n">_p</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;unique(T* p) &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">hex</span> <span class="o">&lt;&lt;</span>
+          <span class="o">&amp;</span><span class="n">_p</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">unique</span><span class="p">(</span><span class="k">const</span> <span class="n">unique</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">p</span><span class="p">)</span> <span class="o">:</span> <span class="n">_p</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">_p</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;unique(const unique&amp; u) &quot;</span> <span class="o">&lt;&lt;</span>
+          <span class="n">std</span><span class="o">::</span><span class="n">hex</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">_p</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">unique</span><span class="p">(</span><span class="n">unique</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;&amp;</span> <span class="n">u</span><span class="p">)</span> <span class="o">:</span> <span class="n">_p</span><span class="p">(</span><span class="n">move</span><span class="p">(</span><span class="n">u</span><span class="p">.</span><span class="n">_p</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;unique(unique&lt;T&gt;&amp;&amp; u) &quot;</span> <span class="o">&lt;&lt;</span>
+          <span class="n">std</span><span class="o">::</span><span class="n">hex</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">_p</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Can&#39;t declare this, as unique_ptr&#39;s operator= with</span>
+    <span class="c1">// copy semantics has been explicitly deleted!</span>
+    <span class="n">unique</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">unique</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">p</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
+
+    <span class="n">unique</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">unique</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;&amp;</span> <span class="n">p</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;operator=(unique&lt;T&gt;&amp;&amp; p) &quot;</span> <span class="o">&lt;&lt;</span>
+          <span class="n">std</span><span class="o">::</span><span class="n">hex</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">_p</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+        <span class="n">_p</span> <span class="o">=</span> <span class="n">move</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">_p</span><span class="p">);</span>
+        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="o">~</span><span class="n">unique</span><span class="p">()</span> <span class="p">{</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;~unique() &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">hex</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">_p</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">_p</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+<p>The basic structure of all of these functions is the following:</p>
+<ol>
+<li>Tell me your name</li>
+<li>Tell me the address of the <code>unique_ptr</code></li>
+</ol>
+<p>They really don't do much, but they are terribly useful when things get complicated. Which, given the language, is quite often.</p>
+<h3>Example</h3>
+<p>A very simple one:</p>
+<div class="hll"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;memory&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;../util/instr_ptr.hpp&quot;</span><span class="cp"></span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="n">unique</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">returnPtr</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">unique</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span> <span class="kt">int</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">unique</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">u</span> <span class="o">=</span> <span class="n">returnPtr</span><span class="p">();</span>
+  <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">hex</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">u</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>The output would be something as simple as:</p>
+<pre>
+  unique(T* p) 0x7fff71382e78
+  0x7fff71382e78
+  ~unique() 0x7fff71382e78
+</pre><p>As I said, nothing complicated, but it helps.</p>
+
+  </div>
+
+  
+
+  
+  <div class="pagination">
+    
+      <a href="../2/">&laquo; Previous</a>
+    
+    | 3 |
+    
+      <a href="../4/">Next &raquo;</a>
+    
+  </div>
+
+
+  </div>
+  <footer>
+    &copy; Copyright 2021 by Gianluca Ciccarelli.
+  </footer>
+</body>

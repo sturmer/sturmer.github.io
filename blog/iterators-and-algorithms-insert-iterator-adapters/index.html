@@ -1,0 +1,137 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../static/style.css">
+<title>Iterators and Algorithms: Insert Iterator Adapters — Gergelim</title>
+<body>
+  <header>
+    <h1>Gergelim</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a href="../../">Welcome</a></li>
+        
+          <li class="active"><a href="../">Blog</a></li>
+        
+          <li><a href="../../projects/">Projects</a></li>
+        
+          <li><a href="../../about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </header>
+  <div class="page">
+    
+  
+  <div class="blog-post">
+  
+    <h2>Iterators and Algorithms: Insert Iterator Adapters</h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2014-02-17
+  </p>
+  <p>This week I have had a look at two nice types of iterators: the <em>move iterators</em> and the <em>insert iterators</em>. Their main use seems to be related to STL algorithms.</p>
+<!-- more -->
+
+<h2>Problem: Copy a <code>std::vector</code> into another</h2>
+<p>Let's suppose that we have a vector of the usual <code>int</code> type, that we fill diligently with an initializer list. After a few lines of code, we want to copy its elements into another vector. Our vanilla try will be:</p>
+<div class="hll"><pre><span></span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v1</span><span class="p">({</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">});</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v2</span><span class="p">(</span><span class="n">v1</span><span class="p">);</span>
+</pre></div>
+<p>This is OK, because the constructor of <code>v2</code> is invoked in order to copy every element of v1. Let's complicate matters, and say we only want the odd elements of <code>v1</code> to be used to initialize <code>v2</code>. We have a look at our reference card for STL algorithms (when will I prepare one?), and notice the presence of the <code>copy_if</code> algorithm, which works like this (extracted from my GNU standard library headers):</p>
+<div class="hll"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">_InputIterator</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">_OutputIterator</span><span class="p">,</span>
+   <span class="k">typename</span> <span class="nc">_Predicate</span><span class="o">&gt;</span>
+<span class="n">_OutputIterator</span>
+<span class="n">copy_if</span><span class="p">(</span><span class="n">_InputIterator</span> <span class="n">__first</span><span class="p">,</span> <span class="n">_InputIterator</span> <span class="n">__last</span><span class="p">,</span>
+    <span class="n">_OutputIterator</span> <span class="n">__result</span><span class="p">,</span> <span class="n">_Predicate</span> <span class="n">__pred</span><span class="p">)</span>
+</pre></div>
+<p>It takes an input range (<code>__first</code>, <code>__last</code>), and an iterator to the beginning of the result container, plus a predicate to select the elements. One innocent way of using it would be:</p>
+<div class="hll"><pre><span></span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v1</span><span class="p">({</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">});</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v2</span><span class="p">;</span>
+<span class="n">copy_if</span><span class="p">(</span><span class="n">v1</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">v1</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">v1</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span>
+        <span class="p">[](</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">n</span><span class="o">%</span><span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">});</span>
+</pre></div>
+<p>Which is cute, actually. Only problem is, that if now you try to run your program, it will segfault without a blink. And why is that? Simply because the iterator returned by <code>v2.begin()</code> behaves like a null pointer:</p>
+<div class="hll"><pre><span></span><span class="o">(</span>gdb<span class="o">)</span> p v2
+<span class="nv">$2</span> <span class="o">=</span> <span class="o">{</span>&lt;std::_Vector_base&lt;int, std::allocator&lt;int&gt; &gt;&gt; <span class="o">=</span> <span class="o">{</span>
+    <span class="nv">_M_impl</span> <span class="o">=</span> <span class="o">{</span>&lt;std::allocator&lt;int&gt;&gt; <span class="o">=</span> <span class="o">{</span>&lt;__gnu_cxx::new_allocator&lt;int&gt;&gt; <span class="o">=</span> <span class="o">{</span>&lt;No data fields&gt;<span class="o">}</span>, &lt;No data fields&gt;<span class="o">}</span>, <span class="nv">_M_start</span> <span class="o">=</span> 0x0, <span class="nv">_M_finish</span> <span class="o">=</span> 0x0,
+      <span class="nv">_M_end_of_storage</span> <span class="o">=</span> 0x0<span class="o">}}</span>, &lt;No data fields&gt;<span class="o">}</span>
+<span class="o">(</span>gdb<span class="o">)</span> p v2.begin<span class="o">()</span>
+<span class="nv">$3</span> <span class="o">=</span> <span class="o">{</span><span class="nv">_M_current</span> <span class="o">=</span> 0x0<span class="o">}</span>
+</pre></div>
+<p>This you can check by running a test like</p>
+<div class="hll"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">v2</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span> <span class="o">==</span> <span class="n">v2</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+    <span class="c1">// Problem: v2 is empty</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+<p>or equivalently, checking for <code>v2</code>'s <code>size()</code>.</p>
+<h2>Insert iterator adapters</h2>
+<p>This is where the insert iterator comes in handy. The problem is that the <code>copy_if</code> algorithm is not supposed to insert new elements in an empty container. What we need is an <em>insert iterator adapter</em>. They come in three flavors:</p>
+<div class="hll"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">_Container</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">insert_iterator</span>
+<span class="o">:</span> <span class="k">public</span> <span class="n">iterator</span><span class="o">&lt;</span><span class="n">output_iterator_tag</span><span class="p">,</span> <span class="kt">void</span><span class="p">,</span> <span class="kt">void</span><span class="p">,</span> <span class="kt">void</span><span class="p">,</span> <span class="kt">void</span><span class="o">&gt;</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">_Container</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">back_insert_iterator</span>
+<span class="o">:</span> <span class="k">public</span> <span class="n">iterator</span><span class="o">&lt;</span><span class="n">output_iterator_tag</span><span class="p">,</span> <span class="kt">void</span><span class="p">,</span> <span class="kt">void</span><span class="p">,</span> <span class="kt">void</span><span class="p">,</span> <span class="kt">void</span><span class="o">&gt;</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">_Container</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">front_insert_iterator</span>
+<span class="o">:</span> <span class="k">public</span> <span class="n">iterator</span><span class="o">&lt;</span><span class="n">output_iterator_tag</span><span class="p">,</span> <span class="kt">void</span><span class="p">,</span> <span class="kt">void</span><span class="p">,</span> <span class="kt">void</span><span class="p">,</span> <span class="kt">void</span><span class="o">&gt;</span>
+</pre></div>
+<p>As you see, all of them are derived from the standard iterator with traits of an <code>output_iterator_tag</code>. I find it useful to show the hierarchy of iterators, described also in Stroustrup:</p>
+<blockquote><p>Input/Output &lt;- Forward &lt;- Bidirectional &lt;- Random access</p>
+</blockquote>
+<p>This means that the adapters provide the basic operator features, dereference with assignment (<code>*p=</code>) and increment by one (<code>++p</code>).</p>
+<p>Their use can be summarized as follows:</p>
+<blockquote><p>An insert iterator adapter, defined on a container, calls the
+appropriate insertion method on the container when it is assigned.</p>
+</blockquote>
+<h3>The <code>back_insert_iterator</code></h3>
+<p>Look at the definition of the <code>back_insert_iterator</code>'s <code>operator=()</code> in my system's STL implementation:</p>
+<div class="hll"><pre><span></span><span class="n">back_insert_iterator</span><span class="o">&amp;</span>
+<span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="k">typename</span> <span class="nc">_Container</span><span class="o">::</span><span class="n">value_type</span><span class="o">&amp;</span> <span class="n">__value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">container</span><span class="o">-&gt;</span><span class="n">push_back</span><span class="p">(</span><span class="n">__value</span><span class="p">);</span>
+    <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">back_insert_iterator</span><span class="o">&amp;</span>
+<span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">typename</span> <span class="nc">_Container</span><span class="o">::</span><span class="n">value_type</span><span class="o">&amp;&amp;</span> <span class="n">__value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">container</span><span class="o">-&gt;</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">__value</span><span class="p">));</span>
+    <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>This means that we can have code that does the following:</p>
+<div class="hll"><pre><span></span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v1</span><span class="p">({</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">});</span>
+<span class="n">back_insert_iterator</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">b</span><span class="p">(</span><span class="n">v1</span><span class="p">);</span>
+<span class="n">b</span> <span class="o">=</span> <span class="mi">11</span><span class="p">;</span>
+</pre></div>
+<p>We have just added an element to <code>v1</code>. Now let's get back at our original example:</p>
+<div class="hll"><pre><span></span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v1</span><span class="p">({</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">});</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v2</span><span class="p">;</span>
+<span class="cm">/*</span>
+<span class="cm"> * The right way.</span>
+<span class="cm"> */</span>
+<span class="n">back_insert_iterator</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">inserter</span><span class="p">(</span><span class="n">v2</span><span class="p">);</span>
+<span class="n">copy_if</span><span class="p">(</span><span class="n">v1</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">v1</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">inserter</span><span class="p">,</span> <span class="p">[](</span><span class="kt">int</span> <span class="n">n</span><span class="p">){</span><span class="k">return</span> <span class="n">n</span><span class="o">%</span><span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">});</span>
+
+<span class="cm">/*</span>
+<span class="cm"> * Variation. Use a back_inserter.</span>
+<span class="cm"> */</span>
+<span class="n">copy_if</span><span class="p">(</span><span class="n">v1</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">v1</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">back_inserter</span><span class="p">(</span><span class="n">v2</span><span class="p">),</span> <span class="p">[](</span><span class="kt">int</span> <span class="n">n</span><span class="p">){</span><span class="k">return</span> <span class="n">n</span><span class="o">%</span><span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">});</span>
+</pre></div>
+<p>As you can see on line 12 of the snippet above, we can also use an function called <code>back_inserter</code>, which returns a <code>back_insert_iterator</code> defined on the type of the argument passed.</p>
+<h2>Summary</h2>
+<p>In this post, I have written about my experiments with insert iterator adapters, which are useful classes offered by the STL that can be used to provide an insertion interface for STL containers. I have started with the problem of using STL algorithms with containers, and shown how to solve it using these standard C++ classes.</p>
+
+  </div>
+
+
+  </div>
+  <footer>
+    &copy; Copyright 2021 by Gianluca Ciccarelli.
+  </footer>
+</body>

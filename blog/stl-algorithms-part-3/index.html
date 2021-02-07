@@ -1,0 +1,139 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../static/style.css">
+<title>STL Algorithms, part 3 — Gergelim</title>
+<body>
+  <header>
+    <h1>Gergelim</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a href="../../">Welcome</a></li>
+        
+          <li class="active"><a href="../">Blog</a></li>
+        
+          <li><a href="../../projects/">Projects</a></li>
+        
+          <li><a href="../../about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </header>
+  <div class="page">
+    
+  
+  <div class="blog-post">
+  
+    <h2>STL Algorithms, part 3</h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2014-01-06
+  </p>
+  <ul>
+<li><a href="../stl-algorithms-part-1/">Part 1</a></li>
+<li><a href="../stl-algorithms-part-2/">Part 2</a></li>
+<li><a href="./">Part 3</a></li>
+<li><a href="../stl-algorithms-part-4/">Part 4</a></li>
+<li><a href="../stl-algorithms-part-5/">Part 5</a></li>
+</ul>
+<p>In the previous posts of this series, we have had a glance at <em>non-modifying sequence algorithms</em>, i.e., the algorithms that are supposed not to modify the elements of a sequence (or at least, the structure of the sequence; see the observations about <code>for_each</code>.</p>
+<p>In this installment, as anticipated, we will start looking at the algorithms for searching.</p>
+<!-- more -->
+
+<h3><code>find</code></h3>
+<p>The STL <code>find</code> algorithms, specified in section [<code>alg.find</code>] of the C++11 standard, are useful when searching elements in the sequence that satisfy some requirements. The basic form has the prototype that follows:</p>
+<div class="hll"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">InputIterator</span><span class="p">,</span> <span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
+<span class="n">InputIterator</span> <span class="n">find</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">first</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">last</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">);</span>
+</pre></div>
+<p>This algorithm looks for the element whose value is, well, <em>value</em>. This implies that the class <code>T</code> has some comparison operator that allows the algorithm to see whether the current element is the right one. For example, if we have a class Card, for which we define an <code>operator==()</code>, then we can use the algorithm as follows:</p>
+<div class="hll"><pre><span></span><span class="k">class</span> <span class="nc">Card</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">val</span><span class="p">;</span>
+
+<span class="k">public</span><span class="o">:</span>
+    <span class="k">explicit</span> <span class="n">Card</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span> <span class="o">:</span> <span class="n">val</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="p">{}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">get_val</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">val</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">bool</span> <span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="k">const</span> <span class="n">Card</span><span class="o">&amp;</span> <span class="n">c1</span><span class="p">,</span> <span class="k">const</span> <span class="n">Card</span><span class="o">&amp;</span> <span class="n">c2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">c1</span><span class="p">.</span><span class="n">get_val</span><span class="p">()</span> <span class="o">==</span>  <span class="n">c2</span><span class="p">.</span><span class="n">get_val</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="n">ostream</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">&lt;&lt;</span><span class="p">(</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">os</span><span class="p">,</span> <span class="k">const</span> <span class="n">Card</span><span class="o">&amp;</span> <span class="n">c</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="n">c</span><span class="p">.</span><span class="n">get_val</span><span class="p">();</span>
+    <span class="k">return</span> <span class="n">os</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">Card</span><span class="o">&gt;</span> <span class="n">v</span><span class="p">{</span><span class="n">Card</span><span class="p">(</span><span class="s">&quot;Ace&quot;</span><span class="p">),</span> <span class="n">Card</span><span class="p">(</span><span class="s">&quot;Deuce&quot;</span><span class="p">),</span> <span class="n">Card</span><span class="p">(</span><span class="s">&quot;Four&quot;</span><span class="p">),</span>
+        <span class="n">Card</span><span class="p">(</span><span class="s">&quot;Five&quot;</span><span class="p">),</span> <span class="n">Card</span><span class="p">(</span><span class="s">&quot;Eight&quot;</span><span class="p">),</span> <span class="n">Card</span><span class="p">(</span><span class="s">&quot;Nine&quot;</span><span class="p">),</span>
+        <span class="n">Card</span><span class="p">(</span><span class="s">&quot;Jack&quot;</span><span class="p">),</span> <span class="n">Card</span><span class="p">(</span><span class="s">&quot;Queen&quot;</span><span class="p">),</span> <span class="n">Card</span><span class="p">(</span><span class="s">&quot;King&quot;</span><span class="p">)};</span>
+    <span class="n">Card</span> <span class="nf">needle1</span><span class="p">(</span><span class="s">&quot;Eight&quot;</span><span class="p">);</span>
+    <span class="n">Card</span> <span class="nf">needle2</span><span class="p">(</span><span class="s">&quot;Seven&quot;</span><span class="p">);</span>
+    <span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">cbegin</span><span class="p">(),</span> <span class="n">v</span><span class="p">.</span><span class="n">cend</span><span class="p">(),</span> <span class="n">needle1</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">verb</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">it</span> <span class="o">!=</span> <span class="n">v</span><span class="p">.</span><span class="n">cend</span><span class="p">())</span>
+        <span class="n">verb</span> <span class="o">=</span> <span class="s">&quot; is&quot;</span><span class="p">;</span>
+    <span class="k">else</span>
+        <span class="n">verb</span> <span class="o">=</span> <span class="s">&quot; is not&quot;</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Card &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">needle1</span> <span class="o">&lt;&lt;</span> <span class="n">verb</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; in the deck</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+    <span class="n">it</span> <span class="o">=</span> <span class="n">find</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">cbegin</span><span class="p">(),</span> <span class="n">v</span><span class="p">.</span><span class="n">cend</span><span class="p">(),</span> <span class="n">needle2</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">it</span> <span class="o">!=</span> <span class="n">v</span><span class="p">.</span><span class="n">cend</span><span class="p">())</span>
+        <span class="n">verb</span> <span class="o">=</span> <span class="s">&quot; is&quot;</span><span class="p">;</span>
+    <span class="k">else</span>
+        <span class="n">verb</span> <span class="o">=</span> <span class="s">&quot; is not&quot;</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Card &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">needle2</span> <span class="o">&lt;&lt;</span> <span class="n">verb</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; in the deck</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>The output of this program (compiled with clang 3.2.7) is:</p>
+<pre>
+  Card is in the deck
+  Card Seven was not in the deck
+</pre><p>Notice that the return type of the algorithm is an iterator in the sequence, so to get the element we could dereference the iterator <em>it</em>.</p>
+<h3><code>find_if</code>, <code>find_if_not</code></h3>
+<p>One might want to find an element based on some predicate.  This is what the other two forms of <code>find</code> are for. These are their prototypes:</p>
+<div class="hll"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">InputIterator</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Predicate</span><span class="o">&gt;</span>
+<span class="n">InputIterator</span> <span class="n">find_if</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">first</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">last</span><span class="p">,</span>
+    <span class="n">Predicate</span> <span class="n">pred</span><span class="p">);</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">InputIterator</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Predicate</span><span class="o">&gt;</span>
+<span class="n">InputIterator</span> <span class="n">find_if_not</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">first</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">last</span><span class="p">,</span>
+    <span class="n">Predicate</span> <span class="n">pred</span><span class="p">);</span>
+</pre></div>
+<p>As seen for the algorithms presented in previous posts, also in this case we can use both a functor or a closure. Let's see an example with closures:</p>
+<div class="hll"><pre><span></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span> <span class="p">,</span><span class="mi">6</span><span class="p">};</span>
+    <span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">find_if</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">cbegin</span><span class="p">(),</span> <span class="n">v</span><span class="p">.</span><span class="n">cend</span><span class="p">(),</span>
+            <span class="p">[](</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span> <span class="n">i</span><span class="p">){</span> <span class="k">return</span> <span class="n">i</span><span class="o">%</span><span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">;</span> <span class="p">});</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">it</span> <span class="o">!=</span> <span class="n">v</span><span class="p">.</span><span class="n">cend</span><span class="p">())</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Found even number: &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">it</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+
+    <span class="c1">// Find next even numbers:</span>
+    <span class="n">it</span> <span class="o">=</span> <span class="n">find_if</span><span class="p">(</span><span class="n">it</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">v</span><span class="p">.</span><span class="n">cend</span><span class="p">(),</span>
+            <span class="p">[](</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span> <span class="n">i</span><span class="p">){</span> <span class="k">return</span> <span class="n">i</span><span class="o">%</span><span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">;</span> <span class="p">});</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">it</span> <span class="o">!=</span> <span class="n">v</span><span class="p">.</span><span class="n">cend</span><span class="p">())</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Found another even number: &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">it</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>In this example, we look for even numbers in a vector. Since the algorithm is defined for each sequence, we can use the iterator returned by the first invocation of <code>find_if</code> to start another sequence; only we have to be careful to increment it, otherwise, we are going to get the value 2 again. The result, as expected, is:</p>
+<pre>
+  Found even number: 2
+  Found another even number: 4    
+</pre><h3>Conclusions</h3>
+<p>As you might have noticed so far, the usage of algorithms is fairly intuitive, and they can be very powerful to express ideas.</p>
+<p>In the next installments, we'll see some other interesting variants of the <code>find</code> algorithm. Stay tuned!</p>
+
+  </div>
+
+
+  </div>
+  <footer>
+    &copy; Copyright 2021 by Gianluca Ciccarelli.
+  </footer>
+</body>

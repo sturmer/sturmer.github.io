@@ -1,0 +1,91 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../static/style.css">
+<title>STL Algorithms, part 2 — Gergelim</title>
+<body>
+  <header>
+    <h1>Gergelim</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a href="../../">Welcome</a></li>
+        
+          <li class="active"><a href="../">Blog</a></li>
+        
+          <li><a href="../../projects/">Projects</a></li>
+        
+          <li><a href="../../about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </header>
+  <div class="page">
+    
+  
+  <div class="blog-post">
+  
+    <h2>STL Algorithms, part 2</h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2013-12-30
+  </p>
+  <ul>
+<li><a href="../stl-algorithms-part-1/">Part 1</a></li>
+<li><a href="./">Part 2</a></li>
+<li><a href="../stl-algorithms-part-3/">Part 3</a></li>
+<li><a href="../stl-algorithms-part-4/">Part 4</a></li>
+<li><a href="../stl-algorithms-part-5/">Part 5</a></li>
+</ul>
+<h3>Previously on this blog</h3>
+<p>In the previous installment, we have introduced three algorithms, <code>all_of</code>, <code>any_of</code>, and <code>none_of</code>, very useful to determine whether a range of elements satisfy some predicate, expressed as a lambda.</p>
+<p>In this second episode, we will explore more algorithms offered by the STL. My objective, in the long run, is to cover all of them with examples, and maybe grasp the ideas that might come to my mind during the process. As usual, if you have any doubt or just spot a plain error, I'd greatly appreciate if you let me know.</p>
+<!-- more -->
+
+<h3>for_each (Act I)</h3>
+<div class="hll"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">InputIterator</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Function</span><span class="o">&gt;</span>
+<span class="n">Function</span> <span class="n">for_each</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">first</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">last</span><span class="p">,</span> <span class="n">Function</span> <span class="n">f</span><span class="p">);</span>
+</pre></div>
+<p>The algorithms that we have seen so far fall into the category of <em>non-modifying sequence operations</em>, because they can be applied without having to worry about changing the underlying range (or to invalidate the container).  The next few ones fall in the same category.</p>
+<p>A very interesting one is the <code>for_each</code> algorithm. It can be used to apply some operation to a range of elements. Things become tricky in this case, because the algorithm requires the function, that we want to apply to the elements in the range, to be <em>MoveConstructible</em>.  I will cover rvalue references and move semantics in one of the next posts (or you can have a look at this excellent <a href="http://holdstare.github.io/technical/2013/11/23/moves-demystified.html">post</a>, the best I have read so far about the subject), but for now it is enough to say that this means what follows.</p>
+<h4>Intermezzo: being MoveConstructible</h4>
+<p>Being <em>MoveConstructible</em>, for an object (in this case a function object or a lambda), means that it must obey a post-condition. In this case, if we have either of the following expressions:</p>
+<div class="hll"><pre><span></span><span class="n">T</span> <span class="n">t</span> <span class="o">=</span> <span class="n">rv</span>
+<span class="n">T</span><span class="p">(</span><span class="n">rv</span><span class="p">)</span>
+</pre></div>
+<p>then the post-condition (in the first case) is that <code>t</code> has the same value that <code>rv</code> used to have, before <code>t</code>'s construction is terminated (that is to say, before this statement), but after <code>t</code> is constructed (and this statement has been executed), no guarantee is given about the state of <code>rv</code> (in particular, its state might be different from the state it had before the assignment). The same is true for the second type of expression.</p>
+<p>This requirement is stronger than being required to be <em>CopyConstructible</em>, where the state of <code>rv</code> after the assignment has to stay unchanged.  For now, we can think of move semantics as a way of reducing the number of object creations. To do this, the language offers the chance to change the state of an object being moved from.</p>
+<h3><code>for_each</code> (Act II)</h3>
+<p>What does this mean with respect to our usage of <code>for_each</code>? This has to do with the return type of the algorithm: it is <code>std::move(f)</code>. Since <code>f</code> is required to be <em>MoveConstructible</em>, this guarantees that, if <code>f</code> is an object with a state, then the returned value has a valid state, even if optimizations are applied when returning it.</p>
+<p>It can be exemplified like follows:</p>
+<pre>
+for each element in the range
+    dereference the element
+    apply the function f
+return a (possibly destructive) copy of f
+</pre><p>When returning, the result of the copy is perfectly valid, but the object it is copied from might get altered by the copy operation. The fact that this copy is actually a <em>move</em> is not important to understand the effects.  The net result is: we can neglect this, and leave the responsibility to the implementer of the STL.</p>
+<p>An example will make everything clear:</p>
+<div class="hll"><pre><span></span><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">};</span>
+    <span class="n">for_each</span><span class="p">(</span><span class="n">v</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">v</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span>
+            <span class="p">[](</span><span class="kt">int</span><span class="o">&amp;</span> <span class="n">i</span><span class="p">)</span> <span class="p">{</span> <span class="n">i</span> <span class="o">*=</span> <span class="mi">2</span><span class="p">;</span> <span class="p">});</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="nl">vv</span><span class="p">:</span> <span class="n">v</span><span class="p">)</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">vv</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>This will print the numbers 2, 4, 6. Note that the standard specifies that, if <code>f</code> returns a result (which is not the case for our example), that result is ignored. As you can see, even though <code>for_each</code> is supposed to belong to the non-modifying sequence operations, it can alter the values of the elements in the container. This has been object of a discussion; one conclusion is that the <code>for_each</code> itself does not modify the container, while the function <code>f</code> could; another, is that modifying the elements is not equivalent to modifying the sequence's structure (i.e., the <code>for_each</code> does not invalidate the underlying pointers). If you are interested in the fine points of the discussion, you can have a look <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/lwg-defects.html#475">here</a> and <a href="https://stackoverflow.com/questions/662845/why-is-stdfor-each-a-non-modifying-sequence-operation">here</a>.</p>
+<h3>Conclusions</h3>
+<p>We have seen another fine algorithm offered by the standard template library.  Even though of simple application, this one has been subject to some debate about its classification as non-modifying sequence operation; it has also given me the chance to provide a first (very incomplete!) explanation of what is the move semantics in the C++11 standard.</p>
+<p>In the next installment of this series, I am going to talk about algorithms for finding elements in a container (searching algorithms).</p>
+
+  </div>
+
+
+  </div>
+  <footer>
+    &copy; Copyright 2021 by Gianluca Ciccarelli.
+  </footer>
+</body>

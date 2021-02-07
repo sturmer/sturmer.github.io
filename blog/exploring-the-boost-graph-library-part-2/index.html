@@ -1,0 +1,110 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../static/style.css">
+<title>Exploring the Boost Graph Library, part 2 — Gergelim</title>
+<body>
+  <header>
+    <h1>Gergelim</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a href="../../">Welcome</a></li>
+        
+          <li class="active"><a href="../">Blog</a></li>
+        
+          <li><a href="../../projects/">Projects</a></li>
+        
+          <li><a href="../../about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </header>
+  <div class="page">
+    
+  
+  <div class="blog-post">
+  
+    <h2>Exploring the Boost Graph Library, part 2</h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2013-11-25
+  </p>
+  <p>This is the second episode of my series on the Boost Graph Library. You might want to read <a href="../exploring-the-boost-graph-library/">part 1</a> before going on. As before, our primary source is the <a href="http://www.boost.org/doc/libs/1_55_0/libs/graph/doc/quick_tour.html">Quick Tutorial</a> that you can find on the BGL web page.</p>
+<!-- more -->
+
+<h3>Today's goal</h3>
+<p>At the end of this post, you will be able to apply one of the existing graph algorithms implemented in the BGL. We will also cover the notion of <em>vertex descriptor</em> along the way.</p>
+<h2>We were saying</h2>
+<p>We are analyzing a graph G of 6 vertices:</p>
+<p><img src="../../images/clrs-22.4.png" alt="Graph six nodes"></p>
+<p>In the previous installment, we had created the graph and simply printed the indices of the vertices. Now, we are going to see how to apply Dijkstra's algorithm to our graph.</p>
+<p>In order to apply the algorithm, we slightly modify our graph so as to contain one more edge, and assign weights to the edges, obtaining the following result (the new edge is dashed):</p>
+<p><img src="../../images/clrs-22.4-weighted1.png" alt="dijkstra graph"></p>
+<h3>Internal properties of a graph</h3>
+<p>First, let's modify our graph to add an Edge property. We have said that properties can be attached to a BGL graph; there are, however, two types of properties. <em>Internal properties</em> are intrinsically related to the graph itself: for example, the weight of an edge. There are other properties, called <em>external properties</em>, which are only attached to the components of the graph by an algorithm, like the color of a vertex.</p>
+<p>The Graph constructor provides slots that can be filled with properties.</p>
+<div class="hll"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">OutEdgeListS</span> <span class="o">=</span> <span class="n">vecS</span><span class="p">,</span>
+          <span class="k">class</span> <span class="nc">VertexListS</span> <span class="o">=</span> <span class="n">vecS</span><span class="p">,</span>
+          <span class="k">class</span> <span class="nc">DirectedS</span> <span class="o">=</span> <span class="n">directedS</span><span class="p">,</span>
+          <span class="k">class</span> <span class="nc">VertexProperty</span> <span class="o">=</span> <span class="n">no_property</span><span class="p">,</span>
+          <span class="k">class</span> <span class="nc">EdgeProperty</span> <span class="o">=</span> <span class="n">no_property</span><span class="p">,</span>
+          <span class="k">class</span> <span class="nc">GraphProperty</span> <span class="o">=</span> <span class="n">no_property</span><span class="p">,</span>
+          <span class="k">class</span> <span class="nc">EdgeListS</span> <span class="o">=</span> <span class="n">listS</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">adjacency_list</span>
+</pre></div>
+<p>As you can see, the slot reserved to the EdgeProperty is the fifth. To fill all the slots before that, which we do not really care of presently, we can use the convenient structure <code>no_property</code>, not surprisingly defined as:</p>
+<div class="hll"><pre><span></span><span class="k">struct</span> <span class="nc">no_property</span> <span class="p">{};</span>
+</pre></div>
+<p>So the only modification we want to apply to the graph defined in the previous post is:</p>
+<div class="hll"><pre><span></span><span class="k">typedef</span> <span class="n">adjacency_list</span><span class="o">&lt;</span><span class="n">vecS</span><span class="p">,</span> <span class="n">vecS</span><span class="p">,</span> <span class="n">directedS</span><span class="p">,</span>
+        <span class="n">no_property</span><span class="p">,</span> <span class="n">property</span><span class="o">&lt;</span><span class="n">edge_weight_t</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">Graph</span><span class="p">;</span>
+</pre></div>
+<p>This way, we are stating that the edges of our graph have a property, the weight, whose type is an <code>int</code>. The property is attached to the Graph and can be used by the relevant algorithms.</p>
+<h2>Apply the algorithm</h2>
+<p>To understand what we need to feed to Dijkstra's algorithm in the BGL, let's have a look at the prototype that we are going to use:</p>
+<div class="hll"><pre><span></span>  <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">VertexListGraph</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Param</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Tag</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Rest</span><span class="o">&gt;</span>
+  <span class="kr">inline</span> <span class="kt">void</span>
+  <span class="n">dijkstra_shortest_paths</span>
+    <span class="p">(</span><span class="k">const</span> <span class="n">VertexListGraph</span><span class="o">&amp;</span> <span class="n">g</span><span class="p">,</span>
+     <span class="k">typename</span> <span class="nc">graph_traits</span><span class="o">&lt;</span><span class="n">VertexListGraph</span><span class="o">&gt;::</span><span class="n">vertex_descriptor</span> <span class="n">s</span><span class="p">,</span>
+     <span class="k">const</span> <span class="n">bgl_named_params</span><span class="o">&lt;</span><span class="n">Param</span><span class="p">,</span><span class="n">Tag</span><span class="p">,</span><span class="n">Rest</span><span class="o">&gt;&amp;</span> <span class="n">params</span><span class="p">)</span>
+</pre></div>
+<p>This is the simplest form of the algorithm, and it does a lot of work for you. To call it, we only need the graph, the descriptor of the vertex that must represent the source from which the distances are to be computed (more on descriptors in a bit), and finally a reference to a some structure containing the parameters. Now this last bit is actually our algorithm return type, and we just pass a <code>RandomAccessIterator</code> on some container holding the weights of the edges, in the order we have used when describing them.</p>
+<h4>Intermezzo: Did you say vertex descriptor?</h4>
+<p>Graph representations are not all created equal, of course. To refer to a vertex, or to an edge, some representations store pointers to vertex objects, other store vertex objects themselves. Using the BGL, we do not want to care: we refer to an opaque data structure known as _vertex<em>descriptor</em>, listed among the <code>graph_traits</code> of a <code>Graph</code> object. Functions, like <code>edges()</code> or <code>adjacent_vertices()</code>, and functions on <code>property_maps</code>, all rely on the Graph describing the way it wants to store the vertices (and the edges).</p>
+<p>This said, let's get back to work.</p>
+<h3>Apply the algorithm (continuing)</h3>
+<p>To apply Dijkstra's algorithm, we need a start vertex and a list that can hold enough elements for receiving the distances from the start vertex. We do this by defining:</p>
+<div class="hll"><pre><span></span>    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">distances</span><span class="p">(</span><span class="n">num_vertices</span><span class="p">(</span><span class="n">g</span><span class="p">));</span>
+    <span class="n">V</span> <span class="n">start</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="n">vertices</span><span class="p">(</span><span class="n">g</span><span class="p">).</span><span class="n">first</span><span class="p">);</span>
+</pre></div>
+<p>The final touch is a breeze:</p>
+<div class="hll"><pre><span></span><span class="n">dijkstra_shortest_paths</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">distance_map</span><span class="p">(</span><span class="o">&amp;</span><span class="n">distances</span><span class="p">[</span><span class="mi">0</span><span class="p">]));</span>
+</pre></div>
+<p>You can have a look at the complete example in this <a href="https://gist.github.com/sturmer/7614390#file-apply_dijkstra-cpp">gist</a>.</p>
+<p>Printing the results show the following:</p>
+<pre><code>distances from start vertex:
+distance(0) = 0
+distance(1) = 6
+distance(2) = 1
+distance(3) = 4
+distance(4) = 5
+</code></pre>
+<h3>Let's break it</h3>
+<p>We know from graph theory that Dijkstra does not work well if a weight is negative (it is related to the fact that passing through the negative-weighted edge keeps on decreasing the cost of the path, so it might generate infinite loops). In case by accident we put in a negative weight, the library is so kind as to remind us of our mistake:</p>
+<pre><code>what():  The graph may not contain an edge with negative weight.
+</code></pre>
+<h3>What's next</h3>
+<p>In the next installment, we are going to show what a visitor is in this context, and how we can use it.</p>
+
+  </div>
+
+
+  </div>
+  <footer>
+    &copy; Copyright 2021 by Gianluca Ciccarelli.
+  </footer>
+</body>

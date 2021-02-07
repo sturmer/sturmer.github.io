@@ -1,0 +1,114 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../static/style.css">
+<title>Exploring the Boost Graph Library — Gergelim</title>
+<body>
+  <header>
+    <h1>Gergelim</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a href="../../">Welcome</a></li>
+        
+          <li class="active"><a href="../">Blog</a></li>
+        
+          <li><a href="../../projects/">Projects</a></li>
+        
+          <li><a href="../../about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </header>
+  <div class="page">
+    
+  
+  <div class="blog-post">
+  
+    <h2>Exploring the Boost Graph Library</h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2013-11-18
+  </p>
+  <p><a href="../exploring-the-boost-graph-library-part-2/">Part 2</a></p>
+<p>With this post I'm starting a series about the Boost Graph Library (BGL). My objective is to present the material in small, easy-to-digest chunks, in order to build an understanding of this library and of the C++ concepts that it uses.</p>
+<!-- more -->
+
+<p>The code is a only a slight variation of the code presented in the <a href="http://www.boost.org/doc/libs/1_55_0/libs/graph/doc/quick_tour.html">quick tutorial</a> section about the BGL. For a copy of the example revised as it appears in this post, see this <a href="https://gist.github.com/sturmer/7498715" title="Compilable code example">gist</a>.</p>
+<h3>Representing the graph</h3>
+<p>First off, we know that a graph is representable in a couple of ways. One of these is the adjacency list, a data structure where we have a correspondence between each node and all its neighbors, i.e., the nodes that are 1 edge away. So for a graph like:</p>
+<p><img src="clrs-22.4.png" alt="CLRS 22.4"></p>
+<p>the adjacency list would look like:</p>
+<pre>
+1: 2, 4
+2: 5
+3: 5, 6
+4: 2
+5: 4
+6: 6
+</pre><p>(this graph can be found on CLRS).</p>
+<p>To represent this list, we declare that our Graph <em>is</em> its adjacency list:</p>
+<div class="hll"><pre><span></span><span class="k">typedef</span>
+    <span class="n">adjacency_list</span><span class="o">&lt;</span><span class="n">vecS</span><span class="p">,</span> <span class="n">vecS</span><span class="p">,</span> <span class="n">bidirectionalS</span><span class="o">&gt;</span>
+    <span class="n">Graph</span><span class="p">;</span>
+</pre></div>
+<p>This means: use <code>std::vector</code> for out-edges (the edges that are directed from the node outward) and for the vertex set. Other choices might have been, among the others, <code>listS</code> and <code>setS</code>. What we actually choose depends on the application, because some data structures optimize for space, other for times (see this <a href="http://www.boost.org/doc/libs/1_55_0/libs/graph/doc/using_adjacency_list.html#sec:choosing-graph-type">brief yet complete and very useful discussion</a>).</p>
+<div class="hll"><pre><span></span><span class="k">enum</span> <span class="p">{</span> <span class="n">_1</span><span class="p">,</span> <span class="n">_2</span><span class="p">,</span> <span class="n">_3</span><span class="p">,</span> <span class="n">_4</span><span class="p">,</span> <span class="n">_5</span><span class="p">,</span> <span class="n">_6</span><span class="p">,</span> <span class="n">N</span> <span class="p">};</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">num_vertices</span> <span class="o">=</span> <span class="n">N</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;CLRS_22.4&quot;</span><span class="p">;</span>
+</pre></div>
+<p>Nothing special here: we decide to give identifiers to the nodes for our convenience. With this setup, we use those <code>enum</code> values to actually create the array of the edges:</p>
+<div class="hll"><pre><span></span><span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">Edge</span><span class="p">;</span>
+<span class="n">Edge</span> <span class="n">edge_array</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="n">Edge</span><span class="p">(</span><span class="n">_1</span><span class="p">,</span><span class="n">_2</span><span class="p">),</span> <span class="n">Edge</span><span class="p">(</span><span class="n">_1</span><span class="p">,</span><span class="n">_4</span><span class="p">),</span> <span class="n">Edge</span><span class="p">(</span><span class="n">_2</span><span class="p">,</span><span class="n">_5</span><span class="p">),</span>
+  <span class="n">Edge</span><span class="p">(</span><span class="n">_4</span><span class="p">,</span><span class="n">_2</span><span class="p">),</span> <span class="n">Edge</span><span class="p">(</span><span class="n">_5</span><span class="p">,</span><span class="n">_4</span><span class="p">),</span> <span class="n">Edge</span><span class="p">(</span><span class="n">_3</span><span class="p">,</span><span class="n">_5</span><span class="p">),</span>
+  <span class="n">Edge</span><span class="p">(</span><span class="n">_3</span><span class="p">,</span><span class="n">_6</span><span class="p">),</span> <span class="n">Edge</span><span class="p">(</span><span class="n">_6</span><span class="p">,</span><span class="n">_6</span><span class="p">)</span>
+<span class="p">};</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">num_edges</span> <span class="o">=</span>
+    <span class="k">sizeof</span><span class="p">(</span><span class="n">edge_array</span><span class="p">)</span><span class="o">/</span><span class="k">sizeof</span><span class="p">(</span><span class="n">Edge</span><span class="p">);</span>
+</pre></div>
+<p>Finally we define the graph (note that we only use the <code>edge_array</code>, and we use it as an iterator):</p>
+<div class="hll"><pre><span></span><span class="n">Graph</span> <span class="nf">g</span><span class="p">(</span><span class="n">edge_array</span><span class="p">,</span>
+    <span class="n">edge_array</span> <span class="o">+</span> <span class="n">num_edges</span><span class="p">,</span>
+    <span class="n">num_vertices</span><span class="p">);</span>
+</pre></div>
+<h3>Properties of a Graph object</h3>
+<p>A great feature of the BGL is the availability of fully customizable <em>properties</em>, that can be assigned to vertices and edges, according to the application we are modeling. They can be weights, for example, if we are going to use Dijkstra's algorithm for the shortest path. A property is accessed through a <code>property_map</code> object. Among the properties already defined, we can find the index of the vertices, that we access with a call to the <code>get()</code> function:</p>
+<div class="hll"><pre><span></span><span class="k">typedef</span>
+  <span class="n">property_map</span><span class="o">&lt;</span><span class="n">Graph</span><span class="p">,</span> <span class="n">vertex_index_t</span><span class="o">&gt;::</span><span class="n">type</span>
+  <span class="n">IndexMap</span><span class="p">;</span>
+<span class="n">IndexMap</span> <span class="n">index</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">vertex_index</span><span class="p">,</span> <span class="n">g</span><span class="p">);</span>
+</pre></div>
+<p>Now let's just print the vertices, using our index property:</p>
+<div class="hll"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;vertices(g) = &quot;</span><span class="p">;</span>
+<span class="k">typedef</span>
+  <span class="n">graph_traits</span><span class="o">&lt;</span><span class="n">Graph</span><span class="o">&gt;::</span><span class="n">vertex_iterator</span>
+  <span class="n">vertex_iter</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">vertex_iter</span><span class="p">,</span> <span class="n">vertex_iter</span><span class="o">&gt;</span> <span class="n">vp</span><span class="p">;</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">vp</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">(</span><span class="n">g</span><span class="p">);</span>
+     <span class="n">vp</span><span class="p">.</span><span class="n">first</span> <span class="o">!=</span> <span class="n">vp</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+     <span class="o">++</span><span class="n">vp</span><span class="p">.</span><span class="n">first</span><span class="p">)</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">index</span><span class="p">[</span><span class="o">*</span><span class="n">vp</span><span class="p">.</span><span class="n">first</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; &quot;</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</pre></div>
+<p>We use <code>graph_traits</code> to get the right iterator. The Iterator concept is crucial to the BGL library, and is an evolution of the same concept in STL, in that the graph iterator differs according to how we want to traverse the graph: by vertices, by adjacency, by visitor.</p>
+<p>The iterator we get here is a <code>vertex_iterator</code>, which, not surprisingly, allows us to traverse the list of vertices. The function</p>
+<div class="hll"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">vertex_iterator</span><span class="p">,</span> <span class="n">vertex_iterator</span><span class="o">&gt;</span> <span class="n">vertices</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+</pre></div>
+<p>which is part of the <code>VertexListGraph</code> interface, returns a range as a pair of iterators to first element and one past the last. Given the property_map object, we index it by unreferencing the iterator, getting the output:</p>
+<pre>
+vertices(g) = 0 1 2 3 4 5
+</pre><h3>What's next</h3>
+<p>We have seen how to create a graph, and how to get access to its vertex indices.</p>
+<p>In the next installment, we are going to see how to apply some famous graph algorithm with this nice library.</p>
+
+  </div>
+
+
+  </div>
+  <footer>
+    &copy; Copyright 2021 by Gianluca Ciccarelli.
+  </footer>
+</body>

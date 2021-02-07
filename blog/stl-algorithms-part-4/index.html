@@ -1,0 +1,118 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../static/style.css">
+<title>STL Algorithms, part 4 — Gergelim</title>
+<body>
+  <header>
+    <h1>Gergelim</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a href="../../">Welcome</a></li>
+        
+          <li class="active"><a href="../">Blog</a></li>
+        
+          <li><a href="../../projects/">Projects</a></li>
+        
+          <li><a href="../../about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </header>
+  <div class="page">
+    
+  
+  <div class="blog-post">
+  
+    <h2>STL Algorithms, part 4</h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2014-01-14
+  </p>
+  <ul>
+<li><a href="../stl-algorithms-part-1/">Part 1</a></li>
+<li><a href="../stl-algorithms-part-2/">Part 2</a></li>
+<li><a href="../stl-algorithms-part-3/">Part 3</a></li>
+<li><a href="./">Part 4</a></li>
+<li><a href="../stl-algorithms-part-5/">Part 5</a></li>
+</ul>
+<p>We have seen some examples of usage of the <code>find</code> algorithm, with its variants <code>find_if</code> and  <code>find_if_not</code>. In this installment, we are going to see other variants of finding algorithms, plus another algorithm useful when counting items in a sequence, <code>count</code>. Remember that we are still in the realm of non-modifying sequence algorithms (but see the discussion about <code>for_each</code> <a href="../2013/12/30/stl-algorithms-part-2/" title="STL Algorithms, part 2">here</a>).</p>
+<!-- more -->
+
+<h3><code>find_first</code>: Find first occurrence of any element taken from a set</h3>
+<p>This algorithm is useful when we are looking for one element of a set. Consider a <code>std::string</code>, which is also a container, and the problem of finding any vowel in such a string. We could go like the following:</p>
+<div class="hll"><pre><span></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">set</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span> <span class="n">vowels</span><span class="p">{</span><span class="sc">&#39;a&#39;</span><span class="p">,</span> <span class="sc">&#39;e&#39;</span><span class="p">,</span> <span class="sc">&#39;i&#39;</span><span class="p">,</span> <span class="sc">&#39;o&#39;</span><span class="p">,</span> <span class="sc">&#39;u&#39;</span><span class="p">,</span> <span class="sc">&#39;y&#39;</span><span class="p">};</span>   <span class="c1">// is y a vowel?</span>
+    <span class="n">string</span> <span class="n">haystack</span><span class="p">{</span><span class="s">&quot;haystack&quot;</span><span class="p">};</span>
+    <span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">find_first_of</span><span class="p">(</span><span class="n">haystack</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">haystack</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span>
+            <span class="n">vowels</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">vowels</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="n">it</span> <span class="o">!=</span> <span class="n">haystack</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">it</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+        <span class="n">it</span> <span class="o">=</span> <span class="n">find_first_of</span><span class="p">(</span><span class="n">it</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">haystack</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span>
+            <span class="n">vowels</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">vowels</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<p>This small program will print the sequence of vowels in the word <em>haystack</em>. I am not sure that <em>y</em> is a vowel (actually I doubt), but I can invoke the exemplification\'s excuse. The output is:</p>
+<pre>
+    a
+    y
+    a
+</pre><p>This algorithm can have a significant overhead because it has quadratic complexity (its execution time grows as the multiplication of the length of the two sequences). It prototype is:</p>
+<div class="hll"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">InputIterator</span><span class="p">,</span> <span class="k">class</span> <span class="nc">ForwardIterator</span><span class="o">&gt;</span>
+<span class="n">InputIterator</span>
+<span class="n">find_first_of</span><span class="p">(</span><span class="n">InputIterator</span> <span class="n">first1</span><span class="p">,</span> <span class="n">InputIterator</span> <span class="n">last1</span><span class="p">,</span>
+  <span class="n">ForwardIterator</span> <span class="n">first2</span><span class="p">,</span> <span class="n">ForwardIterator</span> <span class="n">last2</span><span class="p">);</span>
+</pre></div>
+<p>There is also a similar version where we can add a predicate, this way stating that we are looking for any of the elements in the second sequence for which the predicate is satisfied.</p>
+<h3><code>find_end</code>: Find subsequences</h3>
+<p>This algorithm has a deceptive name. It finds the subsequence in a sequence, returning the iterator to the first character of such sequence, or returning the last element of the first sequence if no such subsequence is found. The name comes from the fact that such subsequence is the rightmost, in case it occurred more than once. Consider the following example:</p>
+<div class="hll"><pre><span></span><span class="n">string</span> <span class="n">subseq</span><span class="p">{</span><span class="s">&quot;lazy&quot;</span><span class="p">};</span>
+<span class="n">string</span> <span class="n">seq</span><span class="p">{</span><span class="s">&quot;the quick brown fox jumped over the lazy dog, &quot;</span>
+    <span class="s">&quot;but the lazy dog woke up&quot;</span><span class="p">};</span>
+<span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">find_end</span><span class="p">(</span><span class="n">seq</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">seq</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span>
+        <span class="n">subseq</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">subseq</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">res</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="n">seq</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Result: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">res</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+</pre></div>
+<p>Its output is simply:</p>
+<pre>
+Result: lazy dog woke up
+</pre><p>Also this algorithm has a variant where we can specify a predicate to be satisfied for each element matched.</p>
+<h3><code>adjacent_find</code>: Find consecutive elements</h3>
+<p>Suppose now that you want to find whether there are repeated elements in a string. The <code>adjacent_find</code> algorithm does just that, returning an iterator to the first element that is followed by itself at least once. Also this algorithms comes with a variation allowing to specify a predicate:</p>
+<div class="hll"><pre><span></span><span class="n">string</span> <span class="n">seq</span><span class="p">{</span><span class="s">&quot;arbababbbbbbbbbccc&quot;</span><span class="p">};</span>
+<span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">adjacent_find</span><span class="p">(</span><span class="n">seq</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">seq</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="p">[](</span><span class="kt">char</span> <span class="n">c1</span><span class="p">,</span> <span class="kt">char</span> <span class="n">c2</span><span class="p">)</span>
+        <span class="p">{</span> <span class="k">return</span> <span class="n">c1</span> <span class="o">!=</span> <span class="sc">&#39;r&#39;</span> <span class="o">&amp;&amp;</span> <span class="n">c2</span> <span class="o">==</span> <span class="sc">&#39;b&#39;</span><span class="p">;</span> <span class="p">});</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">res</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="n">seq</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Sequence: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">seq</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Result:      &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">res</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+</pre></div>
+<p>The outcome of this algorithm is the following: for each letter and its immediate successor, the predicate should be satisfied. This holds true for the first time when we arrive at the fourth letter, so the outcome is:</p>
+<pre>
+  Sequence: arbababbbbbbbbbccc
+  Result:      ababbbbbbbbbccc
+</pre><h3><code>count</code> and <code>count_if</code>: Count elements</h3>
+<p>The last algorithm considered in this post is <code>count</code>, with its variation <code>count_if</code>. As expected, it counts the number of elements (possibly, matching a predicate):</p>
+<div class="hll"><pre><span></span><span class="n">string</span> <span class="n">seq</span><span class="p">{</span><span class="s">&quot;arbababbbbbbbbbccc&quot;</span><span class="p">};</span>
+<span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">count_if</span><span class="p">(</span><span class="n">seq</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">seq</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="p">[](</span><span class="kt">char</span> <span class="n">c</span><span class="p">)</span>
+        <span class="p">{</span> <span class="k">return</span> <span class="n">c</span> <span class="o">==</span> <span class="sc">&#39;b&#39;</span><span class="p">;</span> <span class="p">});</span>
+<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Result:  &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">it</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+</pre></div>
+<p>and it counts 11 occurrences.</p>
+<h3>Conclusions</h3>
+<p>In this installment, we have seen examples of some variations of <code>find</code>, plus a way to count occurrences of an element in a sequence. At this point, the algorithms in the <em>non-modifying sequence operations</em> category are mostly over; in the next episode, we are going to wrap them up.</p>
+
+  </div>
+
+
+  </div>
+  <footer>
+    &copy; Copyright 2021 by Gianluca Ciccarelli.
+  </footer>
+</body>

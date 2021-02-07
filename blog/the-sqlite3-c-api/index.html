@@ -1,0 +1,150 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../static/style.css">
+<title>The SQLite3 C++ API — Gergelim</title>
+<body>
+  <header>
+    <h1>Gergelim</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a href="../../">Welcome</a></li>
+        
+          <li class="active"><a href="../">Blog</a></li>
+        
+          <li><a href="../../projects/">Projects</a></li>
+        
+          <li><a href="../../about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </header>
+  <div class="page">
+    
+  
+  <div class="blog-post">
+  
+    <h2>The SQLite3 C++ API</h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2014-03-10
+  </p>
+  <p>I was looking for some practice with DBs, and my choice fell on the <a href="http://www.sqlite.org">SQLite</a> project, maybe only because it looked lighter than PostgreSQL, which I also plan to play with. My first general impression about the API is that it looks a little too much C-oriented, even though I am not sure whether this is a good or a bad thing, and I am ignorant about the latitude of choice an engineer has when designing an API that has to interact with applications written in either C or C++.</p>
+<!-- more -->
+
+<p>In this post, I am going to dissect a basic utilization of the API, from setting up a ludicrously small database to running a query on the data.</p>
+<h2>Creating the database</h2>
+<p>Running <code>sqlite3</code> from the console, we are prompted by the SQLite interpreter. I have created a database of actors and movies, of which the following is the piece that I used to create the Movies table, plus an example insert statement:</p>
+<div class="hll"><pre><span></span><span class="k">create</span> <span class="k">table</span> <span class="k">if</span> <span class="k">not</span> <span class="k">exists</span> <span class="n">Movies</span><span class="p">(</span><span class="n">movieId</span> <span class="k">primary</span> <span class="k">key</span><span class="p">,</span>
+  <span class="n">movieTitle</span><span class="p">,</span> <span class="n">movieYear</span><span class="p">);</span>
+<span class="k">insert</span> <span class="k">or</span> <span class="k">ignore</span> <span class="k">into</span> <span class="n">Movies</span> <span class="k">values</span><span class="p">(</span><span class="s1">&#39;NIR97&#39;</span><span class="p">,</span> <span class="s1">&#39;Nirvana&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;1997&#39;</span><span class="p">);</span>
+</pre></div>
+<p>With this saved in a file <em>movies.sql</em>, from within the sqlite3 prompt you can run the command <code>.read movies.sql</code> to execute the statements of table creation and insertion of the data. I have saved then the DB with the command <code>.backup Gergelim.db</code>. At this point, I have started coding some C++.</p>
+<h2>Querying</h2>
+<p>The first thing we need in order to access a SQLite database is a handle, which is a pointer to an opaque structure called <code>sqlite3</code>. The way to do it is quite intuitive:</p>
+<div class="hll"><pre><span></span><span class="n">sqlite3</span><span class="o">*</span> <span class="n">handle</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">retval</span> <span class="o">=</span> <span class="n">sqlite3_open</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">handle</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">retval</span> <span class="o">!=</span> <span class="n">SQLITE_OK</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;open: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">sqlite3_errstr</span><span class="p">(</span><span class="n">retval</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">retval</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>in which I assume to pass the name of the DB as the first and only parameter to the program. Most of the functions of the API return an integer that can be interpreted as an error code. The function <code>sqlite3_errstr(code)</code> provides a human-readable version of the error code.</p>
+<p>Next, we must prepare the statement that we want to execute. The preparation is apparently a sort of "compilation" of the statement into something that is interpretable in later function calls (particularly the <code>sqlite3_step</code>, see below). There are currently two main versions of the prepare statement, and the docs encourage the use of version 2:</p>
+<div class="hll"><pre><span></span><span class="n">string</span> <span class="n">zSql</span><span class="p">(</span>
+  <span class="s">&quot;select movieTitle, movieYear from Movies where movieYear &gt; 2000;&quot;</span><span class="p">);</span>
+<span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">zTail</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">char</span><span class="o">**</span> <span class="n">pzTail</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">zTail</span><span class="p">;</span>
+<span class="n">sqlite3_stmt</span><span class="o">*</span> <span class="n">statement</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+<span class="n">retval</span> <span class="o">=</span> <span class="n">sqlite3_prepare_v2</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">zSql</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span> <span class="mi">-1</span><span class="p">,</span>
+  <span class="o">&amp;</span><span class="n">statement</span><span class="p">,</span>
+  <span class="n">pzTail</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">retval</span> <span class="o">!=</span> <span class="n">SQLITE_OK</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;prepare: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">sqlite3_errstr</span><span class="p">(</span><span class="n">retval</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">retval</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<p>The syntax of the prepare statement feels a little awkward. It requires:</p>
+<ol>
+<li>a handle to the DB</li>
+<li>the statement, as a <code>const char*</code></li>
+<li>the maximum length of the abovementioned <code>const char*</code></li>
+<li>a statement handle, as an output parameter</li>
+<li>an output pointer to the unused portion of <code>zSql</code></li>
+</ol>
+<p>There are a couple of concepts here that need explaining. The following is the declaration of the <code>sqlite3_prepare_v2</code> function from the <a href="http://www.sqlite.org/c3ref/prepare.html">SQLite API documentation</a>:</p>
+<div class="hll"><pre><span></span><span class="kt">int</span> <span class="nf">sqlite3_prepare_v2</span><span class="p">(</span>
+  <span class="n">sqlite3</span> <span class="o">*</span><span class="n">db</span><span class="p">,</span>            <span class="cm">/* Database handle */</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">zSql</span><span class="p">,</span>       <span class="cm">/* SQL statement, UTF-8 encoded */</span>
+  <span class="kt">int</span> <span class="n">nByte</span><span class="p">,</span>              <span class="cm">/* Maximum length of zSql in bytes. */</span>
+  <span class="n">sqlite3_stmt</span> <span class="o">**</span><span class="n">ppStmt</span><span class="p">,</span>  <span class="cm">/* OUT: Statement handle */</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">pzTail</span>     <span class="cm">/* OUT: Pointer to unused portion of zSql */</span>
+<span class="p">);</span>
+</pre></div>
+<p>The parameter <code>nByte</code>, if set to a negative number, has the API implementation read <code>zSql</code> until the zero terminator; otherwise, if we had, say, a text file with many statements, we could pass the length of the statement to interpret, starting from what is pointed by <code>zSql</code>. If <code>pzTail</code> is not null, then it is filled with the pointer to the position of the zSql string that has not been interpreted: only one SQL statement at a time is interpreted by this function.</p>
+<p>After we have prepared the statement, we can execute it. This is done via calling <code>sqlite3_step()</code>. This function returns a row of the query, if successful; otherwise, it may return either the code <code>SQLITE_DONE</code>, to indicate that the set of rows has finished; or another type of error. This means that to read the result set, we need to call <code>sqlite3_step()</code> until we get a <code>SQLITE_DONE</code>, or we get an error. Reading the result set can be done this way:</p>
+<div class="hll"><pre><span></span><span class="k">const</span> <span class="kt">int</span> <span class="n">num_columns</span> <span class="o">=</span> <span class="n">sqlite3_column_count</span><span class="p">(</span><span class="n">statement</span><span class="p">);</span>
+<span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">retval</span> <span class="o">=</span> <span class="n">sqlite3_step</span><span class="p">(</span><span class="n">statement</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">retval</span> <span class="o">==</span> <span class="n">SQLITE_ROW</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// There is another row after this one: read this row</span>
+        <span class="c1">// for now</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num_columns</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span> <span class="n">row_element</span> <span class="o">=</span>
+              <span class="n">sqlite3_column_text</span><span class="p">(</span><span class="n">statement</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+            <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">row_element</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39; &#39;</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">retval</span> <span class="o">==</span> <span class="n">SQLITE_DONE</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// no more rows: exit</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Done</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;step: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">sqlite3_errstr</span><span class="p">(</span><span class="n">retval</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+        <span class="k">return</span> <span class="nf">cleanup</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">statements</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+<h2>Keeping the house clean</h2>
+<p>Some of the mentioned API calls allocate memory, that has to be freed when the execution aborts for some error (e.g., an empty result set). In particular, we have to free the memory for each statement we have prepared with <code>sqlite3_prepare_v2()</code>, by calling <code>sqlite3_finalize()</code>; and we have to close the connection to the DB, with a <code>sqlite3_close()</code>. Since we might need to free the resources in more than one place, I thought it would be a good idea to group the statements in a function:</p>
+<div class="hll"><pre><span></span><span class="kt">int</span> <span class="nf">cleanup</span><span class="p">(</span><span class="n">sqlite3</span><span class="o">*</span> <span class="n">handle</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">sqlite3_stmt</span><span class="o">*&gt;</span> <span class="n">statements</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">retval</span> <span class="o">=</span> <span class="mi">-1</span><span class="p">;</span>
+    <span class="c1">// Destroy statements</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">s</span> <span class="p">:</span> <span class="n">statements</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">retval</span> <span class="o">=</span> <span class="n">sqlite3_finalize</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">retval</span> <span class="o">!=</span> <span class="n">SQLITE_OK</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;finalize: &quot;</span> <span class="o">&lt;&lt;</span>
+              <span class="n">sqlite3_errstr</span><span class="p">(</span><span class="n">retval</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;finalize: OK</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Close connection</span>
+    <span class="n">retval</span> <span class="o">=</span> <span class="n">sqlite3_close</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">retval</span> <span class="o">!=</span> <span class="n">SQLITE_OK</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;close: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">sqlite3_errstr</span><span class="p">(</span><span class="n">retval</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;close: OK</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">retval</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+<h2>Memory management considerations</h2>
+<p>With all the talking about RAII and being able to be in control exactly of the life cycle of objects and resources in general, it feels a bit scary to manage memory in this way; but I am sure there is some better way of doing this with the C++11 smart pointers. For example, we could enclose the pointer to the prepared statement returned by <code>sqlite3_prepare_v2()</code> in a smart pointer, if we could provide the <code>sqlite3_finalize()</code> function as callback to be used when destroying the memory allocated. The same can be said of <code>sqlite3_open()</code>/<code>sqlite3_close()</code>.</p>
+<p>I haven't found a way to use smart pointers to achieve this. I will keep looking, and I'd be glad if anyone could point me to a solution.</p>
+<h2>Summary</h2>
+<p>I have created a minimal SQLite3 database, and executed a query on it using the C/C++ API documented on <a href="http://www.sqlite.org/c3ref/intro.html">sqlite.org</a>. As I have said, things feel a little too C, but I might be using it naively. If I discover anything that can be done nicer, I'll get back to this post and update it, as usual.</p>
+
+  </div>
+
+
+  </div>
+  <footer>
+    &copy; Copyright 2021 by Gianluca Ciccarelli.
+  </footer>
+</body>

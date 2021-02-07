@@ -1,0 +1,98 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../static/style.css">
+<title>I&#39;ve Added Nice Footnotes to My Website — Gergelim</title>
+<body>
+  <header>
+    <h1>Gergelim</h1>
+    <nav>
+      <ul class="nav navbar-nav">
+        <li><a href="../../">Welcome</a></li>
+        
+          <li class="active"><a href="../">Blog</a></li>
+        
+          <li><a href="../../projects/">Projects</a></li>
+        
+          <li><a href="../../about/">About</a></li>
+        
+      </ul>
+    </nav>
+  </header>
+  <div class="page">
+    
+  
+  <div class="blog-post">
+  
+    <h2>I&#39;ve Added Nice Footnotes to My Website</h2>
+  
+  <p class="meta">
+    written by
+    
+      <a href="https://twitter.com/increatore">Gian</a>
+    
+    on 2018-12-25
+  </p>
+  <blockquote class="ancientscroll">
+Erm, Bigfoot for some reason stopped working... I've found an alternative and I'll try to fix my poor notes when I find time.
+</blockquote><p>I often read <a href="https://jamesclear.com">jamesclear.com</a>, and I really like the way they do footnotes -- they're actually popups that appear when clicking on a button. I wanted to try something similar for this very website and ended up discovering the amazing <code>bigfoot.js</code>.</p>
+<!-- more -->
+
+<h2>Solution: hexo + hexo-footnotes + bigfoot</h2>
+<p>I was already using <code>hexo-footnotes</code><sup class="footnote-ref" id="fnref-2"><a href="#fn-2">1</a></sup>, a hexo plugin that simplifies writing footnotes. When I want to write one, I do something like:</p>
+<div class="hll"><pre><span></span><span class="nx">Hey</span><span class="p">,</span> <span class="k">this</span> <span class="nx">is</span> <span class="nx">a</span> <span class="nx">footnote</span><span class="p">[</span><span class="o">^</span><span class="mf">1</span><span class="p">]</span><span class="o">!</span>
+</pre></div>
+<p>and then somewhere else I write the content:</p>
+<div class="hll"><pre><span></span>[<span class="nl">^1</span>]: <span class="na">This is what you&#39;re going to read following the footnote.</span>
+</pre></div>
+<p>This generates HTML looking like this:</p>
+<div class="hll"><pre><span></span><span class="p">&lt;</span><span class="nt">sup</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;fnref:1&quot;</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;#fn:1&quot;</span> <span class="na">rel</span><span class="o">=</span><span class="s">&quot;footnote&quot;</span><span class="p">&gt;</span>1<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">sup</span><span class="p">&gt;</span>
+</pre></div>
+<p>for the origin, and</p>
+<div class="hll"><pre><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;footnotes&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">hr</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;footnotelist&quot;</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">ol</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;list-style:none; padding-left: 0;&quot;</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">li</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;fn:1&quot;</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;display: inline-block; vertical-align: top; padding-right: 10px;&quot;</span><span class="p">&gt;</span>1.<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;display: inline-block; vertical-align: top;&quot;</span><span class="p">&gt;</span>
+            This is what you&#39;re going to read following the footnote.
+            <span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;#fnref:1&quot;</span> <span class="na">rev</span><span class="o">=</span><span class="s">&quot;footnote&quot;</span><span class="p">&gt;</span> ↩<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">ol</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
+</pre></div>
+<p>for the destination.</p>
+<p>Now we need to install bigfoot. Here's what I've done, step by step:</p>
+<ol>
+<li>Downloaded the bundle from the website<sup class="footnote-ref" id="fnref-1"><a href="#fn-1">2</a></sup>, and copied <code>bigfoot.min.js</code> into my theme's directory (<code>themes/landscape/source/js</code>), together with a minified version of jQuery.</li>
+<li>Copied <code>bigfoot-default.css</code> into <code>themes/landscape/source/css</code></li>
+<li>Added <code>@import "bigfoot.css"</code> at the end of my main style file inside the css directory, <code>style.styl</code></li>
+</ol>
+<p>Now I just need to write the following snippet in the posts where I want to use it:</p>
+<div class="hll"><pre><span></span><span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;/js/jquery-3.3.1.min.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;/js/bigfoot.min.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text/javascript&quot;</span><span class="p">&gt;</span>
+    <span class="nx">$</span><span class="p">.</span><span class="nx">bigfoot</span><span class="p">();</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</pre></div>
+<p>and use my footnotes exactly the way I did before.</p>
+<h2>Parting thoughts</h2>
+<p>You can see examples of the footnotes throughout this post. What I don't really like is that I need to repeat the <code>&lt;script&gt;</code> boilerplate in the files where I want to use bigfoot, and I am sure there's a more elegant and less repetitive way of doing it. Well, I'll leave it for next time for now.</p>
+<p>Happy footnoting!</p>
+<div class="footnotes">
+<hr>
+<ol><li id="fn-2"><p>I've also found that the project had out-of-date dependencies, so I created a PR for it. I've got low expectations for it to be merged soon, as the project seems to have been inactive in the last year, and there's no CONTRIBUTING-like file, nor does it seem easy to reach out to the author.<a href="#fnref-2" class="footnote">&#8617;</a></p></li>
+<li id="fn-1"><p><a href="http://www.bigfootjs.com/">http://www.bigfootjs.com/</a><a href="#fnref-1" class="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+  </div>
+
+
+  </div>
+  <footer>
+    &copy; Copyright 2021 by Gianluca Ciccarelli.
+  </footer>
+</body>
