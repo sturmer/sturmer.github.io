@@ -1,26 +1,16 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Beta | Gianluca Ciccarelli</title>
+title: Beta
+---
+body:
 
-    <!-- The only thing I needed :) -->
-    <script src="//api.beta.salemove.com/salemove_integration.js"></script>
-  </head>
-  <body>
-    <div id="container">
-        <blockquote>
-        I am so clever that sometimes I don't understand a single
-        word of what I am saying. <br />
+>  I am so clever that sometimes I don't understand a single
+>  word of what I am saying.
         ― Oscar Wilde
-        </blockquote>
-        <ul>
-        <li><a href="#fragment1">Fragment Link 1</a></li>
-        <li><a href="#fragment2">Fragment Link 2</a></li>
-        <li><a href="#fragment3">Fragment Link 3</a></li>
-        <li><a href="#fragment4">Fragment Link 4</a></li>
-        <li><a href="#digital">Fragment Digital</a></li>
-        <li><a href="#textual">Fragment Textual</a></li>
-        </ul>
-  </body>
-</html>
+
+- [Fragment Link 1](#fragment1)
+- [Fragment Link 2](#fragment2)
+- [Fragment Link 3](#fragment3)
+- [Fragment Link 4](#fragment4)
+- [Fragment Link Digital](#digital)
+- [Fragment Link Textual](#textual)
+---
+_template: glia-page.html

@@ -1,24 +1,17 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>AT | Gianluca Ciccarelli</title>
+<script src="https: //api.at.samo.io/salemove_integration.js?"></script>
+---
+body:
 
-    <!-- The only thing I needed :) -->
-    <script src="https://api.at.samo.io/salemove_integration.js?"></script>
-  </head>
-  <body>
-    <blockquote>
-    It is never too late to be what you might have been.<br />
-    ― George Eliot
-    </blockquote>
-    <ul>
-    <li><a href="#fragment1">Fragment Link 1</a></li>
-    <li><a href="#fragment2">Fragment Link 2</a></li>
-    <li><a href="#fragment3">Fragment Link 3</a></li>
-    <li><a href="#fragment4">Fragment Link 4</a></li>
-    <li><a href="#digital">Fragment Digital</a></li>
-    <li><a href="#textual">Fragment Textual</a></li>
-    </ul>
-  </body>
-</html>
+>  It is never too late to be what you might have been.
+        ― George Eliot
+
+- [Fragment Link 1](#fragment1)
+- [Fragment Link 2](#fragment2)
+- [Fragment Link 3](#fragment3)
+- [Fragment Link 4](#fragment4)
+- [Fragment Link Digital](#digital)
+- [Fragment Link Textual](#textual)
+---
+title: Acceptance
+---
+_template: glia-page.html
