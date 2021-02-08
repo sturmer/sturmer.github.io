@@ -13,4 +13,4 @@ body:
 - <a name="#digital" href="#digital">Fragment Digital</a>
 - <a name="#textual" href="#textual">Fragment Textual</a>
 ---
-_template: glia-page.html
+_template: glia-beta-page.html
