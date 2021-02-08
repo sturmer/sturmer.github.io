@@ -5,12 +5,12 @@ body:
 >  It is never too late to be what you might have been.
         ― George Eliot
 
-- [Fragment Link 1](#fragment1)
-- [Fragment Link 2](#fragment2)
-- [Fragment Link 3](#fragment3)
-- [Fragment Link 4](#fragment4)
-- [Fragment Link Digital](#digital)
-- [Fragment Link Textual](#textual)
+- <a name="#fragment1" href="#fragment1">Fragment Link 1</a>
+- <a name="#fragment2" href="#fragment2">Fragment Link 2</a>
+- <a name="#fragment3" href="#fragment3">Fragment Link 3</a>
+- <a name="#fragment4" href="#fragment4">Fragment Link 4</a>
+- <a name="#digital" href="#digital">Fragment Digital</a>
+- <a name="#textual" href="#textual">Fragment Textual</a>
 ---
 title: Acceptance
 ---
