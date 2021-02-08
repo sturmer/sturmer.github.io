@@ -4,11 +4,12 @@ body:
 
 I contribute to Free and Open Source Software (FOSS) projects with the goal of being part of a community, honing my engineering and communication skills, learning new ones, and teaching whenever I can.
 
-**Update (2020/06/24)**: I'm working for a new company and I've started to talk about the possibility of contributing to FOSS.
-**Update (2019/06/30)**: I'm spending roughly 20% of my working time to work on FOSS. My main focus is on Superset.
-**Update (2018/08/11)**: I don't invest much time on contributing, but I'm trying to do it while working for my employer. More soon (hopefully).
+- **Update (2021/02/08)**: [My first Elixir package](https://hex.pm/packages/stats_plug) went live!
+- **Update (2020/06/24)**: I'm working for a new company and I've started to talk about the possibility of contributing to FOSS.
+- **Update (2019/06/30)**: I'm spending roughly 20% of my working time to work on FOSS. My main focus is on Superset.
+- **Update (2018/08/11)**: I don't invest much time on contributing, but I'm trying to do it while working for my employer. More soon (hopefully).
 
-# More recent contributions
+# Older contributions
 
 ## [Superset & ecosystem](https://superset.incubator.apache.org/)
 
@@ -21,8 +22,6 @@ Abandoned:
 
 - [#5791: Address errors found by lgtm.com](https://github.com/apache/incubator-superset/pull/7403)
 
-# Older contributions
-
 ## [exercism](https://exercism.io/)
 
 I have contributed by creating some problems for the Racket track in exercism:
@@ -34,8 +33,8 @@ I have contributed by creating some problems for the Racket track in exercism:
 
 RethinkDB is a NoSQL database engine written in C++. I wanted to get my feet wet contributing to a big C++ project, but lost my interest after the first contribution.
 
-**Update (2017-12-10)**: [The project has been revived](https://rethinkdb.com/blog/rethinkdb-joins-linux-foundation/)
-**Update (2017-02-01)**: [The project has been shut down](https://www.defstartup.org/2017/01/18/why-rethinkdb-failed.html).
+- **Update (2017-12-10)**: [The project has been revived](https://rethinkdb.com/blog/rethinkdb-joins-linux-foundation/)
+- **Update (2017-02-01)**: [The project has been shut down](https://www.defstartup.org/2017/01/18/why-rethinkdb-failed.html).
 
 - [Fix #3040](https://github.com/rethinkdb/rethinkdb/pull/3078): From the release notes of 1.16.0 (Stand By Me): "Adjusted the formatting of log levels, no longer print info: lines to stderr and added a notice log level"
 
