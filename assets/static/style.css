@@ -40,3 +40,9 @@ header nav ul li {
 div.page {
     background: #f1fbfe;
 }
+
+img.mug {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
