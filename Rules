@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 compile '/**/*.html' do
   layout '/default.*'
@@ -10,15 +11,22 @@ compile '/**/*.html' do
   end
 end
 
-compile '/**/*.md' do
- filter :kramdown
- layout '/default.*'
+compile '/storie.md' do
+  filter :kramdown
+  layout '/story_list.*'
 
- if item.identifier =~ '**/index.*'
-   write item.identifier.without_ext + '.html'
- else
-   write item.identifier.without_ext + '/index.html'
- end
+  write item.identifier.without_ext + '/index.html'
+end
+
+compile '/**/*.md' do
+  filter :kramdown
+  layout '/default.*'
+
+  if item.identifier =~ '**/index.*'
+    write item.identifier.without_ext + '.html'
+  else
+    write item.identifier.without_ext + '/index.html'
+  end
 end
 
 compile '/**/*' do

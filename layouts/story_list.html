@@ -3,10 +3,18 @@
     <div id="main">
       <h1><%= @item[:title] %></h1>
 
-      <%= yield %>
+			<%= yield %>
 
+      <ul>
+        <% sorted_articles.each do |story| %>
+        <li>
+	        <%= link_to story[:title], story.path %> (<%= story[:created_at] %>)
+        </li>
+        <% end %>
+      </ul>
       <%= render '/partials/footer.*' %>
     </div>
+
     <%= render '/partials/sidebar.*' %>
   </body>
 </html>

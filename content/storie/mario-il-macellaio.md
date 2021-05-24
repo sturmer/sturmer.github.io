@@ -1,6 +1,7 @@
 ---
 title: Mario il macellaio
-date: 2016-07-02
+created_at: 2016-07-02
+kind: article
 ---
 
 La notte era un turbine in festa di luci di ogni intensità, e ombre spesse e impenetrabili. Le auto si muovevano lentamente, proiettando coni di luce solida dai fari che squarciavano la notte e il buio che voleva inghiottirle.
