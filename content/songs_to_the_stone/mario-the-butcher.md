@@ -1,7 +1,7 @@
 ---
-title: "[EN] Mario the butcher"
-created_at: 2016-07-02
-kind: article
+title: "Mario the butcher"
+created_at: 2022-09-11
+tags: ['song']
 ---
 
 The night was a vortex of lights of every intensity, and of shadows thick andimpenetrable. Along the streets, snakes made of asphalt, cars moved slowly, speeding forward, describing curves, projecting cones of solid light that would rend the night and the dark that seemed to be willing to swallow them. It was the October 12th, 1982.

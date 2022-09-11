@@ -5,7 +5,6 @@
 
 ## Deploy
 
-1. `cd output`
-1. Add diff to branch gh-pages
+1. Do the [setup](https://nanoc.app/doc/deploying/#with-git)
 1. `bundle exec nanoc`
 1. `bundle exec nanoc deploy`

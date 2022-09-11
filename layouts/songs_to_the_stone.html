@@ -1,0 +1,23 @@
+<%= render '/partials/head.*' %>
+<body>
+<div id="main">
+    <h1>
+        <%= @item[:title] %>
+    </h1>
+
+    <%= yield %>
+
+    <ul>
+        <% items_with_tag('song').each do |song| %>
+        <li>
+            <%= link_to song[:title], song.path %> (<%= song[:created_at] %>)
+        </li>
+        <% end %>
+    </ul>
+    <%= render '/partials/footer.*' %>
+</div>
+
+<%= render '/partials/sidebar.*' %>
+</body>
+
+</html>
