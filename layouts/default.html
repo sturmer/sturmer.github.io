@@ -5,6 +5,7 @@
 
       <%= yield %>
 
+      <div id="date"><%= @item[:created_at] %></div>
       <%= render '/partials/footer.*' %>
     </div>
     <%= render '/partials/sidebar.*' %>
