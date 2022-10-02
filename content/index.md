@@ -1,7 +1,7 @@
 ---
-title: Benvenuti su gergel.im!
+title: Welcome to gergel.im
 ---
 
-Ciao. Mi chiamo Gianluca e scrivo storie.
+My name is Gianluca and I write things.
 
-Se cerchi le poche cose che ho scritto in tema di ingegneria del software, le ho spostate su [ciccarelli.dev](//www.ciccarelli.dev).
+If you're here but were looking for the few things I've written about software, I've moved them to [ciccarelli.dev](//www.ciccarelli.dev).
