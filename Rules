@@ -11,6 +11,17 @@ compile '/**/*.html' do
   end
 end
 
+compile '/songs_to_the_stone/*.md' do
+  filter :kramdown
+  layout '/song_layout.*'
+
+  if item.identifier =~ '**/index.*'
+    write item.identifier.to_s
+  else
+    write item.identifier.without_ext + '/index.html'
+  end
+end
+
 compile '/songs_to_the_stone.md' do
   filter :kramdown
   layout '/songs_to_the_stone.*'

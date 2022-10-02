@@ -1,0 +1,24 @@
+<%= render '/partials/head.*' %>
+  <body>
+    <div id="main">
+      <h1><%= @item[:title] %></h1>
+
+      <%= yield %>
+
+      <div id="date"><%= @item[:created_at] %></div>
+
+      <%
+        songs = items_with_tag('song').sort_by { |s| attribute_to_time(s[:created_at])}
+        idx = songs.index(@item)
+        next_song = (idx && idx < songs.length - 1) ? songs[idx+1] : nil
+        prev_song = (idx && idx > 0) ? songs[idx - 1] : nil
+      %>
+
+      <div>
+        <%= "← #{prev_song[:title]} | " if prev_song %>↑ Songs<%= " | → #{next_song[:title]}" if next_song %>
+      </div>
+      <%= render '/partials/footer.*' %>
+    </div>
+    <%= render '/partials/sidebar.*' %>
+  </body>
+</html>
