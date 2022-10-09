@@ -2,7 +2,7 @@
 <body>
 <div id="main">
     <h1>
-        <%= @item[:title] %>
+        <%= items_with_tag('song').length %> <%= @item[:title] %>
     </h1>
 
     <%= yield %>
