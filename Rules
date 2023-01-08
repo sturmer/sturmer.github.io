@@ -15,11 +15,10 @@ compile '/poems/*.md' do
   filter :kramdown
   layout '/poem.html'
 
-  if item.identifier =~ '**/index.*'
-    write item.identifier.to_s
-  else
-    write item.identifier.without_ext + '/index.html'
-  end
+  #puts "rep in poems/*.md is"
+  #p rep
+
+  write item.identifier.without_ext + '/index.html'
 end
 
 compile '/poems.md' do
@@ -34,11 +33,7 @@ compile '/songs_to_the_stone/*.md' do
   filter :kramdown
   layout '/song_layout.*'
 
-  if item.identifier =~ '**/index.*'
-    write item.identifier.to_s
-  else
-    write item.identifier.without_ext + '/index.html'
-  end
+  write item.identifier.without_ext + '/index.html'
 end
 
 compile '/songs_to_the_stone.md' do
