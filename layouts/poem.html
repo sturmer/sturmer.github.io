@@ -1,0 +1,23 @@
+<%= render '/partials/head.*' %>
+
+	<body>
+    <div id="main">
+      <%= render '/partials/navigate_poetry.*' %>
+
+      <h1>
+        <%= @item[:title] %>
+      </h1>
+
+      <%= yield %>
+
+      <div id="date">
+        <%= @item[:created_at] %>
+      </div>
+
+      <%= render '/partials/navigate_poetry.*' %>
+      <%= render '/partials/footer.*' %>
+    </div>
+
+    <%= render '/partials/sidebar.*' %>
+	</body>
+</html>
