@@ -1,7 +1,6 @@
 # Local development
 
-- `bundle exec nanoc view` shows the site
-- `bundle exec nanoc compile -W` compile and watch for changes
+- `bundle exec nanoc live` compiles the site and serves it, listening for changes
 
 ## Deploy
 
