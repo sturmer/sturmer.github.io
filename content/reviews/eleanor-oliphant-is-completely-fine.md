@@ -7,10 +7,6 @@ created_at: 2019-03-02
 tags: ['review']
 ---
 
-[//]: # (  <a target="_blank" rel="noopener" href="https://www.librarything.com/work/18440381/">)
-[//]: # (    <img src="/images/eleanor-oliphant-is-completely-fine.jpg" width="150" alt="Eleanor Oliphant Is Completely Fine" />)
-[//]: # (</a>)
-
 This is one of those stories where the author makes you feel something horrible has happened but where she’s also smart enough to only hint at it and making it appear more terrifying. It’s narrated from the perspective of one Eleanor Oliphant, a bizarre Glaswegian thirty-year-old with a rich vocabulary and a lack of social skills, who one day finds the love of her life. With the help of a coworker who seems to take an interest in her, she manages to start considering her situation and to uncover the truth about herself that she has hidden away for years.
 
 A very beautiful piece of work and one I’m really grateful. I highly recommend it.

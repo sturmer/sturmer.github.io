@@ -1,5 +1,5 @@
 ---
-title: Homo Deus: A Brief History of Tomorrow
+title: 'Homo Deus: A Brief History of Tomorrow'
 author: Yuval Noah Harari
 vote: 8/10
 read_in: English

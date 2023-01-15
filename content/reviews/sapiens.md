@@ -1,5 +1,5 @@
 ---
-title: Sapiens: A Brief History of Humankind 
+title: 'Sapiens: A Brief History of Humankind' 
 author: Yuval Noah Harari
 vote: 9/10
 read_in: English

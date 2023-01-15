@@ -7,9 +7,6 @@ created_at: 2018-01-29
 tags: ['review']
 ---
 
-[//]: # (<a target="_blank" rel="noopener" href="https://www.librarything.com/work/38630/book/149654366" title="The War of the End of the World">)
-[//]: # (  <img alt="The War of the End of the World &#40;English translation&#41;" src="/images/war-end-world.jpg" width="150" />)
-
 This time I’ve read a good novel by Mario Vargas Llosa. For some reason, I don’t like the man. One of them must be his depiction in Junot Diaz’s _The Brief Wondrous Life of Oscar Wao_ as a _friend of dictators_, among which the infamous Trujillo. (That was a good novel, by the way.) I think I’ve also read somewhere of his fascist tendencies. But does this mean he can’t write? I must say, the guy’s got something.
 
 ## Plot

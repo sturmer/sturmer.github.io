@@ -7,9 +7,6 @@ created_at: 2019-05-12
 tags: ['review']
 ---
 
-[//]: # (  <a target="_blank" rel="noopener" href="https://www.librarything.com/work/21086460/">)
-[//]: # (    <img src="/images/factfulness.jpg" width="150" alt="Factfulness" />)
-
 An amazing reflection on our basic knowledge about the world and on the ways we distort facts.
 
 This book did 2 things: it showed me that my factual perception of the world is biased and wrong, and it provided me a list of biases and fallacies to watch out for when evaluating facts. The result is a better mental model of the world and a sober understanding of its situation.
