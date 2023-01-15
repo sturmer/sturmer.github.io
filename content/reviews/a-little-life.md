@@ -2,7 +2,8 @@
 title: A Little Life
 author: Hanya Yanagihara
 vote: 9/10
-created_at: 2018-07-29 
+created_at: 2018-07-29
+read_in: English
 tags: ['review']
 ---
 

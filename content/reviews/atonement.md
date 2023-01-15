@@ -2,6 +2,7 @@
 title: Atonement
 author: Ian McEwan
 vote: 9/10
+read_in: English
 created_at: 2018-09-29 
 tags: ['review']
 ---

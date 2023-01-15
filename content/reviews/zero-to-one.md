@@ -3,12 +3,13 @@ title: Zero to One
 author: Peter Thiel
 vote: 8/10
 created_at: 2016-07-10
+read_in: English
 tags: ['review']
 ---
 
 [//]: # (<a target="_blank" rel="noopener" href="https://www.librarything.com/work/13943938"><img src="/images/zero-to-one-cover.jpg" alt="Zero to One"></a>)
 
-_Zero to One_ collects the edited version of a college course on Entrepreneurship taught by Peter Thiel, co-founder of PayPal and Palantir<a href="#palantir"><sup>1</sup></a>. It analyzes the ground on which a startup can prosper, drawing examples from both his personal experience and from the usual success cases, even though, maybe. in this book there aren’t so many, or at least are not presented as a dry collection of anecdotes.
+_Zero to One_ collects the edited version of a college course on Entrepreneurship taught by Peter Thiel, co-founder of PayPal and Palantir<a name="palantir-orig" href="#palantir"><sup>1</sup></a>. It analyzes the ground on which a startup can prosper, drawing examples from both his personal experience and from the usual success cases, even though, maybe. in this book there aren’t so many, or at least are not presented as a dry collection of anecdotes.
 
 The first interesting reflection that spurred my old brain is that you should never aim for competition, in business as in life. And this is especially difficult, because the whole education system first, and our career later, hammer so hard on competition. But it is really a fool’s game: competition dries up every contestant’s energy, preventing them from really tackle big and interesting problems.
 
@@ -22,6 +23,6 @@ A couple of reflections stand out. The first is about the positive value of secr
 
 Overall a good, short read that I’d suggest to like-minded friends.
 
-<a name="palantir"><sup>1</sup></a>This means the book had a tiny sentimental value to me, since I have interviewed with the guys at Palantir in 2014, and even though I didn’t get an offer, it was a great experience.
+<a href="#palantir-orig" name="palantir"><sup>1</sup></a>This means the book had a tiny sentimental value to me, since I have interviewed with the guys at Palantir in 2014, and even though I didn’t get an offer, it was a great experience.
 
 

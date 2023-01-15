@@ -2,7 +2,8 @@
 title: O Quinze
 author: Rachel de Queiroz
 vote: 6/10
-created_at: 2017-11-28 
+created_at: 2017-11-28
+read_in: Portuguese
 tags: ['review']
 ---
 

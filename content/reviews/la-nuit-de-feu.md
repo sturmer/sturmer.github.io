@@ -3,6 +3,7 @@ title: La nuit de feu
 author: Eric-Emmanuel Schmitt
 vote: 5/10
 created_at: 2016-10-05
+read_in: French
 tags: ['review']
 ---
 

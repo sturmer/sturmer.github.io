@@ -3,6 +3,7 @@ title: Il pendolo di Foucault
 author: Umberto Eco
 vote: 6/10
 created_at: 2016-10-30
+read_in: Italian
 tags: ['review']
 ---
 
