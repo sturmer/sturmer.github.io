@@ -39,6 +39,10 @@ a:hover {
     letter-spacing: -.0675em;
 }
 
+#main h2, h3 {
+    margin-top: 1em;
+}
+
 #main #date {
     font-size: 1em;
     font-weight: 10;
@@ -48,7 +52,7 @@ a:hover {
 }
 
 #main p {
-    margin-top: 2em;
+    /*margin-top: 2em;*/
     font-size: 1.3em;
     line-height: 1.3em;
 }

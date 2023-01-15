@@ -28,6 +28,18 @@ compile '/poems.md' do
   write item.identifier.without_ext + '/index.html'
 end
 
+compile '/reviews.md' do
+  filter :kramdown
+  layout '/reviews.html'
+
+  write item.identifier.without_ext + '/index.html'
+end
+
+compile '/reviews/*.md' do
+  filter :kramdown
+  layout '/review.html'
+  write item.identifier.without_ext + '/index.html'
+end
 
 compile '/songs_to_the_stone/*.md' do
   filter :kramdown
