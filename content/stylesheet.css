@@ -77,13 +77,14 @@ pre#song {
     margin: 20px;
 }
 
-#main li {
+.catalog li {
     font-size: 2em;
     line-height: 1.1em;
+    list-style-type: none;
 }
 
-#main ul li {
-    list-style-type: none;
+li {
+    font-size: 1.6em;
 }
 
 #sidebar {

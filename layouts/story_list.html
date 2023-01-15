@@ -5,7 +5,7 @@
 
 			<%= yield %>
 
-      <ul>
+      <ul class="catalog">
         <% sorted_articles.each do |story| %>
         <li>
 	        <%= link_to story[:title], story.path %> (<%= story[:created_at] %>)
