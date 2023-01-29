@@ -2,7 +2,9 @@
 
 <body>
 <div id="main">
-    <h1><%= @item[:title] %> (<%= items_with_tag('review').length %>)</h1>
+    <h1>
+        <%= @item[:title] %> (<%= items_with_tag('review').length %>)
+    </h1>
 
     <%= yield %>
 
