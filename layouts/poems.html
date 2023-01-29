@@ -10,15 +10,15 @@
     <%= yield %>
 
 <!--    Uncomment when ready to publish.-->
-    <h2>🀐 Songs against a wall</h2>
-    <ul class="catalog">
-        <% items_with_tag('song').sort_by { |s| attribute_to_time(s[:created_at])}.each do |poetry| %>
-        <li>
-            <%= poetry[:created_at] %>
-            <%= link_to poetry[:title], poetry.path %>
-        </li>
-        <% end %>
-    </ul>
+<!--    <h2>🀐 Songs against a wall</h2>-->
+<!--    <ul class="catalog">-->
+<!--        <% items_with_tag('song').sort_by { |s| attribute_to_time(s[:created_at])}.each do |poetry| %>-->
+<!--        <li>-->
+<!--            <%= poetry[:created_at] %>-->
+<!--            <%= link_to poetry[:title], poetry.path %>-->
+<!--        </li>-->
+<!--        <% end %>-->
+<!--    </ul>-->
 
     <h2>◉ Uncollected</h2>
     <ul class="catalog">
