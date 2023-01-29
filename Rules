@@ -35,19 +35,6 @@ compile '/reviews.md' do
   write item.identifier.without_ext + '/index.html'
 end
 
-compile '/reviews/*.md' do
-  filter :kramdown
-  layout '/review.html'
-  write item.identifier.without_ext + '/index.html'
-end
-
-compile '/songs_to_the_stone/*.md' do
-  filter :kramdown
-  layout '/song_layout.*'
-
-  write item.identifier.without_ext + '/index.html'
-end
-
 compile '/songs_to_the_stone.md' do
   filter :kramdown
   layout '/songs_to_the_stone.*'
@@ -61,6 +48,20 @@ compile '/storie.md' do
 
   write item.identifier.without_ext + '/index.html'
 end
+
+compile '/reviews/*.md' do
+  filter :kramdown
+  layout '/review.html'
+  write item.identifier.without_ext + '/index.html'
+end
+
+compile '/songs_to_the_stone/*.md' do
+  filter :kramdown
+  layout '/song_layout.*'
+
+  write item.identifier.without_ext + '/index.html'
+end
+
 
 compile '/**/*.md' do
   filter :kramdown
