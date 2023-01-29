@@ -1,6 +1,8 @@
 # Local development
 
-- `bundle exec nanoc live` compiles the site and serves it, listening for changes
+`nanoc live` compiles the site and serves it, listening for changes. 
+
+Note that `bundle exec nanoc live` uses the same `nanoc` executable.
 
 ## Deploy
 
