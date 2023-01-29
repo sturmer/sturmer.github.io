@@ -4,6 +4,7 @@ created_at: 2022-10-01
 tags: ['song']
 ---
 
+<pre id="song">
 I hope that city
 I once fantasized about
 disappears from the face of the Earth,
@@ -42,3 +43,4 @@ and so when I'm calm enough
 to see the beauty of it all,
 I will be lacking every part of it
 that made it beautiful.
+</pre>

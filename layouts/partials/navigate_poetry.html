@@ -5,7 +5,7 @@
         next_poem = (idx && idx < poems.length - 1) ? poems[idx+1] : nil
         prev_poem = (idx && idx > 0) ? poems[idx - 1] : nil
     %>
-        <%= (link_to "← #{prev_poem[:title]} ", prev_poem) + " | " if prev_poem %>
-            <%= link_to "↑ Poems", "/poems" %>
-                <%= " | " + (link_to "→ #{next_poem[:title]}", next_poem) if next_poem %>
+    <%= (link_to "← #{prev_poem[:title]} ", prev_poem) + " | " if prev_poem %>
+    <%= link_to "↑ Poems", "/poems" %>
+    <%= " | " + (link_to "→ #{next_poem[:title]}", next_poem) if next_poem %>
 </div>

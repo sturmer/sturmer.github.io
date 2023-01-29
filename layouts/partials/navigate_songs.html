@@ -6,6 +6,6 @@
         prev_song = (idx && idx > 0) ? songs[idx - 1] : nil
     %>
     <%= (link_to "← #{prev_song[:title]} ", prev_song) + " | " if prev_song %>
-    <%= link_to "↑ Songs", ".." %>
+    <%= link_to "↑ Poems", "../.." %>
     <%= " | " + (link_to "→ #{next_song[:title]}", next_song) if next_song %>
 </div>
